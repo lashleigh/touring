@@ -23,15 +23,17 @@ class Waypoint
   key :rating, Float
 
   def import_from_fq(fq)
-    venue_id = fq.id
-    name = fq.name
-    city = fq.location["city"]
-    address = fq.location["address"]
-    coords[0] = fq.location["lat"]
-    coords[1] = fq.location["lng"]
-    postal = fq.location["postalCode"]
-    phone = fq.contact["formattedPhone"]
-    state = fq.location["state"]
+    Waypoint.set({:id => id.as_json},
+      :venue_id => fq.id,
+      :name => fq.name,
+      :city => fq.location["city"],
+      :address => fq.location["address"],
+      #:coords[0] => fq.location["lat"],
+      #:coords[1] => fq.location["lng"],
+      :postal => fq.location["postalCode"],
+      :phone => fq.contact["formattedPhone"],
+      :state => fq.location["state"]
+    )
     unless categories.include? fq.categories[0].name
       categories.push(fq.categories[0].name)
     end
