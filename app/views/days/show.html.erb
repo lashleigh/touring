@@ -1,0 +1,26 @@
+<%= javascript_include_tag 'map_day_show' %>
+<script type="text/javascript">
+  var day = <%= @day.to_json.html_safe %>;
+  var venues = <%= @venues.to_json.html_safe %>;
+</script>
+
+<p id="notice"><%= notice %></p>
+
+<% @venues.each do |v| %>
+  <%= v.name %> <br/>
+<% end %>
+<p>
+<% @day.tags.each do |tag| %>
+  <%= tag %> <br/>
+<% end %>
+</p>
+
+<p>
+  <b>Length:</b>
+  <%= @day.length %>
+</p>
+
+<div id="map_container"> </div>
+
+<%= link_to 'Edit', edit_day_path(@day) %> |
+<%= link_to 'Back', days_path %>

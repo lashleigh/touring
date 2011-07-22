@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  waypoint_ids: 
+  tags: 
+  length: 1.5
+
+two:
+  waypoint_ids: 
+  tags: 
+  length: 1.5

@@ -1,0 +1,12 @@
+defaults: &defaults
+  app_id: <%= ENV['LNKOBIXNHL0UWSYGJIX5K1Q1N0NZ4CHNB0N4G1RHT4RKW4FI'] %>
+  app_secret: <%= ENV['NGNH3G1XPHK0YUQV2PMMJO02F14JBDBOM2IM1M1Z5NFB5O0T'] %>
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

@@ -1,0 +1,31 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  venue_id: MyString
+  name: MyString
+  city: MyString
+  address: MyString
+  country: MyString
+  coords: 
+  postal: 1
+  state: MyString
+  categories: 
+  amenities: 
+  voters: 
+  num_votes: 1
+  rating: 1.5
+
+two:
+  venue_id: MyString
+  name: MyString
+  city: MyString
+  address: MyString
+  country: MyString
+  coords: 
+  postal: 1
+  state: MyString
+  categories: 
+  amenities: 
+  voters: 
+  num_votes: 1
+  rating: 1.5
