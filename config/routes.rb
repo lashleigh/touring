@@ -1,21 +1,8 @@
 Touring::Application.routes.draw do
   resources :days
 
-  resource :session do
-    collection do
-      get 'callback'
-    end
-  end
+  match "/auth/:provider/callback" => "sessions#create"  
+  match "/signout" => "sessions#destroy", :as => :signout
 
-  resources :examples do
-    collection do
-      get 'user'
-      get 'checkins'
-      get 'friends'
-      get 'venues_search'
-      get 'venue_details'
-    end
-  end
-
-  root :to => "sessions#new"
+  root :to => "days#index"
 end

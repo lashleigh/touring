@@ -11,13 +11,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    return nil if session[:access_token].blank?
-    begin
-      foursquare = Foursquare::Base.new(session[:access_token])
-      @current_user ||= foursquare.users.find("self")
-    rescue Foursquare::InvalidAuth
-      nil
-    end
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
   end
 
   def foursquare

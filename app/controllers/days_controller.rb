@@ -14,10 +14,7 @@ class DaysController < ApplicationController
   # GET /days/1.xml
   def show
     @day = Day.find(params[:id])
-    @venues = []
-    @day.waypoint_ids.each do |v|
-      @venues.push(foursquare.venues.find(v))
-    end
+    @venues = @day.waypoints
 
     respond_to do |format|
       format.html # show.html.erb

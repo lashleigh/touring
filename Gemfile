@@ -10,6 +10,7 @@ gem "json"
 gem "typhoeus"
 gem "quimby"
 
+gem "omniauth", ">=0.2.6"
 # Use unicorn as the web server
 # gem 'unicorn'
 

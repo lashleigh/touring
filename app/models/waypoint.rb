@@ -22,6 +22,8 @@ class Waypoint
   key :num_votes, Integer
   key :rating, Float
 
+  many :users, :in => :voters
+
   def import_from_fq(fq)
     Waypoint.set({:id => id.as_json},
       :venue_id => fq.id,
@@ -32,12 +34,9 @@ class Waypoint
       :coords => [fq.location["lat"],fq.location["lng"]],
       :postal => fq.location["postalCode"],
       :state => fq.location["state"],
-      :phone => fq.contact["formattedPhone"],
+      :phone => fq.contact["formattedPhone"] ? fq.contact["formattedPhone"] : fq.contact["phone"],
       :categories => fq.categories.map {|c| c.name }
     )
-  end
-  def import_categories(fq)
-    Waypoint.add_to_set({:id => id.as_json}, :categories => fq.categories[0].name)
   end
 
 end

@@ -12,7 +12,15 @@
   <%= csrf_meta_tag %>
 </head>
 <body>
-
+  <div id="user_nav">  
+    <% if current_user %>  
+      Welcome, <%= current_user.name %>!  
+      <%= link_to "Sign Out", signout_path %>  
+    <% else %> 
+      <%= link_to "Sign in with Foursquare", "/auth/foursquare" %>  
+    <% end %>
+  </div> 
+<p id="notice"><%= notice %></p>
 <%= yield %>
 
 </body>
