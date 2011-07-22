@@ -28,15 +28,16 @@ class Waypoint
       :name => fq.name,
       :city => fq.location["city"],
       :address => fq.location["address"],
-      #:coords[0] => fq.location["lat"],
-      #:coords[1] => fq.location["lng"],
+      :country => fq.location["country"],
+      :coords => [fq.location["lat"],fq.location["lng"]],
       :postal => fq.location["postalCode"],
+      :state => fq.location["state"],
       :phone => fq.contact["formattedPhone"],
-      :state => fq.location["state"]
+      :categories => fq.categories.map {|c| c.name }
     )
-    unless categories.include? fq.categories[0].name
-      categories.push(fq.categories[0].name)
-    end
+  end
+  def import_categories(fq)
+    Waypoint.add_to_set({:id => id.as_json}, :categories => fq.categories[0].name)
   end
 
 end
