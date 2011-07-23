@@ -4,9 +4,12 @@ class User
   key :name, String
   key :uid, String
   key :provider, String
+  key :trip_ids, Array
+  #key :contacts, Array
 
-  #many :trips
-  #many :days, :through => :trips
+  many :trips, :in => :trip_ids
+  many :days, :through => :trips
+  #many :users, :in => :contacts
 
   def self.create_with_omniauth(auth)  
     user = User.new

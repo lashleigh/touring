@@ -1,27 +1,21 @@
-<h1>Listing days</h1>
+<h1> Days near you </h1>
 
-<table>
-  <tr>
-    <th>Waypoint ids</th>
-    <th>Tags</th>
-    <th>Length</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @days.each do |day| %>
-  <tr>
-    <td><%= day.waypoint_ids %></td>
-    <td><%= day.tags %></td>
-    <td><%= day.length %></td>
-    <td><%= link_to 'Show', day %></td>
-    <td><%= link_to 'Edit', edit_day_path(day) %></td>
-    <td><%= link_to 'Destroy', day, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
-</table>
-
+<ul>
+  <% @days.each do |day| %>
+    <li><div class="day" style="position:relative;">
+    <%= image_tag gmap(day.waypoints) %>
+    <% day.tags.each do |tag| %>
+      <%= tag %>
+    <% end %>
+    <div><%= day.length %></div>
+    <div class="modify">
+      <%= link_to 'Show', day %>
+      <%= link_to 'Edit', edit_day_path(day) %>
+      <%= link_to 'Destroy', day, :confirm => 'Are you sure?', :method => :delete %>
+    </div>
+  </div></li>
+  <% end %>
+</ul>
 <br />
 
 <%= link_to 'New Day', new_day_path %>

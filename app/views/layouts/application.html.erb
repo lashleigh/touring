@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Touring</title>
-  <%= stylesheet_link_tag :all %>
+  <link rel="stylesheet/less" type="text/css" href="/stylesheets/reset.less">
   <link rel="stylesheet/less" type="text/css" href="/stylesheets/application.less">
 
   <%= javascript_include_tag 'jquery-1.5.1.min', 'jquery.rails', 'less-1.1.3.min' %>
@@ -12,16 +12,30 @@
   <%= csrf_meta_tag %>
 </head>
 <body>
-  <div id="user_nav">  
-    <% if current_user %>  
-      Welcome, <%= current_user.name %>!  
-      <%= link_to "Sign Out", signout_path %>  
-    <% else %> 
-      <%= link_to "Sign in with Foursquare", "/auth/foursquare" %>  
-    <% end %>
-  </div> 
-<p id="notice"><%= notice %></p>
-<%= yield %>
+  <div id="wrap">
+    <header>
+      <h1><%= link_to "tourplanner", root_url, :id => "logo" %></h1>
+      <div id="top_nav">  
+        <% if current_user %>  
+          <%= current_user.name+"  " %>| 
+          <%= "   Settings  |  " %>
+          <%= link_to "Log Out", signout_path %>  
+        <% else %> 
+          <%= link_to "Sign in with Foursquare", "/auth/foursquare" %>  
+        <% end %>
+      </div> 
+    </header>
+    <nav>
+      <ul id="nav">
+        <li><%= link_to "Home" ,"#" %></li>
+        <li><%= link_to "Map" ,"#" %></li>
+        <li><%= link_to "Trips" ,"#" %></li>
+        <li><%= link_to "Help" ,"#" %></li>
+      </ul>
+    </nav>
+      <p id="notice"><%= notice %></p>
+      <%= yield %>
+  </div>
 
 </body>
 </html>
