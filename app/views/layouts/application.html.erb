@@ -12,29 +12,25 @@
   <%= csrf_meta_tag %>
 </head>
 <body>
-  <div id="wrap">
-    <header>
+  <header>
+    <div id="header_inner">
       <h1><%= link_to "tourplanner", root_url, :id => "logo" %></h1>
       <div id="top_nav">  
         <% if current_user %>  
-          <%= current_user.name+"  " %>| 
+          <%= link_to current_user.name+"   ", current_user %>| 
           <%= "   Settings  |  " %>
           <%= link_to "Log Out", signout_path %>  
         <% else %> 
           <%= link_to "Sign in with Foursquare", "/auth/foursquare" %>  
         <% end %>
       </div> 
+    </div> 
     </header>
-    <nav>
-      <ul id="nav">
-        <li><%= link_to "Home" ,"#" %></li>
-        <li><%= link_to "Map" ,"#" %></li>
-        <li><%= link_to "Trips" ,"#" %></li>
-        <li><%= link_to "Help" ,"#" %></li>
-      </ul>
-    </nav>
+  <div id="wrap">
+    <div id="content">
       <p id="notice"><%= notice %></p>
       <%= yield %>
+    </div>
   </div>
 
 </body>

@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  day_ids: 
+  title: MyString
+  departure: 2011-07-21 22:08:51
+  finish: 2011-07-21 22:08:51
+  distance: 1
+  tags: 
+  partners: 
+
+two:
+  day_ids: 
+  title: MyString
+  departure: 2011-07-21 22:08:51
+  finish: 2011-07-21 22:08:51
+  distance: 1
+  tags: 
+  partners: 

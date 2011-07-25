@@ -1,0 +1,9 @@
+<section>
+  <% @users.each do |u| %>
+    <%= link_to u.name, u %><br/>
+    <% u.trips.each do |trip| %>
+      <%= link_to trip.id, trip %>
+    <% end %>
+  <% end %>
+</section>
+
