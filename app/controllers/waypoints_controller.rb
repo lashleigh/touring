@@ -6,6 +6,13 @@ class WaypointsController < ApplicationController
     logger.info(res)
     render :text => res.to_json
   end
+  def save_foursquare
+    w = Waypoint.create!
+    w.import_from_fq(params[:fq])
+
+    render :text => w.as_json
+  end
+
   def index
     @waypoints = Waypoint.all
 
@@ -26,36 +33,9 @@ class WaypointsController < ApplicationController
     end
   end
 
-  # GET /waypoints/new
-  # GET /waypoints/new.xml
-  def new
-    @waypoint = Waypoint.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @waypoint }
-    end
-  end
-
   # GET /waypoints/1/edit
   def edit
     @waypoint = Waypoint.find(params[:id])
-  end
-
-  # POST /waypoints
-  # POST /waypoints.xml
-  def create
-    @waypoint = Waypoint.new(params[:waypoint])
-
-    respond_to do |format|
-      if @waypoint.save
-        format.html { redirect_to(@waypoint, :notice => 'Waypoint was successfully created.') }
-        format.xml  { render :xml => @waypoint, :status => :created, :location => @waypoint }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @waypoint.errors, :status => :unprocessable_entity }
-      end
-    end
   end
 
   # PUT /waypoints/1

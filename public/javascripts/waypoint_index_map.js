@@ -1,4 +1,4 @@
-
+var foursquare_result_array;
 var map;
 var infoWindow = new google.maps.InfoWindow();
 var bounds = new google.maps.LatLngBounds();
@@ -13,6 +13,11 @@ $(function() {
   $(waypoints).each(drawWaypoint);
   map.fitBounds(bounds);
   $("#query").live("click", searchFoursquare);
+  $(".save_waypoint").live("click", function() {
+  var i = $(this).attr("id").split("_")[1];
+  console.log(foursquare_result_array[i].json);
+    $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
+  });
 }); 
 function drawWaypoint(i, wp) {
   var pos = new google.maps.LatLng(wp.coords[0], wp.coords[1]);
@@ -37,21 +42,16 @@ function searchFoursquare() {
     if(res.errors) {
     }
     else {
-      var ary;
-      console.log(res, res.nearby, res.places)
-      if(res.nearby) { ary = res.nearby; }
-      else if(res.places) { ary = res.places; }
-      for(var i=0; i< ary.length; i++) {
-        drawSearchResult(ary[i]);
-      }
+      if(res.nearby) { foursquare_result_array = res.nearby; }
+      else if(res.places) { foursquare_result_array = res.places; }
+      $(foursquare_result_array).each(drawSearchResult);
+      map.fitBounds(bounds);
     }
     }, "json");
-  map.fitBounds(bounds);
   return false;
 }
 
-function drawSearchResult(res) {
-  console.log(res);
+function drawSearchResult(i, res) {
   res = res.json;
   var pos = new google.maps.LatLng(res.location.lat, res.location.lng);
   var marker = new google.maps.Marker({
@@ -61,7 +61,8 @@ function drawSearchResult(res) {
     //draggable: true,
   });
   new google.maps.event.addListener(marker, 'click', function() {
-    infoWindow.setContent('<div class="place_form"><h2><a href="/waypoints/'+ res.id+'">'+res.name+'</a></h2></div>');
+  infoWindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
+                        '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
     infoWindow.open(map, marker);
   });
   bounds.extend(pos);

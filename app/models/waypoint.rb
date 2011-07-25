@@ -23,19 +23,20 @@ class Waypoint
   key :rating, Float
 
   many :users, :in => :voters
+  ensure_index [[:location,'2d']]
 
   def import_from_fq(fq)
     Waypoint.set({:id => id.as_json},
-      :venue_id => fq.id,
-      :name => fq.name,
-      :city => fq.location["city"],
-      :address => fq.location["address"],
-      :country => fq.location["country"],
-      :coords => [fq.location["lat"],fq.location["lng"]],
-      :postal => fq.location["postalCode"],
-      :state => fq.location["state"],
-      :phone => fq.contact["formattedPhone"] ? fq.contact["formattedPhone"] : fq.contact["phone"],
-      :categories => fq.categories.map {|c| c.name }
+      :venue_id => fq["id"],
+      :name => fq["name"],
+      :city => fq["location"]["city"],
+      :address => fq["location"]["address"],
+      :country => fq["location"]["country"],
+      :coords => [fq["location"]["lat"],fq["location"]["lng"]],
+      :postal => fq["location"]["postalCode"],
+      :state => fq["location"]["state"],
+      :phone => fq["contact"]["formattedPhone"] ? fq["contact"]["formattedPhone"] : fq["contact"]["phone"],
+      :categories => fq["categories"].map {|c| c.name }
     )
   end
 
