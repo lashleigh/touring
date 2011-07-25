@@ -35,8 +35,8 @@ class Waypoint
       :coords => [fq["location"]["lat"],fq["location"]["lng"]],
       :postal => fq["location"]["postalCode"],
       :state => fq["location"]["state"],
-      :phone => fq["contact"]["formattedPhone"] ? fq["contact"]["formattedPhone"] : fq["contact"]["phone"],
-      :categories => fq["categories"].map {|c| c.name }
+      :phone => fq["contact"]["formattedPhone"] ? fq["contact"]["formattedPhone"] : fq["contact"]["phone"]
+      #:categories => fq["categories"].map {|c| c["name"] }
     )
   end
 

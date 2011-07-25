@@ -11,10 +11,10 @@ class Trip
   timestamps!
 
   key :user_id, ObjectId
-  key :day_ids, Array
+  key :waypoint_ids, Array
   key :partners, Array
 
-  many :days, :in => :day_ids
+  many :waypoints, :in => :waypoint_ids
   many :users, :in => :partners
   belongs_to :user
   validates_presence_of :title, :user_id

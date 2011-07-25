@@ -1,13 +1,20 @@
-<p id="notice"><%= notice %></p>
+<%= javascript_include_tag 'trip_show_map' %>
+<script type="text/javascript">
+  var waypoints = <%= @waypoints.to_json.html_safe %>;
+</script>
+
 <%= @trip.title %></br>
 <%= @trip.summary %></br>
-
 <div class="rule"></div>
-<% @trip.days.each do |day| %>
-  <div class="day"><%= day.id%></div>
-<% end %>
-<div class="rule"></div>
+<div id="total"> </div>
+<div>
+  <b>Mode of Travel: </b>
+  <select id="mode" onchange="calcRoute();">
+    <option value="DRIVING">Driving</option>
+    <option value="WALKING">Walking</option>
+    <option value="BICYCLING">Bicycling</option>
+  </select>
+</div>
+<div id="directionsPanel" > </div>
+<div id="map_canvas"> </div>
 
-<%= link_to 'Add Day', new_day_path %> |
-<%= link_to 'Edit', edit_trip_path(@trip) %> |
-<%= link_to 'Back', trips_path %>
