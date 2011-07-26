@@ -22,8 +22,11 @@ class Waypoint
   key :num_votes, Integer
   key :rating, Float
 
+  #relations to other models
+  #key :day_ids, Array
+
   many :users, :in => :voters
-  ensure_index [[:location,'2d']]
+  ensure_index [[:coords,'2d']]
 
   def import_from_fq(fq)
     Waypoint.set({:id => id.as_json},
@@ -32,11 +35,11 @@ class Waypoint
       :city => fq["location"]["city"],
       :address => fq["location"]["address"],
       :country => fq["location"]["country"],
-      :coords => [fq["location"]["lat"],fq["location"]["lng"]],
+      :coords => [fq["location"]["lat"].to_f,fq["location"]["lng"].to_f],
       :postal => fq["location"]["postalCode"],
       :state => fq["location"]["state"],
-      :phone => fq["contact"]["formattedPhone"] ? fq["contact"]["formattedPhone"] : fq["contact"]["phone"]
-      #:categories => fq["categories"].map {|c| c["name"] }
+      :phone => fq["contact"]["formattedPhone"] ? fq["contact"]["formattedPhone"] : fq["contact"]["phone"],
+      :categories => fq["category_array"]
     )
   end
 

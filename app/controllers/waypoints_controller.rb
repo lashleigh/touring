@@ -8,7 +8,9 @@ class WaypointsController < ApplicationController
   end
   def save_foursquare
     w = Waypoint.create!
-    w.import_from_fq(params[:fq])
+    fq = params[:fq]
+    fq["category_array"] = fq["categories"].map {|c| c["name"] }
+    w.import_from_fq(fq)
 
     render :text => w.as_json
   end

@@ -2,7 +2,8 @@ class DaysController < ApplicationController
   # GET /days
   # GET /days.xml
   def index
-    @days = Day.all
+    trip = Trip.find(params[:trip_id])
+    @days = trip.days
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +14,8 @@ class DaysController < ApplicationController
   # GET /days/1
   # GET /days/1.xml
   def show
-    @day = Day.find(params[:id])
+    trip = Trip.find(params[:trip_id])
+    @day = trip.days[params[:id].to_i]
     @venues = @day.waypoints
 
     respond_to do |format|

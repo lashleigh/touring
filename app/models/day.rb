@@ -2,10 +2,30 @@ class Day
   include MongoMapper::Document
   # Embed this document in trip?
 
-  key :waypoint_ids, Array
   key :tags, Array
-  key :length, Float
+  key :length, Float, :default => 0
+  key :google_waypoints, Array
+  key :end_id, ObjectId
 
-  many :waypoints, :in => :waypoint_ids
-  belongs_to :user
+  belongs_to :trip
+  one :waypoint, :in => :end_id
+
+  def included_waypoints
+    #find nearby waypoints
+  end
+
+  # This shouldn't have been neccessary
+  # but it was not being discovered automatically
+  def destination
+    Waypoint.find(end_id)
+  end
+  def origin
+    #Waypoint.find(trip.days
+  end
+  def prev_day
+    
+  end
+  def next_day
+  end
+
 end

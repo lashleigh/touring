@@ -1,21 +1,22 @@
 <h1>Listing trips</h1>
-
-<table>
-  <tr>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @trips.each do |trip| %>
-  <tr>
-    <td><%= link_to 'Show', trip %></td>
-    <td><%= link_to 'Edit', edit_trip_path(trip) %></td>
-    <td><%= link_to 'Destroy', trip, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
-</table>
-
+<ul>
+  <% @trips.each do |trip| %>
+    <li><div class="trip" style="position:relative;">
+    <%= image_tag gmap(trip.waypoints) %>
+    <% trip.tags.each do |tag| %>
+      <%= tag %>
+    <% end %>
+    <% unless trip.days.empty? %>
+      <div>Length of trip: <%= calc_length(trip) %></div>
+    <% end %>
+    <div class="modify">
+      <%= link_to 'Show', trip %>
+      <%= link_to 'Edit', edit_trip_path(trip) %>
+      <%= link_to 'Destroy', trip, :confirm => 'Are you sure?', :method => :delete %>
+    </div>
+  </div></li>
+  <% end %>
+</ul>
 <br />
 
 <%= link_to 'New Trip', new_trip_path %>

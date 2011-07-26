@@ -1,18 +1,51 @@
 <%= javascript_include_tag 'trip_show_map' %>
 <script type="text/javascript">
+  var trip = <%= @trip.to_json.html_safe %>;
   var waypoints = <%= @waypoints.to_json.html_safe %>;
 </script>
 
-<%= @trip.title %></br>
-<%= @trip.summary %></br>
+<div class="columns tripcols">
+  <div class="first">
+    <%= @trip.title %></br>
+    <%= @trip.summary %></br>
+  </div>
+  <div class="last">
+    <ul class="stats">
+      <li class="incrementable miles_per_day">
+      <strong>60.0</strong>
+      <span>miles / day</span>
+      </li>
+
+      <li class="incrementable rest_days">
+      <strong>5</strong>
+      <dl class="adjust_count">
+        <dd class="increment">+</dd>
+        <dt class="decrement">-</dt>
+      </dl>
+      <span>rest days</span>
+      </li>
+
+      <li class="incrementable traveling_days">
+      <strong>46</strong>
+      <dl class="adjust_count">
+        <dd class="increment">+</dd>
+        <dt class="decrement">-</dt>
+      </dl>
+      <span>days traveling</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
 <div class="rule"></div>
 <div id="total"> </div>
 <div>
   <b>Mode of Travel: </b>
   <select id="mode" onchange="calcRoute();">
+    <option value="BICYCLING">Bicycling</option>
     <option value="DRIVING">Driving</option>
     <option value="WALKING">Walking</option>
-    <option value="BICYCLING">Bicycling</option>
   </select>
 </div>
 <div id="directionsPanel" > </div>

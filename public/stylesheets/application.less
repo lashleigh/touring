@@ -31,6 +31,28 @@ border-bottom: 1px solid #DDD;
 float: left;
 width: 450px;
 }
+.columns.tripcols {
+  .first {
+    float: left;
+    width: 450px;
+  }
+  .last {
+    float: right;
+    width: 450px;
+    ul.stats li {
+      float: right;
+      margin: 0 15px;
+    }
+  }
+}
+.miles_per_day, .rest_days, .traveling_days {
+  dl {
+    dd, dt {
+      float: left;
+      margin: 0 5px;
+    }
+  }
+}
 .vcard dl:first-child {
 margin-top: 0;
 }
@@ -47,25 +69,25 @@ dd {
 margin: 0;
 }
 }
-.profilecols ul.stats {
-margin: -8px 0 0 0;
-li {
-list-style-type: none;
-float: left;
-margin-right: 30px;
-strong {
-display: block;
-font-size: 36px;
-font-weight: bold;
-color: black;
-}
-span {
-display: block;
-margin-top: -10px;
-font-size: 11px;
-color: #999;
-}
-}
+ul.stats {
+  margin: -8px 0 0 0;
+  li {
+    list-style-type: none;
+    float: left;
+    margin-right: 30px;
+    strong {
+      display: block;
+      font-size: 36px;
+      font-weight: bold;
+      color: black;
+    }
+    span {
+      display: block;
+      margin-top: -10px;
+      font-size: 11px;
+      color: #999;
+    }
+  }
 }
 .following {
 clear: both;
