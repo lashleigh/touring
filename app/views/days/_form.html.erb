@@ -1,4 +1,4 @@
-<%= form_for(@day) do |f| %>
+<%= form_for [@trip, @day] do |f| %>
   <% if @day.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@day.errors.count, "error") %> prohibited this day from being saved:</h2>
@@ -10,14 +10,19 @@
       </ul>
     </div>
   <% end %>
-
+  <div class="field">
+    <%= f.label :stop_location %><br />
+    <%= f.text_field :stop_location %>
+  </div>
+  <div class="field">
+    <%= f.hidden_field :distance %>
+    <%= f.hidden_field :travel_mode %>
+    <%= f.hidden_field :encoded_path %>
+    <%= f.hidden_field :google_waypoints %>
+  </div>
   <div class="field">
     <%= f.label :tags %><br />
     <%= f.text_field :tags %>
-  </div>
-  <div class="field">
-    <%= f.label :length %><br />
-    <%= f.text_field :length %>
   </div>
   <div class="actions">
     <%= f.submit %>

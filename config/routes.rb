@@ -1,10 +1,11 @@
 Touring::Application.routes.draw do
+
   resources :trips do
     resources :days
   end
+  match "trips/:trip_id/days/:id" => "days#show"
   
   resources :users
-  resources :days
   resources :waypoints
 
   match "/waypoints/search_foursquare" => "waypoints#search_foursquare"

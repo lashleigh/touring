@@ -1,5 +1,26 @@
+<%= javascript_include_tag 'trip_show_map' %>
+<script type="text/javascript">
+  var trip = <%= @trip.to_json.html_safe %>;
+  var prev_day = <%= @prev_day.to_json.html_safe %>;
+  var waypoints = <%= @waypoints.to_json.html_safe %>;
+</script>
+
 <h1>New day</h1>
+start_location:
+<%= @prev_day.stop_location %>
 
 <%= render 'form' %>
 
-<%= link_to 'Back', days_path %>
+<div class="rule"></div>
+<div id="total"> </div>
+<div>
+  <b>Mode of Travel: </b>
+  <select id="mode" onchange="calcRoute();">
+    <option value="BICYCLING">Bicycling</option>
+    <option value="DRIVING">Driving</option>
+    <option value="WALKING">Walking</option>
+  </select>
+</div>
+<div id="directionsPanel" > </div>
+<div id="map_canvas"> </div>
+

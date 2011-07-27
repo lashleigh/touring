@@ -2,8 +2,8 @@ class DaysController < ApplicationController
   # GET /days
   # GET /days.xml
   def index
-    trip = Trip.find(params[:trip_id])
-    @days = trip.days
+    @trip = Trip.find(params[:trip_id])
+    @days = @trip.days
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,9 +14,11 @@ class DaysController < ApplicationController
   # GET /days/1
   # GET /days/1.xml
   def show
-    trip = Trip.find(params[:trip_id])
-    @day = trip.days[params[:id].to_i]
-    @venues = @day.waypoints
+    @trip = Trip.find(params[:trip_id])
+    @day_index = params[:id].to_i
+    @day = @trip.days[@day_index]
+    @prev_day = @day.prev_day(@day_index)
+    @next_day = @day.next_day(@day_index)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -27,6 +29,8 @@ class DaysController < ApplicationController
   # GET /days/new
   # GET /days/new.xml
   def new
+    @trip = Trip.find(params[:trip_id])
+    @prev_day = @trip.days[-1]
     @day = Day.new
 
     respond_to do |format|
@@ -37,49 +41,62 @@ class DaysController < ApplicationController
 
   # GET /days/1/edit
   def edit
-    @day = Day.find(params[:id])
+    @trip = Trip.find(params[:trip_id])
+    @day = @trip.days[params[:id].to_i]
   end
 
   # POST /days
   # POST /days.xml
   def create
-    @day = Day.new(params[:day])
+    @trip = Trip.find(params[:trip_id])
+    @day = Day.new(params[:day])  
+    @day.trip_id = @trip.id
+    @day.save
+    @trip.day_ids.push(@day.id)
+    @trip.save
 
-    respond_to do |format|
-      if @day.save
-        format.html { redirect_to(@day, :notice => 'Day was successfully created.') }
-        format.xml  { render :xml => @day, :status => :created, :location => @day }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
-      end
-    end
+    redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
+    #respond_to do |format|
+    #  if @day.save
+    #    format.html { redirect_to(custom_trip_day(@trip,@day), :notice => 'Day was successfully created.') }
+    #    format.xml  { render :xml => @day, :status => :created, :location => @day }
+    #  else
+    #    format.html { render :action => "new" }
+    #    format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
+    #  end
+    #end
   end
 
   # PUT /days/1
   # PUT /days/1.xml
   def update
-    @day = Day.find(params[:id])
-
-    respond_to do |format|
-      if @day.update_attributes(params[:day])
-        format.html { redirect_to(@day, :notice => 'Day was successfully updated.') }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
-      end
-    end
+    @trip = Trip.find(params[:trip_id])
+    @day = @trip.days[params[:id].to_i]
+    @day.update(params)
+    redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
+    
+    #respond_to do |format|
+    #  if @day.update_attributes(params[:day])
+    #    format.html { redirect_to("/trips/#{@trip.id}/days/#{params[:id]}", :notice => 'Day was successfully updated.') }
+    #    format.xml  { head :ok }
+    #  else
+    #    format.html { redirect_to(edit_trip_day_path(@trip, @day)) }
+    #    format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
+    #  end
+    #end
   end
 
   # DELETE /days/1
   # DELETE /days/1.xml
   def destroy
-    @day = Day.find(params[:id])
+    @trip = Trip.find(params[:trip_id])
+    @day = @trip.days[params[:id].to_i]
     @day.destroy
+    @trip.day_ids.delete(@day.id)
+    @trip.save
 
     respond_to do |format|
-      format.html { redirect_to(days_url) }
+      format.html { redirect_to(trip_day_path) }
       format.xml  { head :ok }
     end
   end

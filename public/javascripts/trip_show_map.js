@@ -1,7 +1,3 @@
-
-var infoWindow = new google.maps.InfoWindow();
-var bounds = new google.maps.LatLngBounds();
-
 var rendererOptions = {
   draggable: true
 };
@@ -70,7 +66,7 @@ function calcRoute() {
   var request = {
     //origin: getLatLng(waypoints[0]),
     //destination: getLatLng(waypoints[waypoints.length-1]),
-    origin: trip.starting_location,
+    origin: trip.start_location,
     destination: trip.finish_location,
     //waypoints: ary,
     travelMode: google.maps.TravelMode[selectedMode],
@@ -97,12 +93,14 @@ function computeTotalDistance(result) {
   total = Math.floor( (total / 100)*0.621371192) / 10;
   document.getElementById("total").innerHTML = total + " mi";
   set_stats();
+  $("#trip_distance").val(total);
 }
 function set_stats() {
-  var num_days = ( new Date(trip.finish_date) - new Date(trip.starting_date)) /86400000.0;
-  var rest_days = num_days/7.0
+  var num_days = ( new Date(trip.finish_date) - new Date(trip.start_date)) /86400000.0;
+  var rest_days = Math.round(num_days/7);
   var milesPerDay = (total / num_days).toFixed(1);
-  $(".traveling_days strong").html(num_days)
+  console.log(num_days, rest_days, milesPerDay);
+  $(".traveling_days strong").html(Math.round(num_days))
   $(".rest_days strong").html(rest_days)
   $(".miles_per_day strong").html(milesPerDay)
 }

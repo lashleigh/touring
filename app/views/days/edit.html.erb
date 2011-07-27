@@ -2,5 +2,5 @@
 
 <%= render 'form' %>
 
-<%= link_to 'Show', @day %> |
-<%= link_to 'Back', days_path %>
+<%= link_to 'Show', trip_days_path(@trip, @day) %> |
+<%= link_to 'Back', trip_path(@trip) %>

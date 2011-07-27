@@ -4,10 +4,10 @@ class Trip
   key :title, String
   key :summary, String
   key :tags, Array
-  key :distance, Integer
+  key :distance, Float
 
-  key :starting_location, String
-  key :starting_date, Date
+  key :start_location, String
+  key :start_date, Date
   key :finish_location, String
   key :finish_date, Date
   key :complete, Boolean, :default => false
@@ -22,7 +22,7 @@ class Trip
   many :days, :in => :day_ids
   many :users, :in => :partners
   belongs_to :user
-  validates_presence_of :title, :user_id
+  validates_presence_of :title, :user_id, :start_location, :finish_location
 
   def calc_length
     (days.map {|d| d.length}).sum
