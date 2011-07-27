@@ -1,8 +1,10 @@
-<h1> Days near you </h1>
+<h1> <%= @trip.title %></h1>
+<h3> <%= @trip.summary %></h3>
 
 <ul>
   <% @days.each do |day| %>
-    <li><div class="day" style="position:relative;">
+    <li><div class="day">
+      <img src=<%=gmap_day(day.encoded_path)%> >
     <% day.tags.each do |tag| %>
       <%= tag %>
     <% end %>
@@ -17,6 +19,5 @@
   </div></li>
   <% end %>
 </ul>
-<br />
-
+<div class="rule"></div>
 <%= link_to 'New Day', new_trip_day_path(@trip) %>

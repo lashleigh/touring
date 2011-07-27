@@ -1,9 +1,7 @@
 module DaysHelper
-  def gmap(venues)
-    basic = "http://maps.googleapis.com/maps/api/staticmap?size=175x150&maptype=roadmap&markers=color:blue|"
-    pairs = venues.collect{|d| d.coords[0].to_s+","+d.coords[1].to_s}
-    pairs = pairs.join('|')
-    basic+pairs+"&sensor=false"
+  def gmap_day(path)
+    basic = 'http://maps.googleapis.com/maps/api/staticmap?size=280x280&path=weight:6|color:0x00000099|enc:'
+    basic+path+"&sensor=false"
   end
 
   def trip_day_path(trip, day)

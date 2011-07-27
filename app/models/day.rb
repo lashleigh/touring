@@ -5,7 +5,7 @@ class Day
   key :tags, Array
   key :distance, Float, :default => 0
   key :google_waypoints, Array
-  key :encoded_path, Array
+  key :encoded_path, String
   key :travel_mode, String
   #key :end_id, ObjectId
   key :stop_location, String
