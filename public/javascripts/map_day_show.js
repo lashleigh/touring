@@ -10,6 +10,7 @@ var total;
 var australia = new google.maps.LatLng(-25.274398, 133.775136);
 var elevator;
 var chart;
+var netLoss = 0, netGain = 0;
 
 $(function() {
   var myOptions = {
@@ -85,7 +86,7 @@ function test() {
 function drawPath(path) {
 
   // Create a new chart in the elevation_chart DIV.
-  chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
+  chart = new google.visualization.ScatterChart(document.getElementById('elevation_chart'));
 
   // Create a PathElevationRequest object using this array.
   // Ask for 256 samples along that path.
@@ -125,10 +126,20 @@ function plotElevation(results, status) {
     // column here does double duty as distance along the
     // X axis.
     var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Sample');
+    data.addColumn('number', 'Sample');
     data.addColumn('number', 'Elevation');
-    for (var i = 0; i < results.length; i++) {
-      data.addRow(['', elevations[i].elevation]);
+    var distance = 0;
+    for (var i = 1; i < results.length-1; i++) {
+      var ele0 = (elevations[i-1].elevation + elevations[i].elevation)/2;
+      var ele1 = (elevations[i].elevation + elevations[i+1].elevation)/2;
+      if( ele0 < ele1) {
+        netLoss += (ele1-ele0); 
+      } else {
+        netGain += (ele0-ele1);
+      }
+      var y = haversine(results[i].location, results[i-1].location);
+      distance +=y;
+      data.addRow([distance, ele0]);//elevations[i].elevation]);
     }
 
     // Draw the chart using the data within its DIV.
@@ -137,7 +148,40 @@ function plotElevation(results, status) {
       width: 640,
       height: 200,
       legend: 'none',
-      titleY: 'Elevation (m)'
+      titleY: 'Elevation (m)',
+      titleX: 'Distance (km)'
     });
+  }
+}
+
+function haversine(pt1, pt2) {
+  var lat1 = pt1.lat();
+  var lon1 = pt1.lng();
+  var lat2 = pt2.lat();
+  var lon2 = pt2.lng();
+
+  var R = 6371; // km
+  var dLat = (lat2-lat1).toRad();
+  var dLon = (lon2-lon1).toRad();
+  var lat1 = lat1.toRad();
+  var lat2 = lat2.toRad();
+
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+  Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  return d;
+}
+/** Converts numeric degrees to radians */
+if (typeof(Number.prototype.toRad) === "undefined") {
+  Number.prototype.toRad = function() {
+  return this * Math.PI / 180;
+  }
+}
+
+/** Converts radians to numeric (signed) degrees */
+if (typeof(Number.prototype.toDeg) === "undefined") {
+  Number.prototype.toDeg = function() {
+  return this * 180 / Math.PI;
   }
 }
