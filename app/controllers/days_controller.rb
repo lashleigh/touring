@@ -96,7 +96,8 @@ class DaysController < ApplicationController
     @trip.save
 
     respond_to do |format|
-      format.html { redirect_to(trip_day_path) }
+      # This redirect is a bad hack but trips_day_path tries to redirect to something that doesn't exist.
+      format.html { redirect_to("/trips/#{@trip.id}/days") }
       format.xml  { head :ok }
     end
   end

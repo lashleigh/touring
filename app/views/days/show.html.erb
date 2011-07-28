@@ -1,4 +1,5 @@
 <%= javascript_include_tag 'map_day_show' %>
+
 <script type="text/javascript">
   var day = <%= @day.to_json.html_safe %>;
   var prev_day = <%= @prev_day.to_json.html_safe %>;
@@ -6,6 +7,7 @@
   var trip = <%= @trip.to_json(:include => :days).html_safe %>;
 </script>
 
+<div id="day" style="float:left;">
 <%= label_tag :start_location %><br />
 <% if @prev_day %>
   <%= @prev_day.stop_location %>
@@ -15,7 +17,9 @@
 <%= render 'form' %>
 <%= link_to 'Edit', edit_trip_day_path(@trip, @day) %> |
 <%= link_to 'Back', trip_days_path %>
+</div>
 
+<div id="elevation_chart" style="float: right; width: 640px; height: 200px; display: block; "></div>
 <div class="rule"></div>
 <div id="total"> </div>
 <div>
@@ -29,4 +33,3 @@
 <div id="directionsPanel" > </div>
 
 <div id="map_canvas"> </div>
-

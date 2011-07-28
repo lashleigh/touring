@@ -1,7 +1,8 @@
-<%= javascript_include_tag 'trip_show_map' %>
+<%= javascript_include_tag 'map_day_show' %>
 <script type="text/javascript">
   var trip = <%= @trip.to_json.html_safe %>;
   var prev_day = <%= @prev_day.to_json.html_safe %>;
+  var day = <%= @day.to_json.html_safe %>;
   var waypoints = <%= @waypoints.to_json.html_safe %>;
 </script>
 

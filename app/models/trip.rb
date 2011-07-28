@@ -19,7 +19,7 @@ class Trip
   key :partners, Array
 
   many :waypoints, :in => :waypoint_ids
-  many :days, :in => :day_ids
+  many :days, :in => :day_ids, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
   validates_presence_of :title, :user_id, :start_location, :finish_location

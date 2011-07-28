@@ -80,7 +80,7 @@ class TripsController < ApplicationController
     @trip.destroy
 
     respond_to do |format|
-      format.html { redirect_to(trips_url) }
+      format.html { redirect_to(users_url(current_user)) }
       format.xml  { head :ok }
     end
   end

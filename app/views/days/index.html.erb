@@ -5,18 +5,20 @@
   <% @days.each do |day| %>
     <li><div class="day">
       <img src=<%=gmap_day(day.encoded_path)%> >
-    <% day.tags.each do |tag| %>
-      <%= tag %>
-    <% end %>
-    <div><%= day.distance %></div>
-    <div><%= day.stop_location %></div>
-    <div><%= day.travel_mode %></div>
-    <div class="modify">
-      <%= link_to 'Show', trip_day_path(@trip, day) %>
-      <%= link_to 'Edit', edit_trip_day_path(@trip, day) %>
-      <%= link_to 'Destroy', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete %>
-    </div>
-  </div></li>
+      <div class="day_details">
+        <% day.tags.each do |tag| %>
+          <%= tag %>
+        <% end %>
+        <div><%= day.distance %> miles</div>
+        <div><%= day.stop_location %></div>
+        <div><%= day.travel_mode %></div>
+        <div class="modify">
+          <%= link_to 'Show', trip_day_path(@trip, day) %>
+          <%= link_to 'Edit', edit_trip_day_path(@trip, day) %>
+          <%= link_to 'Destroy', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete %>
+        </div>
+      </div>
+    </div></li>
   <% end %>
 </ul>
 <div class="rule"></div>

@@ -68,7 +68,14 @@
     <h2>Your Trips (<%= user.trips.length%>)</h2>
     <ul class="repositories">
       <% user.trips.each do |trip| %>
-        <li class="public"><%= link_to trip.id, trip %></li>
+        <li class="public"><%= link_to trip.title, trip %><br/>
+        <%= trip.summary %>
+        <div class="modify">
+          <%= link_to 'Show', trip_path(trip) %>
+          <%= link_to 'Edit', edit_trip_path(trip) %>
+          <%= link_to 'Destroy', trip_path(trip), :confirm => 'Are you sure?', :method => :delete %>
+        </div>
+        </li>
       <% end %>
     </ul>
   </div>
