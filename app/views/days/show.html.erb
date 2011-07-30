@@ -8,21 +8,23 @@
 </script>
 
 <div id="day" style="float:left;">
-<%= label_tag :start_location %><br />
-<% if @prev_day %>
-  <%= @prev_day.stop_location %>
-<% else %>
-  <%= @trip.start_location %>
-<% end %>
-<%= render 'form' %>
-<%= link_to 'Edit', edit_trip_day_path(@trip, @day) %> |
-<% if @prev_day %>
-  <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
-<% end %>
-<% if @next_day %>
-  <%= link_to 'Next day', trip_day_path(@trip, @next_day) %> |
-<% end %>
-<%= link_to 'Back', trip_days_path %>
+  <%= label_tag :start_location %><br />
+  <% if @prev_day %>
+    <%= @prev_day.stop_location %>
+  <% else %>
+    <%= @trip.start_location %>
+  <% end %>
+  <div class="editable" contentEditable=true> <%= @day.stop_location%> </div>
+  <%= render 'form' %>
+
+  <%= link_to 'Edit', edit_trip_day_path(@trip, @day) %> |
+  <% if @prev_day %>
+    <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
+  <% end %>
+  <% if @next_day %>
+    <%= link_to 'Next day', trip_day_path(@trip, @next_day) %> |
+  <% end %>
+  <%= link_to 'Back', trip_days_path %>
 </div>
 
 <div id="elevation_chart" style="float: right; width: 640px; height: 200px; display: block; "></div>

@@ -52,18 +52,18 @@ class DaysController < ApplicationController
     @trip = Trip.find(params[:trip_id])
     @day = Day.new(params[:day])  
     @day.trip_id = @trip.id
-    @day.save
+    #@day.save
 
-    redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
-    #respond_to do |format|
-    #  if @day.save
-    #    format.html { redirect_to(custom_trip_day(@trip,@day), :notice => 'Day was successfully created.') }
+    #redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
+    respond_to do |format|
+      if @day.save
+         format.html { redirect_to(trip_day_path(@trip,@day), :notice => 'Day was successfully created.') }
     #    format.xml  { render :xml => @day, :status => :created, :location => @day }
-    #  else
-    #    format.html { render :action => "new" }
-    #    format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
-    #  end
-    #end
+      else
+        format.html { render :action => "new" }
+        format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
+      end
+    end
   end
 
   # PUT /days/1
@@ -71,18 +71,18 @@ class DaysController < ApplicationController
   def update
     @trip = Trip.find(params[:trip_id])
     @day = @trip.days[params[:id].to_i]
-    @day.update(params)
-    redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
+    #@day.update(params)
+    #redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
     
-    #respond_to do |format|
-    #  if @day.update_attributes(params[:day])
-    #    format.html { redirect_to("/trips/#{@trip.id}/days/#{params[:id]}", :notice => 'Day was successfully updated.') }
-    #    format.xml  { head :ok }
-    #  else
-    #    format.html { redirect_to(edit_trip_day_path(@trip, @day)) }
-    #    format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
-    #  end
-    #end
+    respond_to do |format|
+      if @day.update(params[:day])
+        format.html { redirect_to("/trips/#{@trip.id}/days/#{params[:id]}", :notice => 'Day was successfully updated.') }
+        format.xml  { head :ok }
+      else
+        format.html { redirect_to(edit_trip_day_path(@trip, @day)) }
+        format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
+      end
+    end
   end
 
   # DELETE /days/1

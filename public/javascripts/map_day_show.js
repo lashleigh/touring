@@ -1,7 +1,6 @@
 var rendererOptions = {
   draggable: true
   };
-var directionsDisplayArray = []
 var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);;
 var directionsService = new google.maps.DirectionsService();
 var map;

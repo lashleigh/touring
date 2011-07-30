@@ -1,8 +1,8 @@
 class Day
   include MongoMapper::Document
   # Embed this document in trip?
-  after_create :do_something_after_create
-  before_destroy :do_something_before_destroy
+  #after_create :do_something_after_create
+  #before_destroy :do_something_before_destroy
 
   key :tags, Array
   key :distance, Float
@@ -24,6 +24,9 @@ class Day
   # but it was not being discovered automatically
   def destination
     Waypoint.find(end_id)
+  end
+  def to_param
+    trip.days.find_index(self).to_s
   end
   def prev_day(options = {})
     if options[:day_index]
@@ -48,11 +51,11 @@ class Day
   end
   def update(params)
     Day.set({:id => id.as_json},
-            :distance => params[:day][:distance].to_f,
-            :travel_mode => params[:day][:travel_mode],
-            :encoded_path => params[:day][:encoded_path],
-            :google_waypoints => params[:day][:google_waypoints],
-            :stop_location => params[:day][:stop_location])
+            :distance => params[:distance].to_f,
+            :travel_mode => params[:travel_mode],
+            :encoded_path => params[:encoded_path],
+            :google_waypoints => params[:google_waypoints],
+            :stop_location => params[:stop_location])
   end
 
   private

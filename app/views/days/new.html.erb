@@ -1,17 +1,24 @@
-<%= javascript_include_tag 'map_day_show' %>
+<%= javascript_include_tag 'map_day_new' %>
+
 <script type="text/javascript">
-  var trip = <%= @trip.to_json.html_safe %>;
-  var prev_day = <%= @prev_day.to_json.html_safe %>;
   var day = <%= @day.to_json.html_safe %>;
+  var prev_day = <%= @prev_day.to_json.html_safe %>;
+  var trip = <%= @trip.to_json.html_safe %>;
   var waypoints = <%= @waypoints.to_json.html_safe %>;
 </script>
 
-<h1>New day</h1>
-start_location:
-<%= @prev_day.stop_location %>
+<div id="day" style="float:left;">
+  <div class="start_location_label">Starting in: </div>
+  <% if @prev_day %>
+    <div class="start_location"><%= @prev_day.stop_location %></div>
+  <% else %>
+    <div class="start_location"><%= @trip.stop_location %></div>
+  <% end %>
+  <div class="editable" contentEditable=true> <%= @day.stop_location%> </div>
+  <%= render 'form' %>
+</div>
 
-<%= render 'form' %>
-
+<div id="elevation_chart" style="float: right; width: 640px; height: 200px; display: block; "></div>
 <div class="rule"></div>
 <div id="total"> </div>
 <div>
@@ -23,5 +30,6 @@ start_location:
   </select>
 </div>
 <div id="directionsPanel" > </div>
+
 <div id="map_canvas"> </div>
 
