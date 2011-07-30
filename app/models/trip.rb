@@ -22,7 +22,7 @@ class Trip
   many :days, :in => :day_ids, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
-  validates_presence_of :title, :user_id, :start_location, :finish_location
+  validates_presence_of :title, :user_id, :start_location
 
   def calc_length
     (days.map {|d| d.length}).sum

@@ -15,10 +15,10 @@ class DaysController < ApplicationController
   # GET /days/1.xml
   def show
     @trip = Trip.find(params[:trip_id])
-    @day_index = params[:id].to_i
-    @day = @trip.days[@day_index]
-    @prev_day = @day.prev_day(@day_index)
-    @next_day = @day.next_day(@day_index)
+    day_index = params[:id].to_i
+    @day = @trip.days[day_index]
+    @prev_day = @day.prev_day(:day_index => day_index)
+    @next_day = @day.next_day(:day_index => day_index)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -52,8 +52,6 @@ class DaysController < ApplicationController
     @day = Day.new(params[:day])  
     @day.trip_id = @trip.id
     @day.save
-    @trip.day_ids.push(@day.id)
-    @trip.save
 
     redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
     #respond_to do |format|
@@ -92,8 +90,8 @@ class DaysController < ApplicationController
     @trip = Trip.find(params[:trip_id])
     @day = @trip.days[params[:id].to_i]
     @day.destroy
-    @trip.day_ids.delete(@day.id)
-    @trip.save
+    #@trip.day_ids.delete(@day.id)
+    #@trip.save
 
     respond_to do |format|
       # This redirect is a bad hack but trips_day_path tries to redirect to something that doesn't exist.

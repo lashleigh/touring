@@ -92,7 +92,7 @@ function drawPath(path) {
   // Ask for 256 samples along that path.
   var pathRequest = {
     'path': path,
-    'samples': 256
+    'samples': path.length*2
   }
 
   // Initiate the path request.

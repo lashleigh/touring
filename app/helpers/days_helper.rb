@@ -5,8 +5,12 @@ module DaysHelper
   end
 
   def trip_day_path(trip, day)
-    i = trip.day_ids.index(day.id)
-    "/trips/#{trip.id}/days/#{i}"
+    if day==false
+      trip_days_path
+    else
+      i = trip.days.index(day)
+      "/trips/#{trip.id}/days/#{i}"
+    end
   end
 
   def edit_trip_day_path(trip, day)
