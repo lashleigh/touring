@@ -5,7 +5,7 @@ class Day
   before_destroy :do_something_before_destroy
 
   key :tags, Array
-  key :distance, Float, :default => 0
+  key :distance, Float
   key :google_waypoints, Array
   key :encoded_path, String
   key :travel_mode, String
@@ -14,12 +14,7 @@ class Day
   key :trip_id, ObjectId
 
   belongs_to :trip
-  validates_presence_of :stop_location, :trip_id
-
-  def set_index
-    Day.set({:id => id.as_json}, 
-            :index => trip.day_ids.index(id))
-  end
+  validates_presence_of :stop_location, :trip_id, :distance
 
   def included_waypoints
     #find nearby waypoints

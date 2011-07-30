@@ -1,6 +1,7 @@
 class DaysController < ApplicationController
   # GET /days
   # GET /days.xml
+  before_filter :require_user, :except => [:index, :show]
   def index
     @trip = Trip.find(params[:trip_id])
     @days = @trip.days

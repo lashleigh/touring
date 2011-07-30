@@ -1,5 +1,6 @@
 class Trip
   include MongoMapper::Document
+  #before_validation :handle_user
 
   key :title, String
   key :summary, String
@@ -25,6 +26,8 @@ class Trip
   validates_presence_of :title, :user_id, :start_location
 
   def calc_length
-    (days.map {|d| d.length}).sum
+    (days.map {|d| d.distance}).sum
   end
+
+  private
 end

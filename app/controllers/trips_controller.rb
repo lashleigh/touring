@@ -1,6 +1,7 @@
 class TripsController < ApplicationController
   # GET /trips
   # GET /trips.xml
+  before_filter :require_user, :except => [:index, :show]
   def index
     @trips = Trip.all
 
