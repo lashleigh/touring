@@ -7,6 +7,7 @@ class User
   key :trip_ids, Array
   key :website, String
   key :location, String
+  key :unit_system, String, :default => "IMPERIAL"
   #key :contacts, Array
 
   many :trips, :in => :trip_ids

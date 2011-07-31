@@ -9,7 +9,7 @@
         <% day.tags.each do |tag| %>
           <%= tag %>
         <% end %>
-        <div><%= day.distance %> miles</div>
+        <div><%= day.show_distance(current_user.unit_system) %> </div>
         <div><%= day.stop_location %></div>
         <div><%= day.travel_mode %></div>
         <div class="modify">

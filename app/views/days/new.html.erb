@@ -1,10 +1,11 @@
+<%= javascript_include_tag 'map_day_shared' %>
 <%= javascript_include_tag 'map_day_new' %>
 
 <script type="text/javascript">
   var day = <%= @day.to_json.html_safe %>;
   var prev_day = <%= @prev_day.to_json.html_safe %>;
   var trip = <%= @trip.to_json.html_safe %>;
-  var waypoints = <%= @waypoints.to_json.html_safe %>;
+  var unit_system = <%= current_user.unit_system.to_json.html_safe %>;
 </script>
 
 <div id="day" style="float:left;">

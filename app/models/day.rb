@@ -1,8 +1,8 @@
 class Day
   include MongoMapper::Document
   # Embed this document in trip?
-  #after_create :do_something_after_create
-  #before_destroy :do_something_before_destroy
+  after_create :do_something_after_create
+  before_destroy :do_something_before_destroy
 
   key :tags, Array
   key :distance, Float
@@ -56,6 +56,19 @@ class Day
             :encoded_path => params[:encoded_path],
             :google_waypoints => params[:google_waypoints],
             :stop_location => params[:stop_location])
+  end
+  def show_distance(unit_system)
+    if unit_system == "METRIC"
+      toKilometers(distance) + " km"
+    else 
+      toMiles(distance) + " mi"
+    end
+  end
+  def toMiles(num)
+    ((num / 1000) * 0.621371192).round(1).to_s;
+  end
+  def toKilometers(num)
+    (num / 1000).round(1).to_s;
   end
 
   private
