@@ -5,12 +5,6 @@ function computeTotalDistance(result) {
     total += myroute.legs[i].distance.value;
   }
   $("#day_distance").val(total); //Store in the database as meters
-
-  if(unit_system == "IMPERIAL") {
-    document.getElementById("total").innerHTML = total.toMiles() + " mi";
-  } else { 
-    document.getElementById("total").innerHTML = (total/1000) + " km";
-  }
 }
 /** Convert kilomters to miles **/ 
 if (typeof(Number.prototype.toMiles) === "undefined") {

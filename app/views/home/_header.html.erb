@@ -1,0 +1,15 @@
+<header>
+  <div id="header_inner">
+    <h1><%= link_to "tourplanner", root_url, :id => "logo" %></h1>
+    <div id="top_nav">  
+      <% if current_user %>  
+        <%= link_to current_user.name+"   ", current_user %>| 
+        <%= "   Settings  |  " %>
+        <%= link_to "Log Out", signout_path %>  
+      <% else %> 
+        <%= link_to "Sign in with Foursquare", "/auth/foursquare" %>  
+      <% end %>
+    </div> 
+  </div> 
+</header>
+

@@ -10,21 +10,17 @@
       </ul>
     </div>
   <% end %>
-  <div class="field">
-    <%= f.label :stop_location %><br />
-    <%= f.text_field :stop_location %>
-  </div>
+  <dl class="field">
+    <dt><%= image_tag 'b.png' %></dt>
+    <dd><%= f.text_field :stop_location, :size => 40 %></dd>
+  </dl>
   <div class="field">
     <%= f.hidden_field :distance %>
     <%= f.hidden_field :travel_mode %>
     <%= f.hidden_field :encoded_path %>
     <%= f.hidden_field :google_waypoints %>
   </div>
-  <div class="field">
-    <%= f.label :tags %><br />
-    <%= f.text_field :tags %>
-  </div>
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit 'Save changes', :class => 'kd-button kd-button-red' %>
   </div>
 <% end %>

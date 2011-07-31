@@ -9,37 +9,38 @@
   var unit_system = <%= current_user.unit_system.to_json.html_safe %>;
 </script>
 
-<div id="day" style="float:left;">
-  <%= label_tag :start_location %><br />
-  <% if @prev_day %>
-    <%= @prev_day.stop_location %>
-  <% else %>
-    <%= @trip.start_location %>
-  <% end %>
-  <div class="editable" contentEditable=true> <%= @day.stop_location%> </div>
-  <%= render 'form' %>
-
-  <%= link_to 'Edit', edit_trip_day_path(@trip, @day) %> |
+<div id="day_nav">
   <% if @prev_day %>
     <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
   <% end %>
+  <%= link_to 'All days', trip_days_path %> |
   <% if @next_day %>
-    <%= link_to 'Next day', trip_day_path(@trip, @next_day) %> |
+    <%= link_to 'Next day', trip_day_path(@trip, @next_day) %>
   <% end %>
-  <%= link_to 'Back', trip_days_path %>
 </div>
-
-<div id="elevation_chart" style="float: right; width: 640px; height: 200px; display: block; "></div>
-<div class="rule"></div>
-<div id="total"> </div>
-<div>
-  <b>Mode of Travel: </b>
-  <select id="mode" onchange="calcRoute();">
-    <option value="BICYCLING">Bicycling</option>
-    <option value="DRIVING">Driving</option>
-    <option value="WALKING">Walking</option>
-  </select>
-</div>
-<div id="directionsPanel" > </div>
+<aside id="detail_panel">
+  <ul class="travel_icons">
+    <li class="unselected" id="DRIVING"><%= image_tag 'car.png' %></li>
+    <li class="unselected" id="WALKING"><%= image_tag 'hiking.png' %></li>
+    <li class="unselected" id="BICYCLING"><%= image_tag 'bicycling.png' %></li>
+  </ul>
+  <div id="day" style="float:left;">
+    <table id="start_location">
+      <tr>
+        <td class="icon"><%= image_tag 'a.png' %></td>
+        <td class="prev_day">            
+          <% if @prev_day %>
+            <%= @prev_day.stop_location %>
+          <% else %>
+            <%= @trip.start_location %>
+          <% end %>
+        </td>
+      </tr>
+    </table>
+    <%= render 'form' %>
+  </div>
+  <div id="directionsPanel" > </div>
+</aside>
 
 <div id="map_canvas"> </div>
+<div id="elevation_chart"></div>

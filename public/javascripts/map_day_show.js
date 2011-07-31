@@ -30,11 +30,17 @@ $(function() {
     save_waypoints(directionsDisplay.directions);
     drawPath(directionsDisplay.directions.routes[0].overview_path);
   });
-  $("#mode").val(day.travel_mode);
+  $("#"+day.travel_mode).addClass("selected").removeClass("unselected");
   calcRoute();
   $(".adp-summary").live("click", function() {
     $(this).next().find(".adp-directions").toggle();
   })
+  $(".travel_icons li").live("click", function() {
+    $(".travel_icons li").removeClass("selected").addClass("unselected");
+    $(this).removeClass("unselected").addClass("selected");
+    calcRoute();
+  });
+
 });
 function drawPreviousNext() {
   if(prev_day) {
@@ -58,7 +64,7 @@ function drawPreviousNext() {
   }
 }
 function calcRoute() {
-  var selectedMode = document.getElementById("mode").value;
+  var selectedMode = $(".selected").attr("id"); //"BICYCLING"; //document.getElementById("mode").value;
 
   var request = {
     origin: prev_day ? prev_day.stop_location : trip.start_location,

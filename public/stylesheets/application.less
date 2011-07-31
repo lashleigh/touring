@@ -1,35 +1,28 @@
 @import 'headfoot';
-
+@blue: #4D90FE;
+@gray: #f5f5f5;
+html { height: 100% }
+body { height: 100%; margin: 0; padding: 0 }
 #wrap {
   width: 900px;
+  height: 100%;
   margin: 0 auto;
 }
-#map_container {
-  width: 700px;
-  height: 500px;
-}
-#map_canvas {
-  width: 500px;
-  height: 500px;
-  float: right;
-}
-#directionsPanel {
-  width: 380px;
-  float: left;
-}
+
 #content {
   clear: both;
+  height: 100%;
 }
 .rule {
-clear: both;
-margin: 15px 0;
-height: 0;
-overflow: hidden;
-border-bottom: 1px solid #DDD;
+  clear: both;
+  margin: 15px 0;
+  height: 0;
+  overflow: hidden;
+  border-bottom: 1px solid #DDD;
 }
 .columns.profilecols .first, .last {
-float: left;
-width: 450px;
+  float: left;
+  width: 450px;
 }
 .columns.tripcols {
   .first {
@@ -54,20 +47,20 @@ width: 450px;
   }
 }
 .vcard dl:first-child {
-margin-top: 0;
+  margin-top: 0;
 }
 .vcard dl {
-margin: 5px 0 0 0;
-font-size: 12px;
-dt {
-margin: 0;
-float: left;
-width: 115px;
-color: #999;
-}
-dd {
-margin: 0;
-}
+  margin: 5px 0 0 0;
+  font-size: 12px;
+  dt {
+    margin: 0;
+    float: left;
+    width: 115px;
+    color: #999;
+  }
+  dd {
+    margin: 0;
+  }
 }
 ul.stats {
   margin: -8px 0 0 0;
@@ -90,61 +83,56 @@ ul.stats {
   }
 }
 .following {
-clear: both;
-margin-top: 80px;
-h3 {
-margin: 0 0 5px 0;
-font-size: 12px;
-a {
-font-weight: normal;
-margin-left: 5px;
-}
-}
+  clear: both;
+  margin-top: 80px;
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 12px;
+    a {
+      font-weight: normal;
+      margin-left: 5px;
+    }
+  }
 }
 .following ul.avatars {
-margin: 0;
-li {
-list-style-type: none;
-display: inline;
-margin: 0 1px 0 0;
-img {
-padding: 1px;
-border: 1px solid #DDD;
-}
-}
+  margin: 0;
+  li {
+    list-style-type: none;
+    display: inline;
+    margin: 0 1px 0 0;
+    img {
+      padding: 1px;
+      border: 1px solid #DDD;
+    }
+  }
 }
 .profilecols h2 {
-position: relative;
-font-size: 18px;
-margin: 0 0 5px 0;
-em {
-font-style: normal;
-color: #999;
-}
+  position: relative;
+  font-size: 18px;
+  margin: 0 0 5px 0;
+  em {
+    font-style: normal;
+    color: #999;
+  }
 }
 ul.repositories {
-margin: 0;
-> li.public {
-background: url('../../images/icons/public.png') 6px 9px no-repeat;
-}
-> li {
-list-style-type: none;
-margin: 0 0 10px 0;
-padding: 8px 10px 0 10px;
-border: 1px solid #DDD;
--webkit-border-radius: 4px;
--moz-border-radius: 4px;
-border-radius: 4px;
-}
+  margin: 0;
+  > li.public {
+    background: url('../../images/icons/public.png') 6px 9px no-repeat;
+  }
+  > li {
+    list-style-type: none;
+    margin: 0 0 10px 0;
+    padding: 8px 10px 0 10px;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+  }
 }
 
 //Day CSS
-#day {
-  float: left;
-  overflow: hidden;
-  margin: 10px 5px;
-  width:250px;
-}
+
 .day {
   float: left;
   overflow: hidden;
@@ -154,4 +142,139 @@ border-radius: 4px;
   padding: 0 5px;
   border: 1px solid;
   width: 270px;
+}
+
+#map_container {
+  width: 700px;
+  height: 500px;
+}
+#map_canvas {
+  width: 65%;
+  height: 75%;
+  float: right;
+}
+#day {
+  float: left;
+  overflow: hidden;
+  width:90%;
+  margin: 0 5% 19px;
+  border-bottom: 1px solid #CCC;
+  padding-bottom: 12px;
+}
+#day_nav {
+  padding: 0 40% 10px 40%;
+  background: -webkit-gradient(linear,left top,left bottom,from(whiteSmoke),to(white));
+}
+#detail_panel {
+  width:35%;
+  float: left;
+  height: 100%;
+  overflow: auto;
+}
+#directionsPanel {
+  width: 90%;
+  height: 75%;
+  margin: 0 5%;
+  float: left;
+  clear: both;
+}
+#elevation_chart {
+  float: right; 
+  width: 65%; 
+  height: 200px; 
+  display: block;
+}
+.travel_icons {
+  clear: both;
+  margin: 0 5%;
+  padding-left: 34px;
+  li {
+    float: left;
+    margin: 3px;
+    padding: 0 16px;
+    -webkit-border-radius: 3px;
+  }
+}
+#start_location {
+  margin: 6px 0;
+  .icon {
+    text-align: center; 
+  }
+}
+.prev_day {
+  padding-left: 18px;
+}
+.field {
+  width: 100%;
+}
+dl {
+  clear: both;
+}
+dt, dd {
+  float: left;
+}
+#day_stop_location {
+  margin: 3px 0 8px 18px;
+  padding: 4px;
+  font-size: 100%;
+  width: 100%;
+}
+.selected {
+  background: red;
+  //background-image: -webkit-linear-gradient(top,#4D90FE,#4787ED);
+  //background-image: -moz-radial-gradient(#4D90FE, #4787ED);
+  //background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 35, from(@blue), to(saturate(@blue, 5%)));
+  background: -webkit-gradient(linear,left top,left bottom,from(#ddd),to(#d0d0d0));
+  background: -moz-linear-gradient(top,#DD4B39,#D14836);
+}
+.unselected {
+  background: #cccccc;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#f5f5f5),to(#f1f1f1));
+  background-image: -moz-linear-gradient(top,#DD4B39,#D14836);
+}
+#day_submit {
+  float:right;
+}
+.kd-button-red {
+background-color: #D14836;
+background-image: -moz-linear-gradient(top,#DD4B39,#D14836);
+background-image: -ms-linear-gradient(top,#DD4B39,#D14836);
+background-image: -o-linear-gradient(top,#DD4B39,#D14836);
+background-image: -webkit-gradient(linear,left top,left bottom,from(#DD4B39),to(#D14836));
+background-image: -webkit-linear-gradient(top,#DD4B39,#D14836);
+background-image: linear-gradient(top,#DD4B39,#D14836);
+border-radius: 2px;
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
+border: 1px solid transparent;
+color: white;
+text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+text-transform: uppercase;
+}
+.kd-button {
+display: inline-block;
+min-width: 54px;
+border: 1px solid gainsboro;
+border: 1px solid rgba(0, 0, 0, 0.1);
+text-align: center;
+color: #666;
+font-size: 85%;
+font-weight: bold;
+height: 27px;
+padding: 0 8px;
+line-height: 27px;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
+-webkit-transition: all 0.218s;
+-moz-transition: all 0.218s;
+-o-transition: all 0.218s;
+transition: all 0.218s;
+background-color: whiteSmoke;
+background-image: -webkit-gradient(linear,left top,left bottom,from(whiteSmoke),to(#F1F1F1));
+background-image: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);
+background-image: -moz-linear-gradient(top,whiteSmoke,#F1F1F1);
+background-image: -ms-linear-gradient(top,whiteSmoke,#F1F1F1);
+background-image: -o-linear-gradient(top,whiteSmoke,#F1F1F1);
+background-image: linear-gradient(top,whiteSmoke,#F1F1F1);
 }
