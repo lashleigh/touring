@@ -10,10 +10,11 @@
       </ul>
     </div>
   <% end %>
-  <dl class="field">
+  <dl id="stop_locations" class="field">
     <dt><%= image_tag 'b.png' %></dt>
     <dd><%= f.text_field :stop_location, :size => 40 %></dd>
   </dl>
+    <input class="kd-button kd-button-red" value="Insert new day" type="submit" onclick="loadBlankDay()">
   <div class="field">
     <%= f.hidden_field :distance %>
     <%= f.hidden_field :travel_mode %>
@@ -22,5 +23,6 @@
   </div>
   <div class="actions">
     <%= f.submit 'Save changes', :class => 'kd-button kd-button-red' %>
+    <input class="kd-button kd-button-red" value="Search" type="submit" style="float:right;" onclick="calcRoute()">
   </div>
 <% end %>

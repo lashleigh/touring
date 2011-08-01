@@ -29,9 +29,7 @@ function save_waypoints(result) {
   $("#day_encoded_path").val(result.routes[0].overview_polyline.points);
   $("#day_stop_location").val(result.routes[0].legs[0].end_address);
   
-  op = directionsDisplay.directions.routes[0].legs[0].via_waypoints
-  path = [];
-  $(op).each( function(i, a) {path.push([a.lat(), a.lng()])});
+  var path = directionsDisplay.directions.routes[0].legs[0].via_waypoints.map(function(a) { return [a.lat(), a.lng()];})
   $("#day_google_waypoints").val(JSON.stringify(path))
 }
 function drawPath(path) {

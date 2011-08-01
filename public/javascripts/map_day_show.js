@@ -65,11 +65,12 @@ function drawPreviousNext() {
 }
 function calcRoute() {
   var selectedMode = $(".selected").attr("id"); //"BICYCLING"; //document.getElementById("mode").value;
+  var ary = JSON.parse(day.google_waypoints).map(function(wpt) {return {location: new google.maps.LatLng(wpt[0], wpt[1]), stopover: false};})
 
   var request = {
     origin: prev_day ? prev_day.stop_location : trip.start_location,
-    destination: (day.stop_location != null) ? day.stop_location : trip.finish_location,
-    //waypoints: ary,
+    destination: $("#day_stop_location").val(), 
+    waypoints: ary,
     travelMode: google.maps.TravelMode[selectedMode],
     unitSystem: google.maps.UnitSystem[unit_system]
   };
@@ -79,6 +80,10 @@ function calcRoute() {
     }
   });
   $("#day_travel_mode").val(selectedMode);
+}
+function loadBlankDay() {
+  $("#stop_locations").append('<dt><img alt="B" src="/images/b.png"></dt>'+
+  '<dd><input size="40" type="text" value=""></dd>')
 }
 function getLatLng(w) {
   return new google.maps.LatLng(w.coords[0], w.coords[1]);
