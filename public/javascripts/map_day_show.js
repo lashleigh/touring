@@ -1,8 +1,10 @@
 var rendererOptions = {
-  draggable: true
+  draggable: true,
+  suppressInfoWindows: true
   };
-var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);;
+var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
 var directionsService = new google.maps.DirectionsService();
+var infowindow = new google.maps.InfoWindow();
 var map;
 var total;
 var waypoint_markers = []
@@ -42,7 +44,6 @@ $(function() {
     $(this).removeClass("unselected").addClass("selected");
     calcRoute(false);
   });
-
 });
 function drawPreviousNext() {
   if(prev_day) {
@@ -83,8 +84,7 @@ function calcRoute(waypoints) {
   };
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
-    directionsDisplay.setDirections(response);
-    console.log(response);
+      directionsDisplay.setDirections(response);
     }
   });
   $("#day_travel_mode").val(selectedMode);

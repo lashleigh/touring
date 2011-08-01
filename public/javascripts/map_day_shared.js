@@ -145,14 +145,20 @@ function watch_waypoints() {
   for(var i=0; i<wpts.length; i++) {
     var marker = new google.maps.Marker({
         map: map,
+        //icon: "/images/blue_dot.png",
         position: new google.maps.LatLng(wpts[i].lat(), wpts[i].lng()),
         title: i.toString()
         });
     waypoint_markers.push(marker);
-    google.maps.event.addListener(marker, 'rightclick', function() {
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent("double click to delete this waypoint");
+        infowindow.open(map, this);
+    });
+    google.maps.event.addListener(marker, 'dblclick', function() {
         marker.setMap(null);
         wpts.splice(parseInt(this.title), 1);
         calcRoute(wpts);
+        directionsDisplay.setOptions({ preserveViewport: true, draggable: true});
     });
   }
 }
