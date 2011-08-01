@@ -5,6 +5,7 @@ var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);;
 var directionsService = new google.maps.DirectionsService();
 var map;
 var total;
+var waypoint_markers = []
 
 var australia = new google.maps.LatLng(-25.274398, 133.775136);
 var elevator;
@@ -29,6 +30,7 @@ $(function() {
     computeTotalDistance(directionsDisplay.directions);
     save_waypoints(directionsDisplay.directions);
     drawPath(directionsDisplay.directions.routes[0].overview_path);
+    watch_waypoints();
   });
   $("#"+day.travel_mode).addClass("selected").removeClass("unselected");
   calcRoute();
@@ -38,7 +40,7 @@ $(function() {
   $(".travel_icons li").live("click", function() {
     $(".travel_icons li").removeClass("selected").addClass("unselected");
     $(this).removeClass("unselected").addClass("selected");
-    calcRoute();
+    calcRoute(false);
   });
 
 });
@@ -63,9 +65,14 @@ function drawPreviousNext() {
     polyline = new google.maps.Polyline(pathOptions);
   }
 }
-function calcRoute() {
+function calcRoute(waypoints) {
   var selectedMode = $(".selected").attr("id"); //"BICYCLING"; //document.getElementById("mode").value;
-  var ary = JSON.parse(day.google_waypoints).map(function(wpt) {return {location: new google.maps.LatLng(wpt[0], wpt[1]), stopover: false};})
+  var ary;
+  if(waypoints) {
+    ary = waypoints.map(function(wpt) {return {location: wpt, stopover: false};});
+  } else {
+    ary = JSON.parse(day.google_waypoints).map(function(wpt) {return {location: new google.maps.LatLng(wpt[0], wpt[1]), stopover: false};})
+  }
 
   var request = {
     origin: prev_day ? prev_day.stop_location : trip.start_location,
@@ -76,7 +83,8 @@ function calcRoute() {
   };
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
-      directionsDisplay.setDirections(response);
+    directionsDisplay.setDirections(response);
+    console.log(response);
     }
   });
   $("#day_travel_mode").val(selectedMode);

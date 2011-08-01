@@ -140,14 +140,24 @@ function decodeLevels(encodedLevelsString) {
   return decodedLevels;
 }
 function watch_waypoints() {
+  clear_markers();
   var wpts = directionsDisplay.directions.routes[0].legs[0].via_waypoints;
   for(var i=0; i<wpts.length; i++) {
     var marker = new google.maps.Marker({
         map: map,
-        position: new google.maps.LatLng(wpts[i].lat(), wpts[i].lng())
+        position: new google.maps.LatLng(wpts[i].lat(), wpts[i].lng()),
+        title: i.toString()
         });
-    google.maps.event.addListener(marker, 'click', function() {
-        alert("You clicked it");
+    waypoint_markers.push(marker);
+    google.maps.event.addListener(marker, 'rightclick', function() {
+        marker.setMap(null);
+        wpts.splice(parseInt(this.title), 1);
+        calcRoute(wpts);
     });
+  }
+}
+function clear_markers() {
+  for(var i=0; i<waypoint_markers.length; i++){
+    waypoint_markers[i].setMap(null);
   }
 }
