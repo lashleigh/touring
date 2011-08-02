@@ -14,8 +14,7 @@ $(function() {
   map.fitBounds(bounds);
   $("#query").live("click", searchFoursquare);
   $(".save_waypoint").live("click", function() {
-  var i = $(this).attr("id").split("_")[1];
-  console.log(foursquare_result_array[i].json);
+    var i = $(this).attr("id").split("_")[1];
     $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
   });
 }); 

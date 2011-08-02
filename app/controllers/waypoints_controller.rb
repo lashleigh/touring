@@ -2,8 +2,7 @@ class WaypointsController < ApplicationController
   # GET /waypoints
   # GET /waypoints.xml
   def search_foursquare
-    res = foursquare.venues.search(:ll => params[:coords].join(","), :query => params[:query])
-    logger.info(res)
+    res = foursquare.venues.search(:ll => params[:coords], :query => params[:query])
     render :text => res.to_json
   end
   def save_foursquare

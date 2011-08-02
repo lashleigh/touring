@@ -1,6 +1,7 @@
 var map;
 var bounds = new google.maps.LatLngBounds();
 var infoWindow = new google.maps.InfoWindow();
+var normalized;
 
 $(function() {
   var myOptions = {
@@ -10,16 +11,21 @@ $(function() {
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
+  var d = trip.days.map(function(day) {return day.distance;});
+  var maxDistance = Math.max.apply(null, d);
+  var minDistance = Math.min.apply(null, d);
+  // Multiplying by 180 mean that the min and max values will be at opposite sides of the color wheel
+  normalized = d.map(function(num){return (num-minDistance)/(maxDistance-minDistance)*180 + 90;})
+  set_stats();
   $(trip.days).each(drawDays);
   map.fitBounds(bounds);
-  set_stats();
 });
 
 function drawDays(i, day) {
   var pathOptions = {
     path: google.maps.geometry.encoding.decodePath(day.encoded_path),
     //levels: decodeLevels(prev_day.encoded_levels), I would need to add encoded levels first
-    strokeColor: '#0000CC',
+    strokeColor: convert(normalized[i], 1, 1), //'#0000CC',
     opacity: 0.4,
     map: map
   }
@@ -32,7 +38,7 @@ function drawDays(i, day) {
   });
 
   new google.maps.event.addListener(polyline, 'click', function(event) {  
-    infoWindow.setContent('<div><h2><a href="/trips/'+day.trip_id+'/days/'+trip.day_ids.indexOf(day.id)+'">'+day.stop_location+'</a></h2></div>');
+  infoWindow.setContent('<div><p><a href="/trips/'+day.trip_id+'/days/'+trip.day_ids.indexOf(day.id)+'">'+day.stop_location+'</a></p><p>'+day.distance.toMiles()+' mi </p></div>');
     infoWindow.setPosition(event.latLng);
     infoWindow.open(map);
   });

@@ -4,7 +4,7 @@ Touring::Application.routes.draw do
     resources :days
   end
   match "trips/:trip_id/days/:id" => "days#show"
-  
+  match "users/:id/settings" => "users#settings" 
   resources :users
   resources :waypoints
 

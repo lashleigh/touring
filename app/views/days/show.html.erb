@@ -19,6 +19,11 @@
   <% end %>
 </div>
 <aside id="detail_panel">
+  <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
+    <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
+    <%= hidden_field_tag 'coords' %>
+    <%= submit_tag 'foursquare', :id => "search_fq" %>
+  <% end %>
   <ul class="travel_icons">
     <li class="unselected" id="DRIVING"><%= image_tag 'car.png' %></li>
     <li class="unselected" id="WALKING"><%= image_tag 'hiking.png' %></li>

@@ -9,6 +9,7 @@ var map;
 var total;
 var waypoint_markers = []
 
+var foursquare_result_array = [];
 var australia = new google.maps.LatLng(-25.274398, 133.775136);
 var elevator;
 var chart;
@@ -44,6 +45,12 @@ $(function() {
     $(this).removeClass("unselected").addClass("selected");
     calcRoute(false);
   });
+  $("#search_fq").live("click", searchFoursquare);
+  $(".save_waypoint").live("click", function() {
+    var i = $(this).attr("id").split("_")[1];
+    $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
+  });
+
 });
 function drawPreviousNext() {
   if(prev_day) {

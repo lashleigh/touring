@@ -18,7 +18,7 @@ class ApplicationController < ActionController::Base
     unless current_user
       @foursquare ||= Foursquare::Base.new('LNKOBIXNHL0UWSYGJIX5K1Q1N0NZ4CHNB0N4G1RHT4RKW4FI', 'NGNH3G1XPHK0YUQV2PMMJO02F14JBDBOM2IM1M1Z5NFB5O0T')
     else
-      @foursquare ||= Foursquare::Base.new(session[:access_token])
+      @foursquare ||= Foursquare::Base.new(User.find(session[:user_id]).access_token)
     end
   end
 end

@@ -155,7 +155,6 @@ function watch_waypoints() {
         infowindow.open(map, this);
     });
     google.maps.event.addListener(marker, 'dblclick', function() {
-        marker.setMap(null);
         wpts.splice(parseInt(this.title), 1);
         calcRoute(wpts);
         directionsDisplay.setOptions({ preserveViewport: true, draggable: true});
@@ -166,4 +165,68 @@ function clear_markers() {
   for(var i=0; i<waypoint_markers.length; i++){
     waypoint_markers[i].setMap(null);
   }
+}
+function convert(h, s, v) {
+  var chroma = s*v;
+  var hPrime = (h%360)/60;
+  var x = chroma* (1-Math.abs(hPrime % 2 - 1))
+
+  var rgb_prime = rgbPrime(Math.floor(hPrime), chroma, x);
+
+  var m = v-chroma;
+  var rgb = []
+  var hex = [] 
+  for(i = 0; i<3; i++) {
+    rgb[i] = 255*(rgb_prime[i]+m);
+    hex[i] = toHex(rgb[i]);  
+  }
+  return "#"+hex.join("");
+}
+function rgbPrime(exp, chroma, x) {
+  switch(exp) {
+    case 0: return [chroma, x, 0]; break;
+    case 1: return [x, chroma, 0]; break;
+    case 2: return [0, chroma, x]; break;
+    case 3: return [0, x, chroma]; break;
+    case 4: return [x, 0, chroma]; break;
+    case 5: return [chroma, 0, x]; break;
+  }
+}
+function toHex(n) {
+ n = parseInt(n,10);
+ if (isNaN(n)) return "00";
+ n = Math.max(0,Math.min(n,255));
+ return "0123456789ABCDEF".charAt((n-n%16)/16)
+      + "0123456789ABCDEF".charAt(n%16);
+}
+
+function searchFoursquare() {
+  var coords = [map.getCenter().lat(), map.getCenter().lng()];
+  $("#coords").val(coords);
+  $.post("/waypoints/search_foursquare", $("#foursquare_form").serialize(), function(res, text_status) {
+    if(res.errors) {
+    }
+    else {
+      if(res.nearby) { foursquare_result_array = res.nearby; }
+      else if(res.places) { foursquare_result_array = res.places; }
+      $(foursquare_result_array).each(drawSearchResult);
+    }
+    }, "json");
+  return false;
+}
+
+function drawSearchResult(i, res) {
+  res = res.json;
+  var pos = new google.maps.LatLng(res.location.lat, res.location.lng);
+  var marker = new google.maps.Marker({
+    position: pos,
+    map: map,
+    title: res.name,
+    //draggable: true,
+  });
+  new google.maps.event.addListener(marker, 'click', function() {
+  infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
+                        '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
+    infowindow.open(map, marker);
+  });
 }

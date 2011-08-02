@@ -4,6 +4,7 @@ class User
   key :name, String
   key :uid, String
   key :provider, String
+  key :access_token, String
   key :trip_ids, Array
   key :website, String
   key :location, String
@@ -22,10 +23,12 @@ class User
       :provider => auth["provider"],
       :uid => auth["uid"],
       :name => auth["user_info"]["name"],
-      :location => auth["user_info"]["location"]
+      :location => auth["user_info"]["location"],
+      :access_token => auth["credentials"]["token"]
     )
     return user
   end 
+
   def completed(bool)
     #trips.count { |t| t.complete == bool}
     trips.map {|t| t.complete}.count(bool)
