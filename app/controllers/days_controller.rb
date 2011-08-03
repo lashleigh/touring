@@ -20,6 +20,7 @@ class DaysController < ApplicationController
     @day = @trip.days[day_index]
     @prev_day = @day.prev_day(:day_index => day_index)
     @next_day = @day.next_day(:day_index => day_index)
+    @unit_system = current_user ? current_user.unit_system : "IMPERIAL" 
 
     respond_to do |format|
       format.html # show.html.erb

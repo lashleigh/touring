@@ -14,6 +14,7 @@ class Waypoint
   key :phone, String
 
   #category and amenities
+  key :category_ids, Array
   key :categories, Array
   key :amenities, Array
 

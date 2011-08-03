@@ -16,7 +16,8 @@ var chart;
 var netLoss = 0, netGain = 0;
 
 $(function() {
-  chart = new google.visualization.ScatterChart(document.getElementById('elevation_chart'));
+  set_heights();
+  //chart = new google.visualization.ScatterChart(document.getElementById('elevation_chart'));
   elevator = new google.maps.ElevationService();
 
   var myOptions = {
@@ -106,4 +107,10 @@ function getLatLng(w) {
 function getAddress(w) {
   return [w.address, w.city, w.state].join(", ");
 }
-
+function set_heights() {
+  var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight() - 10;
+  var baseWidth = window.innerWidth - $("#detail_panel").outerWidth() -5;
+  $("#map_canvas").css("height", base+"px");
+  $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
+  $("#elevation_chart").css("width", baseWidth+"px");
+}

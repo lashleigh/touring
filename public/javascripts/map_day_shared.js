@@ -39,8 +39,51 @@ function drawPath(path) {
     'samples': Math.min(path.length*2, 512)
   }
   // Initiate the path request.
-  elevator.getElevationAlongPath(pathRequest, plotElevation);
+  elevator.getElevationAlongPath(pathRequest, draw_with_raphael);
 }
+function draw_with_raphael(results, status) {
+  $("#elevation_chart").html("");
+  var r = Raphael("elevation_chart");
+  r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+  var elevations = results;
+  var distance = 0;
+  var x=[];
+  var y=[];
+  var delta = (total/1000).km2mi() / results.length
+  for (var i = 1; i < results.length-1; i++) {
+    var ele0 = (elevations[i-1].elevation + elevations[i].elevation)/2;
+    var ele1 = (elevations[i].elevation + elevations[i+1].elevation)/2;
+    if( ele0 < ele1) {
+      netLoss += (ele1-ele0); 
+    } else {
+      netGain += (ele0-ele1);
+    }
+    distance +=delta;
+    x.push(distance);
+    y.push(ele0.toFeet());
+    //data.addRow([distance, ele0.toFeet()]);
+  }
+  var width = window.innerWidth-$("#detail_panel").outerWidth()-30;
+  var background = r.rect(20,20,width,175, 10);
+
+  background.attr({
+    //fill: "90-#fff-#000",
+    fill: "#000",
+    opacity: 0.5
+  });
+  var lines = r.g.linechart(50, 30, width-30, 150, x, y, {nostroke: false, axis: "0 0 1 1", symbol: "o", smooth: true}).hoverColumn(function () {
+    this.tags = r.set();
+    for (var i = 0; i < results.length-2; i++) {
+      this.tags.push(r.g.tag(this.x, this.y[i], this.values[i], 160, 10).insertBefore(this).attr([{fill: "#fff"}, {fill: this.symbols[i].attr("fill")}]));
+    }
+  }, function () {
+    this.tags && this.tags.remove();
+  });
+  lines.symbols.attr({r: 3});
+  // lines.lines[0].animate({"stroke-width": 6}, 1000);
+  // lines.symbols[0].attr({stroke: "#fff"});
+  // lines.symbols[0][1].animate({fill: "#f00"}, 1000);
+};
 
 // Takes an array of ElevationResult objects, draws the path on the map
 // and plots the elevation profile on a Visualization API ColumnChart.

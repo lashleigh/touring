@@ -6,24 +6,27 @@
   var prev_day = <%= @prev_day.to_json.html_safe %>;
   var next_day = <%= @next_day.to_json.html_safe %>;
   var trip = <%= @trip.to_json(:include => :days).html_safe %>;
-  var unit_system = <%= current_user.unit_system.to_json.html_safe %>;
+  var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
-
-<div id="day_nav">
-  <% if @prev_day %>
-    <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
-  <% end %>
-  <%= link_to 'All days', trip_days_path %> |
-  <% if @next_day %>
-    <%= link_to 'Next day', trip_day_path(@trip, @next_day) %>
-  <% end %>
+<div id="topbar">
+  <div id="day_nav">
+    <% if @prev_day %>
+      <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
+    <% end %>
+    <%= link_to 'All days', trip_days_path %> |
+    <% if @next_day %>
+      <%= link_to 'Next day', trip_day_path(@trip, @next_day) %>
+    <% end %>
+  </div>
+  <div id="foursquare">
+    <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
+      <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
+      <%= hidden_field_tag 'coords' %>
+      <%= submit_tag 'foursquare', :id => "search_fq" %>
+    <% end %>
+  </div>
 </div>
 <aside id="detail_panel">
-  <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
-    <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
-    <%= hidden_field_tag 'coords' %>
-    <%= submit_tag 'foursquare', :id => "search_fq" %>
-  <% end %>
   <ul class="travel_icons">
     <li class="unselected" id="DRIVING"><%= image_tag 'car.png' %></li>
     <li class="unselected" id="WALKING"><%= image_tag 'hiking.png' %></li>
@@ -46,6 +49,7 @@
   </div>
   <div id="directionsPanel" > </div>
 </aside>
-
+<div>
 <div id="map_canvas"> </div>
 <div id="elevation_chart"></div>
+</div>
