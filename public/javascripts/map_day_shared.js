@@ -6,23 +6,11 @@ function computeTotalDistance(result) {
   }
   $("#day_distance").val(total); //Store in the database as meters
 }
-/** Convert kilomters to miles **/ 
-if (typeof(Number.prototype.toMiles) === "undefined") {
-  Number.prototype.toMiles = function() {
-  return ((this / 1000) * 0.621371192).toFixed(1);
-  }
+function toMiles(num) {
+  return num*0.000621371192;
 }
-/** Convert meters to feet **/ 
-if (typeof(Number.prototype.toFeet) === "undefined") {
-  Number.prototype.toFeet = function() {
-  return (this *3.2808399);
-  }
-}
-// Convert kilometer to miles
-if (typeof(Number.prototype.km2mi) === "undefined") {
-  Number.prototype.km2mi = function() {
-  return (this *0.621371192);
-  }
+function toFeet(num) {
+  return num*3.2808399;
 }
 
 function save_waypoints(result) {
@@ -39,17 +27,59 @@ function drawPath(path) {
     'samples': Math.min(path.length*2, 512)
   }
   // Initiate the path request.
-  elevator.getElevationAlongPath(pathRequest, draw_with_raphael);
+  elevator.getElevationAlongPath(pathRequest, draw_elevation_d3);
+}
+function draw_elevation_d3(results, status) {
+  var elevations = results.map(function(r) { return r.elevation; });
+  total = 80000;
+  var w = 560,
+      h = d3.max(elevations),
+      n = 4,
+      m = elevations.length,
+      x = d3.scale.linear().domain([0, m - 1]).range([0, w]),
+      y = d3.scale.linear().domain([0, d3.max(elevations)]).range([h - 20, 20]),
+      z = d3.scale.linear().domain([0, Math.PI / 2, Math.PI]).range(["#0f0", "#777", "#f00"]);
+  
+  var svg = d3.select("#elevation_chart").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+
+  var line = d3.svg.line()
+    .x(function(d) { return x(d[0]); })
+    .y(function(d) { return y(d[1]); });
+
+    var g = svg.selectAll("g")
+    .data([elevations])
+    .enter().append("svg:g");
+
+    var path = g.selectAll("path")
+    .data(segments)
+    .enter().append("svg:path")
+    .attr("d", line)
+    .style("stroke", function(d) { return z(Math.atan2(d[1][0] - d[0][0], d[1][1] - d[0][1])); });
+
+    var circle = g.selectAll("circle")
+    .data(Object)
+    .enter().append("svg:circle")
+    .attr("cx", function(d, i) { return x(i); })
+    .attr("cy", function(d, i) { return y(d); })
+    .attr("r", 3);
+};
+  // Produce an array of two-element arrays [x,y] for each segment of values.
+function segments(values) {
+  var segments = [], i = 0, n = values.length
+    while (++i < n) segments.push([[i - 1, values[i - 1]], [i, values[i]]]);
+  return segments;
 }
 function draw_with_raphael(results, status) {
   $("#elevation_chart").html("");
   var r = Raphael("elevation_chart");
   r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
   var elevations = results;
-  var distance = 0;
   var x=[];
   var y=[];
-  var delta = (total/1000).km2mi() / results.length
+  var delta = toMiles(total) / results.length
+  var distance = 0;
   for (var i = 1; i < results.length-1; i++) {
     var ele0 = (elevations[i-1].elevation + elevations[i].elevation)/2;
     var ele1 = (elevations[i].elevation + elevations[i+1].elevation)/2;
@@ -60,7 +90,7 @@ function draw_with_raphael(results, status) {
     }
     distance +=delta;
     x.push(distance);
-    y.push(ele0.toFeet());
+    y.push(toFeet(ele0));
     //data.addRow([distance, ele0.toFeet()]);
   }
   var width = window.innerWidth-$("#detail_panel").outerWidth()-30;
@@ -112,7 +142,7 @@ function plotElevation(results, status) {
         data.addRow([distance, ele0]);
       }
     } else {
-      var delta = (total/1000).km2mi() / results.length
+      var delta = toMiles(total) / results.length
       for (var i = 1; i < results.length-1; i++) {
         var ele0 = (elevations[i-1].elevation + elevations[i].elevation)/2;
         var ele1 = (elevations[i].elevation + elevations[i+1].elevation)/2;
@@ -123,7 +153,7 @@ function plotElevation(results, status) {
         }
         distance +=delta;
 
-        data.addRow([distance, ele0.toFeet()]);
+        data.addRow([distance, toFeet(ele0)]);
       }
     }
     // Draw the chart using the data within its DIV.
@@ -159,18 +189,11 @@ function haversine(pt1, pt2) {
   var d = R * c; 
   return d;
 }
-/** Converts numeric degrees to radians */
-if (typeof(Number.prototype.toRad) === "undefined") {
-  Number.prototype.toRad = function() {
-  return this * Math.PI / 180;
-  }
+function toRad(num) {
+  return num*Math.PI / 180;
 }
-
-/** Converts radians to numeric (signed) degrees */
-if (typeof(Number.prototype.toDeg) === "undefined") {
-  Number.prototype.toDeg = function() {
-  return this * 180 / Math.PI;
-  }
+function toDeg(num) {
+  return num*180 / Math.PI;
 }
 
 function decodeLevels(encodedLevelsString) {

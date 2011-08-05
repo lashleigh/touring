@@ -114,3 +114,4 @@ function set_heights() {
   $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
   $("#elevation_chart").css("width", baseWidth+"px");
 }
+
