@@ -27,18 +27,22 @@ function drawPath(path) {
     'samples': Math.min(path.length*2, 512)
   }
   // Initiate the path request.
-  elevator.getElevationAlongPath(pathRequest, draw_elevation_d3);
+  elevator.getElevationAlongPath(pathRequest, draw_with_raphael);
 }
 function draw_elevation_d3(results, status) {
   var elevations = results.map(function(r) { return r.elevation; });
+  var smooth = [];
+  for(var i=0; i < elevations.length-1; i++) {
+    smooth[i] = (elevations[i]+elevations[i+1])/2;
+  }
   total = 80000;
-  var w = 560,
-      h = d3.max(elevations),
+  var w = $("#elevation_chart").innerWidth(), //560,
+      h = $("#elevation_chart").innerHeight(), // d3.max(elevations),
       n = 4,
       m = elevations.length,
       x = d3.scale.linear().domain([0, m - 1]).range([0, w]),
       y = d3.scale.linear().domain([0, d3.max(elevations)]).range([h - 20, 20]),
-      z = d3.scale.linear().domain([0, Math.PI / 2, Math.PI]).range(["#0f0", "#777", "#f00"]);
+      z = d3.scale.linear().domain([0, Math.PI/4, Math.PI / 2, 3*Math.PI/4, Math.PI]).range(["#f00", "#ff0", "#000", "#0ff", "#0f0"]);
   
   var svg = d3.select("#elevation_chart").append("svg:svg")
     .attr("width", w)
@@ -101,7 +105,11 @@ function draw_with_raphael(results, status) {
     fill: "#000",
     opacity: 0.5
   });
-  var lines = r.g.linechart(50, 30, width-30, 150, x, y, {nostroke: false, axis: "0 0 1 1", symbol: "o", smooth: true}).hoverColumn(function () {
+  var w = $("#elevation_chart").innerWidth(), 
+      h = $("#elevation_chart").innerHeight(),
+      wpad = 50,
+      hpad = 30;
+  var lines = r.g.linechart(wpad, hpad, w-wpad, h-hpad-20, x, y, {nostroke: false, axis: "0 0 1 1", symbol: "o", smooth: true}).hoverColumn(function () {
     this.tags = r.set();
     for (var i = 0; i < results.length-2; i++) {
       this.tags.push(r.g.tag(this.x, this.y[i], this.values[i], 160, 10).insertBefore(this).attr([{fill: "#fff"}, {fill: this.symbols[i].attr("fill")}]));
