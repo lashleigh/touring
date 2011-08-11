@@ -18,36 +18,50 @@
       <%= link_to 'Next day', trip_day_path(@trip, @next_day) %>
     <% end %>
   </div>
-  <div id="foursquare">
-    <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
-      <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
-      <%= hidden_field_tag 'coords' %>
-      <%= submit_tag 'foursquare', :id => "search_fq" %>
-    <% end %>
+  <div id="detail_nav">
+    <ul class="detail_nav_icons">
+      <li class="selected" id="DIRECTIONS"><%= image_tag 'directions_sign.png' %></li>
+      <li class="unselected" id="VENUES"><%= image_tag 'Black_MapDrop.png' %></li>
+      <li class="unselected" id="TAGS"><%= image_tag 'tag.png' %></li>
+    </ul>
   </div>
 </div>
 <aside id="detail_panel">
-  <ul class="travel_icons">
-    <li class="unselected" id="DRIVING"><%= image_tag 'car.png' %></li>
-    <li class="unselected" id="WALKING"><%= image_tag 'hiking.png' %></li>
-    <li class="unselected" id="BICYCLING"><%= image_tag 'bicycling.png' %></li>
-  </ul>
-  <div id="day" style="float:left;">
-    <table id="start_location">
-      <tr>
-        <td class="icon"><%= image_tag 'a.png' %></td>
-        <td class="prev_day">            
-          <% if @prev_day %>
-            <%= @prev_day.stop_location %>
-          <% else %>
-            <%= @trip.start_location %>
-          <% end %>
-        </td>
-      </tr>
-    </table>
-    <%= render 'form' %>
+  <div id="DIRECTIONS_details" class="detail_alternate">
+    <ul class="travel_icons">
+      <li class="unselected" id="DRIVING"><%= image_tag 'car.png' %></li>
+      <li class="unselected" id="WALKING"><%= image_tag 'hiking.png' %></li>
+      <li class="unselected" id="BICYCLING"><%= image_tag 'bicycling.png' %></li>
+    </ul>
+    <div id="day" style="float:left;">
+      <table id="start_location">
+        <tr>
+          <td class="icon"><%= image_tag 'a.png' %></td>
+          <td class="prev_day">            
+            <% if @prev_day %>
+              <%= @prev_day.stop_location %>
+            <% else %>
+              <%= @trip.start_location %>
+            <% end %>
+          </td>
+        </tr>
+      </table>
+      <%= render 'form' %>
+    </div>
+    <div id="directionsPanel" > </div>
   </div>
-  <div id="directionsPanel" > </div>
+  <div class="detail_alternate" id="VENUES_details" style="display:none">
+    <div id="foursquare">
+      <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
+        <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
+        <%= hidden_field_tag 'coords' %>
+        <%= submit_tag 'foursquare', :id => "search_fq" %>
+      <% end %>
+    </div>
+  </div>
+  <div id="TAGS_details" class="detail_alternate" style="display:none">
+    Tags here please
+  </div>
 </aside>
 <div>
 <div id="map_canvas"> </div>

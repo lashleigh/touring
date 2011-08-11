@@ -17,6 +17,7 @@ var netLoss = 0, netGain = 0;
 
 $(function() {
   set_heights();
+  $(window).resize(set_heights);
   //chart = new google.visualization.ScatterChart(document.getElementById('elevation_chart'));
   elevator = new google.maps.ElevationService();
 
@@ -45,6 +46,13 @@ $(function() {
     $(".travel_icons li").removeClass("selected").addClass("unselected");
     $(this).removeClass("unselected").addClass("selected");
     calcRoute(false);
+  });
+  $(".detail_nav_icons li").live("click", function() {
+    $(".detail_nav_icons li").removeClass("selected").addClass("unselected");
+    $(this).removeClass("unselected").addClass("selected");
+    $(".detail_alternate").hide();
+    $("#"+$(this).attr("id")+"_details").show();
+
   });
   $("#search_fq").live("click", searchFoursquare);
   $(".save_waypoint").live("click", function() {
@@ -75,7 +83,7 @@ function drawPreviousNext() {
   }
 }
 function calcRoute(waypoints) {
-  var selectedMode = $(".selected").attr("id"); //"BICYCLING"; //document.getElementById("mode").value;
+  var selectedMode = $(".travel_icons .selected").attr("id"); //"BICYCLING"; //document.getElementById("mode").value;
   var ary;
   if(waypoints) {
     ary = waypoints.map(function(wpt) {return {location: wpt, stopover: false};});
@@ -110,6 +118,7 @@ function getAddress(w) {
 function set_heights() {
   var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight() - 10;
   var baseWidth = window.innerWidth - $("#detail_panel").outerWidth() -5;
+  $("#detail_panel").css("margin-top", $("#topbar").outerHeight());
   $("#map_canvas").css("height", base+"px");
   $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
   $("#elevation_chart").css("width", baseWidth+"px");
