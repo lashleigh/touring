@@ -7,7 +7,9 @@ var directionsService = new google.maps.DirectionsService();
 var infowindow = new google.maps.InfoWindow();
 var map;
 var total;
-var waypoint_markers = []
+var waypoint_markers = [];
+var foursquare_markers = [];
+var foursquare_results_ids = [];
 
 var foursquare_result_array = [];
 var australia = new google.maps.LatLng(-25.274398, 133.775136);
@@ -36,7 +38,22 @@ $(function() {
     save_waypoints(directionsDisplay.directions);
     drawPath(directionsDisplay.directions.routes[0].overview_path);
     watch_waypoints();
+    });
+  //Note that you could listen to the bounds_changed event but it fires continuously as the user pans; instead, the idle will fire once the user has stopped panning/zooming.
+  google.maps.event.addListener(map, 'idle', function() {
+    var bounds = map.getBounds();
+    for(i=0; i<foursquare_markers.length; i++) {
+      var boo = bounds.contains(foursquare_markers[i].position);
+      if(boo) {
+      foursquare_markers[i].setMap(map);
+      $(foursquare_results_ids[i]).show();
+      } else {
+        foursquare_markers[i].setMap(null);
+        $(foursquare_results_ids[i]).hide();
+      }
+    }
   });
+
   $("#"+day.travel_mode).addClass("selected").removeClass("unselected");
   calcRoute();
   $(".adp-summary").live("click", function() {

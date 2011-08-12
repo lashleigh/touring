@@ -275,15 +275,24 @@ function toHex(n) {
 }
 
 function searchFoursquare() {
+  $("#VENUES_details #fq_errors").html("");
+  $("#VENUES_details #fq_results").html("");
+
   var coords = [map.getCenter().lat(), map.getCenter().lng()];
   $("#coords").val(coords);
   $.post("/waypoints/search_foursquare", $("#foursquare_form").serialize(), function(res, text_status) {
     if(res.errors) {
+      $("#VENUES_details #fq_errors").html('<div class="fq_errors">'+res.errors+'</div>');
     }
     else {
       if(res.nearby) { foursquare_result_array = res.nearby; }
       else if(res.places) { foursquare_result_array = res.places; }
-      $(foursquare_result_array).each(drawSearchResult);
+      if(foursquare_result_array.length > 0) {
+        $("#VENUES_details #fq_results").html(foursquare_result_array.length.toString() + " venues were found");
+        $(foursquare_result_array).each(drawSearchResult);
+      } else {
+        $("#VENUES_details #fq_errors").html('Sorry no venues were found that match '+$("#query_fq").val());
+      }
     }
     }, "json");
   return false;
@@ -291,16 +300,45 @@ function searchFoursquare() {
 
 function drawSearchResult(i, res) {
   res = res.json;
+  var venue_id = "venue_"+res.id;
   var pos = new google.maps.LatLng(res.location.lat, res.location.lng);
   var marker = new google.maps.Marker({
     position: pos,
     map: map,
     title: res.name,
+    icon: "/images/red_marker.png"
     //draggable: true,
   });
+  foursquare_markers.push(marker);
+  foursquare_results_ids.push("#"+venue_id);
   new google.maps.event.addListener(marker, 'click', function() {
-  infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
-                        '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
+    infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
+                          '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
     infowindow.open(map, marker);
   });
+  new google.maps.event.addListener(marker, 'mouseover', function() {
+    $("#"+venue_id).animate({backgroundColor: "#005555"}, 'fast'); 
+  });
+  new google.maps.event.addListener(marker, 'mouseout', function() {
+    $("#"+venue_id).animate({backgroundColor: "#ffffff"}, 'fast'); 
+  });
+  $("#VENUES_details #fq_results").append('<div id="'+venue_id+'">'+res.name+'  '+res.location.city+', '+res.location.state+'</div>');
+  $("#"+venue_id).hover(
+    function() { 
+      marker.setIcon("/images/yellow_marker.png");
+    }, function() {
+      marker.setIcon("/images/red_marker.png");
+    }
+  ).click(function() {
+    map.panTo(pos);
+    map.setZoom(14);
+    infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
+                          '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
+    infowindow.open(map, marker);
+    }
+  );
+
+}
+function venue_html(v) {
+  return '<div id="venue_'+v.id+'">'+v.name+'  '+v.location.city+', '+v.location.state+'</div>'
 }
