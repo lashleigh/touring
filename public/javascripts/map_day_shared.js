@@ -214,7 +214,7 @@ function decodeLevels(encodedLevelsString) {
   return decodedLevels;
 }
 function watch_waypoints() {
-  clear_markers();
+  clear_markers(waypoint_markers);
   var wpts = directionsDisplay.directions.routes[0].legs[0].via_waypoints;
   for(var i=0; i<wpts.length; i++) {
     var marker = new google.maps.Marker({
@@ -235,9 +235,12 @@ function watch_waypoints() {
     });
   }
 }
-function clear_markers() {
-  for(var i=0; i<waypoint_markers.length; i++){
-    waypoint_markers[i].setMap(null);
+function clear_markers(ma) {
+  if(ma) {
+    for(var i=0; i<ma.length; i++){
+      ma[i].setMap(null);
+    }
+    ma.length = 0;
   }
 }
 function convert(h, s, v) {
@@ -275,6 +278,8 @@ function toHex(n) {
 }
 
 function searchFoursquare() {
+  clear_markers(foursquare_markers);
+  foursquare_results_ids.length = 0;
   $("#VENUES_details #fq_errors").html("");
   $("#VENUES_details #fq_results").html("");
 
@@ -326,8 +331,10 @@ function drawSearchResult(i, res) {
   $("#"+venue_id).hover(
     function() { 
       marker.setIcon("/images/yellow_marker.png");
+      $(this).animate({backgroundColor: "#005555"}, 'fast'); 
     }, function() {
       marker.setIcon("/images/red_marker.png");
+      $(this).animate({backgroundColor: "#ffffff"}, 'fast'); 
     }
   ).click(function() {
     map.panTo(pos);
