@@ -4,7 +4,7 @@ class Day
   after_create :do_something_after_create
   before_destroy :do_something_before_destroy
 
-  key :tags, Array
+  key :tags, Hash
   key :distance, Float
   key :google_waypoints, Array
   key :encoded_path, String
@@ -15,6 +15,10 @@ class Day
 
   belongs_to :trip
   validates_presence_of :stop_location, :trip_id, :distance
+
+  def tag_names
+    tags.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
+  end
 
   def included_waypoints
     #find nearby waypoints
@@ -49,7 +53,7 @@ class Day
       day_by_index(trip.day_ids.index(id)+1)
     end
   end
-  def update(params)
+  def custom_update(params)
     Day.set({:id => id.as_json},
             :distance => params[:distance].to_f,
             :travel_mode => params[:travel_mode],
@@ -69,6 +73,29 @@ class Day
   end
   def toKilometers(num)
     (num / 1000).round(1).to_s;
+  end
+
+  def parse_tag_string(tag_string)
+    tag_array = tag_string.scan(/(\w+)|("([^"]+)")|('([^']+)')/).map { |a, _, b, _, c| (a or b or c).strip }
+    r1 = Regexp.new('...x\d+$')
+    res = {}
+    tag_array.each do |t|
+      if r1.match(t) 
+        match_array = r1.match(t).string.rpartition("x")
+        tag = Tag.find_or_create_by_name(match_array[0].downcase)
+        #tag.count += match_array[2].to_i
+        #tag.save
+        res[tag.id] = match_array[2]
+      else
+        tag = Tag.find_or_create_by_name(t.downcase)
+        #tag.count += 1
+        #tag.save
+        res[tag.id] = 1
+      end
+    end
+    #res.merge!(tags){|k, old, new| old+new}
+    Day.set({:id => id.as_json}, :tags => res.merge(tags){|k, old, new| old+new}.as_json)
+    return res.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
   end
 
   private

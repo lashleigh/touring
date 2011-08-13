@@ -2,6 +2,12 @@ class DaysController < ApplicationController
   # GET /days
   # GET /days.xml
   before_filter :require_user, :except => [:index, :show]
+  def add_tag
+    day = Day.find_by_id(params[:tags_day_id])
+    newtags = day.parse_tag_string(params[:tag_string])
+    day.reload
+    render :json => newtags 
+  end
   def index
     @trip = Trip.find(params[:trip_id])
     @days = @trip.days
@@ -76,7 +82,7 @@ class DaysController < ApplicationController
     #redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
     
     respond_to do |format|
-      if @day.update(params[:day])
+      if @day.custom_update(params[:day])
         format.html { redirect_to("/trips/#{@trip.id}/days/#{params[:id]}", :notice => 'Day was successfully updated.') }
         format.xml  { head :ok }
       else

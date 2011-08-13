@@ -29,5 +29,13 @@ class Trip
     (days.map {|d| d.distance}).sum
   end
 
+  def trip_day_tags
+    t = {}
+    days.each do |d|
+      t.merge!(d.tags) {|k, old, new| old.to_i+new.to_i}
+    end
+   return t #.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
+  end
+
   private
 end

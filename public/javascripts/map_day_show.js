@@ -54,29 +54,13 @@ $(function() {
     }
   });
 
-  $("#"+day.travel_mode).addClass("selected").removeClass("unselected");
-  calcRoute();
-  $(".adp-summary").live("click", function() {
-    $(this).next().find(".adp-directions").toggle();
-  })
-  $(".travel_icons li").live("click", function() {
-    $(".travel_icons li").removeClass("selected").addClass("unselected");
-    $(this).removeClass("unselected").addClass("selected");
-    calcRoute(false);
-  });
-  $(".detail_nav_icons li").live("click", function() {
-    $(".detail_nav_icons li").removeClass("selected").addClass("unselected");
-    $(this).removeClass("unselected").addClass("selected");
-    $(".detail_alternate").hide();
-    $("#"+$(this).attr("id")+"_details").show();
-
-  });
-  $("#search_fq").live("click", searchFoursquare);
-  $(".save_waypoint").live("click", function() {
-    var i = $(this).attr("id").split("_")[1];
-    $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
-  });
-
+  if(["DRIVING", "BICYCLING", "WALKING"].indexOf(day.travel_mode) != -1) {
+    $("#"+day.travel_mode).addClass("selected").removeClass("unselected");
+  } else {
+    $("#DRIVING").addClass("selected").removeClass("unselected");
+  }
+  calcRoute(false);
+  click_actions();
 });
 function drawPreviousNext() {
   if(prev_day) {
@@ -118,7 +102,10 @@ function calcRoute(waypoints) {
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
+    } else {
+      console.log(status);
     }
+
   });
   $("#day_travel_mode").val(selectedMode);
 }
@@ -140,4 +127,39 @@ function set_heights() {
   $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
   $("#elevation_chart").css("width", baseWidth+"px");
 }
-
+function click_actions() {
+  $(".adp-summary").live("click", function() {
+    $(this).next().find(".adp-directions").toggle();
+  })
+  $(".travel_icons li").live("click", function() {
+    $(".travel_icons li").removeClass("selected").addClass("unselected");
+    $(this).removeClass("unselected").addClass("selected");
+    calcRoute(false);
+  });
+  $(".detail_nav_icons li").live("click", function() {
+    $(".detail_nav_icons li").removeClass("selected").addClass("unselected");
+    $(this).removeClass("unselected").addClass("selected");
+    $(".detail_alternate").hide();
+    $("#"+$(this).attr("id")+"_details").show();
+  });
+  $("#search_fq").live("click", searchFoursquare);
+  $(".save_waypoint").live("click", function() {
+    var i = $(this).attr("id").split("_")[1];
+    $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
+  });
+  $("#submit_tags").live("click", function() {
+    $("#tags_day_id").val(day.id);
+    $.post("/days/add_tag", $("#tags_form").serialize(), function(res, text_status) {
+    if(res.errors) {
+      console.log(res)
+    }
+    else {
+      for(var i=0; i<res.length; i++) {
+        $("#TAGS_details ul").prepend("<li>"+res[i]+"</li>");
+      }
+      console.log(res)
+    }
+    }, "json");
+  return false;
+  })
+}

@@ -9,7 +9,8 @@ Touring::Application.routes.draw do
   resources :waypoints
 
   match "/waypoints/search_foursquare" => "waypoints#search_foursquare"
-  match "/waypoints/save_foursquare" => "waypoints#save_foursquare"
+  match "/waypoints/save_foursquare"   => "waypoints#save_foursquare"
+  match "/days/add_tag"                => "days#add_tag"
   #match "/trips/:trip_id/days/:day_id" => "trips#show_day"
 
   match "/auth/:provider/callback" => "sessions#create"  

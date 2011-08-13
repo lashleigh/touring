@@ -27,6 +27,14 @@ class User
     return user
   end 
 
+  def user_tags
+    user_tags = {}
+    trips.each do |t|
+      user_tags.merge!(t.trip_day_tags) {|k, old, new| old.to_i+new.to_i}
+    end
+    return user_tags
+  end
+
   def completed(bool)
     #trips.count { |t| t.complete == bool}
     trips.map {|t| t.complete}.count(bool)

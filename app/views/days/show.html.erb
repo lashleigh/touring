@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'map_day_show' %>
 
 <script type="text/javascript">
-  var day = <%= @day.to_json.html_safe %>;
+  var day = <%= @day.to_json(:methods => :tag_names).html_safe %>;
   var prev_day = <%= @prev_day.to_json.html_safe %>;
   var next_day = <%= @next_day.to_json.html_safe %>;
   var trip = <%= @trip.to_json(:include => :days).html_safe %>;
@@ -50,7 +50,7 @@
     </div>
     <div id="directionsPanel" > </div>
   </div>
-  <div class="detail_alternate" id="VENUES_details" style="display:none">
+  <div id="VENUES_details" class="detail_alternate" style="display:none">
     <div id="foursquare">
       <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
         <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
@@ -62,7 +62,21 @@
     <div id="fq_results"></div>
   </div>
   <div id="TAGS_details" class="detail_alternate" style="display:none">
-    Tags here please
+    <div class="explanation">
+      Tags will probably be most useful for post trip analysis. Some people like to count things 
+      on tour - roadkill, flats, pounds lost, etc. Tags can help you keep track of this data. 
+      Apply the roadkill tag to a day when you see some, or apply roadkillx3 to indication 3 pieces. 
+    </div>
+    <%= form_tag 'days/add_tag', :id => "tags_form" do %>
+      <%= text_field_tag 'tag_string', nil, :placeholder => "tag" %>
+      <%= hidden_field_tag 'tags_day_id' %>
+      <%= submit_tag 'add tag(s)', :id => "submit_tags" %>
+    <% end %>
+    <ul id="tag_list">
+      <% @day.tag_names.each do |t| %>
+        <li><%= t %></li>
+      <% end %>
+    </ul>
   </div>
 </aside>
 <div>
