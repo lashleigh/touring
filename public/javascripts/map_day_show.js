@@ -151,13 +151,16 @@ function click_actions() {
     $("#tags_day_id").val(day.id);
     $.post("/days/add_tag", $("#tags_form").serialize(), function(res, text_status) {
     if(res.errors) {
-      console.log(res)
+      alert(text_status);
     }
     else {
+      var trip_tags = $($("#TAGS_details ul")[1]).children()
       for(var i=0; i<res.length; i++) {
-        $("#TAGS_details ul").prepend("<li>"+res[i]+"</li>");
+        $($("#TAGS_details ul")[0]).prepend("<li>"+res[i]+"</li>");
       }
-      console.log(res)
+      for(var i=0; i<trip_tags.length; i++) {
+        
+      }
     }
     }, "json");
   return false;
