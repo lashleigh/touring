@@ -75,7 +75,7 @@
     <% @day.tag_hash.each do |k,v| %>
       <div id="<%=k%>" style="clear:both;">
       <%= k.gsub("_", " ").capitalize%>
-      <ul>
+      <ul class="tag_ul">
         <% v.each do |tag| %>
           <li><%= tag%></li>
         <% end %>

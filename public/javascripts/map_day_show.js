@@ -154,12 +154,14 @@ function click_actions() {
       alert(text_status);
     }
     else {
-      var trip_tags = $($("#TAGS_details ul")[1]).children()
       for(var i=0; i<res.length; i++) {
+        var matching_li = $(".tag_ul li:contains('"+res[i]+"')");
+        for(var j=0; j<matching_li.length; j++) {
+          if($(matching_li[j]).text() === res[i]){
+            $(matching_li[j]).remove();
+          }
+        }
         $($("#TAGS_details ul")[0]).prepend("<li>"+res[i]+"</li>");
-      }
-      for(var i=0; i<trip_tags.length; i++) {
-        
       }
     }
     }, "json");

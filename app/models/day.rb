@@ -30,15 +30,13 @@ class Day
   end
 
   def alt_tag_hash
-    all_tags = {}
-    all_tags["this_day"] = {}
-    all_tags["this_day"]["tags"] = tags.map{|k,v| Tag.find(k).name}
-    all_tags["this_day"]["description"] = "Tags for this day"
-    all_tags["this_trip"]["tags"] = trip.trip_day_tags.map{|k,v| Tag.find(k).name} - all_tags["this_day"]
-    all_tags["this_trip"]["description"] = "Tags for this trip"
-    all_tags["this_user"]["tags"] = trip.user.user_tags.map{|k,v| Tag.find(k).name} - all_tags["this_trip"] - all_tags["this_day"]
-    all_tags["this_user"]["description"] = "Tags for this user"
-    tags.each {|k,v| all_tags["this_day"][Tag.find(k).name] = v}
+    all_tags =  {}
+    t_tags = trip.trip_day_tags
+    u_tags = trip.user.user_tags
+    all_tags["tags_for_this_day"] = tags
+    all_tags["other_tags_from_this_trip"] = t_tags.delete_if {|k,v| tags.has_key? k}
+    all_tags["tags_from_other_trips"] = u_tags.delete_if {|k,v| tags.has_key? k or t_tags.has_key? k}
+    return all_tags  
   end
 
   def included_waypoints

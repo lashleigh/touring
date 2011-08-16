@@ -5,12 +5,12 @@ class Tag
   key :name, String, :required => true
   key :count, Integer, :default => 0
 
-  validates_length_of :name, :minimum => 3
+  validates_length_of :name, :minimum => 1
   validates_numericality_of :count
 
   def parse_tag_array(tags)
     res = {}
-    r1 = Regexp.new('...x\d+$')
+    r1 = Regexp.new('.x\d+$')
     tags.each do |t|
       if r1.match(t) 
         match_array = r1.match(t).string.rpartition("x")
