@@ -189,15 +189,54 @@ ul.repositories {
   margin-top: 5.5em;
   z-index: 2;
 }
-#VENUES_details, #TAGS_details {
+#VENUES_details {
   margin: 15px; 
+  .venue {
+    :hover {
+      background: blue;
+    }
+  }
 }
-#TAGS_details ul {
+#TAGS_details { 
+}
+.clear {
   clear: both;
-  li {
+  overflow: hidden;
+  position: relative;
+}
+
+.tag_item, .live_item {
   float: left;
   margin: 5px;
+  :hover {
+    cursor: pointer;
   }
+}  
+.tag_stats {
+  position: absolute;
+  z-index: 1;
+  background: white;
+  background-color: -webkit-gradient(linear, left top, left bottom, from(#DDD), to(#D0D0D0));
+  box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.8);
+  border-radius: 5px;
+  //border-bottom-right-radius: 50px 25px;
+  //border-bottom-left-radius: 50px 25px;
+  //border-top-right-radius: 10px 50px;
+  //border-top-left-radius: 10px 50px;
+  ul {
+  }
+  li {
+  }
+}
+.stat_col {
+  float: left;
+  padding: 2px;
+}
+.tag_unused {
+  opacity: 1;
+}
+.tag_used {
+  opacity: .5;
 }
 #directionsPanel {
   width: 90%;

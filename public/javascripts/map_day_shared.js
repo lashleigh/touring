@@ -289,7 +289,7 @@ function searchFoursquare() {
 
   var coords = [map.getCenter().lat(), map.getCenter().lng()];
   $("#coords").val(coords);
-  $.post("/waypoints/search_foursquare", $("#foursquare_form").serialize(), function(res, text_status) {
+  $.post("/places/search_foursquare", $("#foursquare_form").serialize(), function(res, text_status) {
     if(res.errors) {
       $("#VENUES_details #fq_errors").html('<div class="fq_errors">'+res.errors+'</div>');
     }
@@ -322,34 +322,32 @@ function drawSearchResult(i, res) {
   foursquare_results_ids.push("#"+venue_id);
   new google.maps.event.addListener(marker, 'click', function() {
     infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
-                          '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
+                          '<input class="save_place" id="save_'+i+'" name="commit" type="submit" value="Save">');
     infowindow.open(map, marker);
   });
   new google.maps.event.addListener(marker, 'mouseover', function() {
-    $("#"+venue_id).animate({backgroundColor: "#005555"}, 'fast'); 
+    //$("#"+venue_id).animate({backgroundColor: "#005555"}, 'fast'); 
+    $("#"+venue_id).css({backgroundColor: "#005555"}); 
   });
   new google.maps.event.addListener(marker, 'mouseout', function() {
-    $("#"+venue_id).animate({backgroundColor: "#ffffff"}, 'fast'); 
+    //$("#"+venue_id).animate({backgroundColor: "#ffffff"}, 'fast'); 
+    $("#"+venue_id).css({backgroundColor: "#ffffff"}); 
   });
-  $("#VENUES_details #fq_results").append('<div id="'+venue_id+'">'+res.name+'  '+res.location.city+', '+res.location.state+'</div>');
+  $("#VENUES_details #fq_results").append('<div id="'+venue_id+'" class="venue">'+res.name+'  '+res.location.city+', '+res.location.state+'</div>');
   $("#"+venue_id).hover(
     function() { 
       marker.setIcon("/images/yellow_marker.png");
-      $(this).animate({backgroundColor: "#005555"}, 'fast'); 
+      $(this).css({backgroundColor: "#005555"}); 
     }, function() {
       marker.setIcon("/images/red_marker.png");
-      $(this).animate({backgroundColor: "#ffffff"}, 'fast'); 
+      $(this).css({backgroundColor: "#ffffff"}); 
     }
   ).click(function() {
     map.panTo(pos);
     map.setZoom(14);
     infowindow.setContent('<div class="place_form"><h2><a href="https://foursquare.com/venue/'+ res.id+'">'+res.name+'</a></h2></div>'+
-                          '<input class="save_waypoint" id="save_'+i+'" name="commit" type="submit" value="Save">');
+                          '<input class="save_place" id="save_'+i+'" name="commit" type="submit" value="Save">');
     infowindow.open(map, marker);
     }
   );
-
-}
-function venue_html(v) {
-  return '<div id="venue_'+v.id+'">'+v.name+'  '+v.location.city+', '+v.location.state+'</div>'
 }

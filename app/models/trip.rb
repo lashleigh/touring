@@ -15,11 +15,11 @@ class Trip
   timestamps!
 
   key :user_id, ObjectId
-  key :waypoint_ids, Array
+  key :place_ids, Array
   key :day_ids, Array, :default => []
   key :partners, Array
 
-  many :waypoints, :in => :waypoint_ids
+  many :places, :in => :place_ids
   many :days, :in => :day_ids, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
@@ -34,7 +34,7 @@ class Trip
     days.each do |d|
       t.merge!(d.tags) {|k, old, new| old.to_i+new.to_i}
     end
-   return t #.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
+   return t 
   end
 
   private

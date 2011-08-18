@@ -2,7 +2,7 @@
 <ul>
   <% @trips.each do |trip| %>
     <li><div class="trip" style="position:relative;">
-    <%= image_tag gmap(trip.waypoints) %>
+    <%= image_tag gmap(trip.places) %>
     <% trip.tags.each do |tag| %>
       <%= tag %>
     <% end %>

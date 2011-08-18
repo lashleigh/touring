@@ -15,7 +15,7 @@ class TripsController < ApplicationController
   # GET /trips/1.xml
   def show
     @trip = Trip.find(params[:id])
-    @waypoints = @trip.waypoints
+    @places = @trip.places
 
     respond_to do |format|
       format.html # show.html.erb

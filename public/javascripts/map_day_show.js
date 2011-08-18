@@ -61,6 +61,7 @@ $(function() {
   }
   calcRoute(false);
   click_actions();
+  tag_actions();
 });
 function drawPreviousNext() {
   if(prev_day) {
@@ -143,9 +144,13 @@ function click_actions() {
     $("#"+$(this).attr("id")+"_details").show();
   });
   $("#search_fq").live("click", searchFoursquare);
-  $(".save_waypoint").live("click", function() {
+  $(".save_place").live("click", function() {
     var i = $(this).attr("id").split("_")[1];
-    $.post("/waypoints/save_foursquare", {fq: foursquare_result_array[i].json})
+    $("#save_from_foursquare #fq_hash").val(JSON.stringify(foursquare_result_array[i].json))
+    $.post("/places/save_foursquare", $("#save_from_foursquare").serialize(), function(res, text_status) {
+      console.log(res);
+      console.log(text_status);  
+    })
   });
   $("#submit_tags").live("click", function() {
     $("#tags_day_id").val(day.id);
@@ -161,10 +166,44 @@ function click_actions() {
             $(matching_li[j]).remove();
           }
         }
-        $($("#TAGS_details ul")[0]).prepend("<li>"+res[i]+"</li>");
+        // TODO this doesn't need to happen every time and shouldn't happen if the tag is not
+        // successfully created.
+        $(".no_tags").html("");
+        $("#TAGS_details #the_tags").prepend("<div class='tag_item'><div class='live_tag'>"+res[i]+"</div></div>");
+        $("#tag_string").val("");
       }
     }
     }, "json");
   return false;
   })
+}
+function tag_actions() {
+  $(".tag_unused").live("click", function() {
+    var current_text = $("#tag_string").val()
+    $("#tag_string").val($(this).text() + " " + current_text)
+    $(this).addClass("tag_used").removeClass("tag_unused");
+    // TODO change the counts of the hover box on click
+    // potentially append an x[int] to the tag string for
+    // multiple clicks
+    //var day_stat = $(this).next().find($(".day_stats .stat_num"));
+    //day_stat.text(parseInt(day_stat.text())+1)
+  });
+  $(".tag_used").live("click", function() {
+    var current_text = $("#tag_string").val();
+    var tag_index = current_text.search($(this).text());
+    if(tag_index != -1) {
+      $("#tag_string").val(current_text.slice(0, tag_index)+current_text.slice(tag_index+$(this).text().length+1));
+      $(this).addClass("tag_unused").removeClass("tag_used");
+    }
+    else if($("#the_tags .live_tag").text().search($(this).text()) == -1) {
+      $("#tag_string").val($(this).text() + " " + current_text)
+      $(this).addClass("tag_used").removeClass("tag_unused");
+    }
+  });
+  $(".tag_item").live("mouseover", function() {
+    $(this).find($(".tag_stats")).show();
+  });
+  $(".tag_item").live("mouseout", function() {
+    $(this).find($(".tag_stats")).hide();
+  });
 }

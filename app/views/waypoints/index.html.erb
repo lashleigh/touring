@@ -1,9 +1,0 @@
-<%= javascript_include_tag 'waypoint_index_map' %>
-<script type="text/javascript">
-  var waypoints = <%= @waypoints.to_json.html_safe %>;
-</script>
-
-<div id="map_container"> </div>
-
-<%= text_field_tag 'query_fq', nil, :placeholder => 'Query' %>
-<%= submit_tag "Search", :confirm => "Are you sure?", :id => "query" %>

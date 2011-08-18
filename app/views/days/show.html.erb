@@ -52,7 +52,7 @@
   </div>
   <div id="VENUES_details" class="detail_alternate" style="display:none">
     <div id="foursquare">
-      <%= form_tag 'waypoints/search_foursquare', :id => "foursquare_form" do %>
+      <%= form_tag 'places/search_foursquare', :id => "foursquare_form" do %>
         <%= text_field_tag 'query_fq', nil, :placeholder => "campgrounds" %>
         <%= hidden_field_tag 'coords' %>
         <%= submit_tag 'foursquare', :id => "search_fq" %>
@@ -60,28 +60,46 @@
     </div>
     <div id="fq_errors"></div>
     <div id="fq_results"></div>
+    <%= form_tag 'places/save_foursquare', :id => "save_from_foursquare" do %>
+      <%= hidden_field_tag :fq_hash %>
+    <% end %>
   </div>
   <div id="TAGS_details" class="detail_alternate" style="display:none">
-    <div class="explanation">
-      Tags will probably be most useful for post trip analysis. Some people like to count things 
-      on tour - roadkill, flats, pounds lost, etc. Tags can help you keep track of this data. 
-      Apply the roadkill tag to a day when you see some, or apply roadkillx3 to indication 3 pieces. 
+    Tags
+    <div id="the_tags" class="clear">
+      <% if @day.tags.length == 0 %>
+        <div class="no_tags"> You haven't added any tags to this day yet.</div>
+      <% else %>
+        <% @day.tags.each do |k, v| %>
+          <div class="live_item"> 
+            <div class="live_tag"><%= k %><%= v== 1 ? "" : "x"+v.to_s%></div>
+          </div>
+        <% end %>
+      <% end %>
     </div>
     <%= form_tag 'days/add_tag', :id => "tags_form" do %>
       <%= text_field_tag 'tag_string', nil, :placeholder => "tag" %>
       <%= hidden_field_tag 'tags_day_id' %>
       <%= submit_tag 'add tag(s)', :id => "submit_tags" %>
     <% end %>
-    <% @day.tag_hash.each do |k,v| %>
-      <div id="<%=k%>" style="clear:both;">
-      <%= k.gsub("_", " ").capitalize%>
-      <ul class="tag_ul">
-        <% v.each do |tag| %>
-          <li><%= tag%></li>
-        <% end %>
-      </ul>
-    </div>
+    <% @day.alt_tag_hash.each do |k,v| %>
+      <div class="tag_item">
+        <div class="<%= v["day"].to_i == 0 ? 'tag_unused' : 'tag_used'%>"><%= k %></div>
+        <div class="tag_stats"style="display:none">
+          <% v.each do |tagk, tagv| %>
+            <ul class="stat_col <%=tagk%>_stats"> 
+              <li class="stat_name"><%= tagk %></li>
+              <li class="stat_num"> <%= tagv %></li>
+            </ul>
+          <% end %>
+        </div>
+      </div>
     <% end %>
+    <div class="explanation clear">
+      Separate each tag with a space: <em>lake hilly scorpions</em>. Or to join 2 words 
+      together in one tag, use double quotes: "<em>dog chase</em>". To indicate that a tag 
+      occured more than once in a day use an x and non-zero integer at the end of the tag: "<em>bug bitesx4</em>".
+    </div>
   </div>
 </aside>
 <div>

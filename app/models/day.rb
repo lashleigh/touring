@@ -14,22 +14,31 @@ class Day
   key :trip_id, ObjectId
 
   belongs_to :trip
-  validates_presence_of :stop_location, :trip_id, :distance
+  validates_presence_of :stop_location, :trip_id 
 
-  def tag_names
-    tags.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
+  def self.find_all_by_tag(tag)
+    Day.where("tags.#{tag}" => {'$exists' => true}).all
   end
 
-  def tag_hash
-    all_tags =  {}
-    all_tags["tags_for_this_day"] = tags.map{|k,v| Tag.find(k).name}
-    all_tags["other_tags_from_this_trip"] = trip.trip_day_tags.map{|k,v| Tag.find(k).name} - all_tags["tags_for_this_day"]
-    all_tags["tags_from_other_trips"] = trip.user.user_tags.map{|k,v| Tag.find(k).name} - all_tags["other_tags_from_this_trip"] - all_tags["tags_for_this_day"]
-    all_tags.values.each {|v| v.sort!}
-    return all_tags  
+  def self.find_all_by_tag_and_minimum_count(tag, count)
+    # ex Day.by_tag_and_minimum_count("roadkill", "2")
+    # Without quotes around the count it doesn't work
+    Day.where("tags.#{tag}" => {'$gt' => count}).all
+  end
+  
+  def tag_names
+    tags.map{|k,v| v == 1 ? k : k + "x"+v.to_s}
   end
 
   def alt_tag_hash
+    all_tags = {}
+    tags.each                {|k,v| all_tags[k] ||= {"day" => 0, "trip" => 0, "user" => 0}; all_tags[k]["day"]  = v}
+    trip.trip_day_tags.each  {|k,v| all_tags[k] ||= {"day" => 0, "trip" => 0, "user" => 0}; all_tags[k]["trip"] = v}
+    trip.user.user_tags.each {|k,v| all_tags[k] ||= {"day" => 0, "trip" => 0, "user" => 0}; all_tags[k]["user"] = v}
+    return all_tags.sort
+  end
+
+  def tag_hash
     all_tags =  {}
     t_tags = trip.trip_day_tags
     u_tags = trip.user.user_tags
@@ -101,20 +110,14 @@ class Day
     tag_array.each do |t|
       if r1.match(t) 
         match_array = r1.match(t).string.rpartition("x")
-        tag = Tag.find_or_create_by_name(match_array[0].downcase)
-        #tag.count += match_array[2].to_i
-        #tag.save
-        res[tag.id] = match_array[2]
+        res[match_array[0]] = match_array[2]
       else
-        tag = Tag.find_or_create_by_name(t.downcase)
-        #tag.count += 1
-        #tag.save
-        res[tag.id] = 1
+        res[t] = 1
       end
     end
     #res.merge!(tags){|k, old, new| old+new}
     Day.set({:id => id.as_json}, :tags => res.merge(tags){|k, old, new| old+new}.as_json)
-    return res.map{|k,v| v == 1 ? Tag.find(k).name : Tag.find(k).name + "x"+v.to_s}
+    return res.map{|k,v| v == 1 ? k : k + "x"+v.to_s}
   end
 
   private
