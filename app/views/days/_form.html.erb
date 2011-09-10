@@ -10,10 +10,19 @@
       </ul>
     </div>
   <% end %>
+  <dl class="neighbor_days" id="prev_day">
+    <dt class="icon"><%= image_tag 'a.png' %></dt>
+    <dd class="prev_day"><%= (@day.prev_day.stop_location if @day.prev_id) || @trip.start_location %></dd>
+  </dl>
   <dl id="stop_locations" class="field">
     <dt><%= image_tag 'b.png' %></dt>
     <dd><%= f.text_field :stop_location, :size => 40 %></dd>
   </dl>
+  <dl class="neighbor_days" id="next_day">
+    <dt class="icon"><%= image_tag 'a.png' %></dt>
+    <dd class="next_day"> <%= (@day.next_day.stop_location if @day.next_id) || @trip.finish_location %> </dd>
+  </dl>
+  <div class="clear"></div>
   <div class="field">
     <%= f.hidden_field :distance %>
     <%= f.hidden_field :travel_mode %>

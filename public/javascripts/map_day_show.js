@@ -64,10 +64,10 @@ $(function() {
   tag_actions();
 });
 function drawPreviousNext() {
-  if(prev_day) {
+  if(day.prev_day) {
     var pathOptions = {
-      path: google.maps.geometry.encoding.decodePath(prev_day.encoded_path),
-      //levels: decodeLevels(prev_day.encoded_levels), I would need to add encoded levels first
+      path: google.maps.geometry.encoding.decodePath(day.prev_day.encoded_path),
+      //levels: decodeLevels(day.prev_day.encoded_levels), I would need to add encoded levels first
       strokeColor: '#0000CC',
       opacity: 0.4,
       map: map
@@ -96,7 +96,7 @@ function calcRoute(waypoints) {
   }
 
   var request = {
-    origin: prev_day ? prev_day.stop_location : trip.start_location,
+    origin: day.prev_day ? day.prev_day.stop_location : trip.start_location,
     destination: $("#day_stop_location").val(), 
     waypoints: ary,
     travelMode: google.maps.TravelMode[selectedMode],

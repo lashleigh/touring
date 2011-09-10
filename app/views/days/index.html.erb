@@ -4,7 +4,6 @@
   var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
 <aside id="trip_days_wrap">
-  <%= link_to 'shouldn', trip_day_path(@trip, @trip.days[0]) %>
   <p> <%= @trip.title %></p>
   <p> <%= @trip.summary %></p>
   <table>
@@ -18,8 +17,8 @@
       <td class="distance">0 mi</td>
       <td class="total">0 mi</td> 
     </tr>
-    <% @trip.days.each_with_index do |day, i| %>
-      <tr id="day_<%=day.id%>">
+    <% @trip.ordered_days.each_with_index do |day, i| %>
+      <tr class="day_row" id="day_<%=day.id%>">
         <td class="index"><%= i+1%></td>
         <td class="location"><%= day.stop_location %></td>
         <td class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></td>
@@ -37,6 +36,8 @@
       <div id="new_total"></div>
     </div>
     <div class="field">
+      <%= f.hidden_field :prev_id %>
+      <%= f.hidden_field :next_id %>
       <%= f.hidden_field :stop_coords %>
       <%= f.hidden_field :encoded_path %>
       <%= f.hidden_field :distance %>

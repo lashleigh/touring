@@ -24,6 +24,17 @@ class Trip
   belongs_to :user
   validates_presence_of :title, :user_id, :start_location
 
+  def ordered_days
+    days = []
+    current_day = self.days.where(:prev_id => nil).first
+    days.push(current_day)
+    while current_day.next_id
+      current_day = current_day.next_day
+      days.push(current_day)
+    end
+    days
+  end
+
   def distance
     (days.map {|d| d.distance}).sum
   end

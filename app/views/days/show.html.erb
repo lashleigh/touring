@@ -2,20 +2,18 @@
 <%= javascript_include_tag 'map_day_show' %>
 
 <script type="text/javascript">
-  var day = <%= @day.to_json(:methods => :tag_hash).html_safe %>;
-  var prev_day = <%= @prev_day.to_json.html_safe %>;
-  var next_day = <%= @next_day.to_json.html_safe %>;
-  var trip = <%= @trip.to_json(:include => :days).html_safe %>;
+  var day = <%= @day.to_json(:methods => [:tag_hash, :prev_day, :next_day]).html_safe %>;
+  var trip = <%= @trip.to_json.html_safe %>;
   var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
 <div id="topbar">
   <div id="day_nav">
-    <% if @prev_day %>
-      <%= link_to 'Prev day', trip_day_path(@trip, @prev_day) %> |
+    <% if @day.prev_day %>
+      <%= link_to 'Prev day', trip_day_path(@trip, @day.prev_day) %> |
     <% end %>
     <%= link_to 'All days', trip_days_path %> |
-    <% if @next_day %>
-      <%= link_to 'Next day', trip_day_path(@trip, @next_day) %>
+    <% if @day.next_day %>
+      <%= link_to 'Next day', trip_day_path(@trip, @day.next_day) %>
     <% end %>
   </div>
   <div id="detail_nav">
@@ -34,18 +32,6 @@
       <li class="unselected" id="BICYCLING"><%= image_tag 'bicycling.png' %></li>
     </ul>
     <div id="day" style="float:left;">
-      <table id="start_location">
-        <tr>
-          <td class="icon"><%= image_tag 'a.png' %></td>
-          <td class="prev_day">            
-            <% if @prev_day %>
-              <%= @prev_day.stop_location %>
-            <% else %>
-              <%= @trip.start_location %>
-            <% end %>
-          </td>
-        </tr>
-      </table>
       <%= render 'form' %>
     </div>
     <div id="directionsPanel" > </div>

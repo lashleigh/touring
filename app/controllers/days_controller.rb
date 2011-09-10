@@ -23,8 +23,6 @@ class DaysController < ApplicationController
   def show
     @trip = Trip.find(params[:trip_id])
     @day = Day.find(params[:id])
-    @prev_day = @day.prev_day
-    @next_day = @day.next_day
     @unit_system = current_user ? current_user.unit_system : "IMPERIAL" 
 
     respond_to do |format|

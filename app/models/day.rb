@@ -12,6 +12,8 @@ class Day
   #key :end_id, ObjectId
   key :stop_location, String
   key :stop_coords, Array
+  key :prev_id, ObjectId
+  key :next_id, ObjectId
 
   belongs_to :trip
   validates_presence_of :stop_location
@@ -23,6 +25,12 @@ class Day
     end
   end
 
+  def prev_day
+    Day.find(prev_id) || false
+  end
+  def next_day
+    Day.find(next_id) || false
+  end
   def self.find_all_by_tag(tag)
     Day.where("tags.#{tag}" => {'$exists' => true}).all
   end
@@ -64,7 +72,7 @@ class Day
   def destination
     Waypoint.find(end_id)
   end
-  def prev_day
+  def prev_day_old
     id = trip.days.index(self)
     day_by_index(id-1)
   end
@@ -75,7 +83,7 @@ class Day
       false
     end 
   end
-  def next_day
+  def next_day_old
     id = trip.days.index(self)
     day_by_index(id+1)
   end
