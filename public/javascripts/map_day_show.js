@@ -89,8 +89,10 @@ function calcRoute(waypoints) {
   var ary;
   if(waypoints) {
     ary = waypoints.map(function(wpt) {return {location: wpt, stopover: false};});
-  } else {
+  } else if(day.google_waypoints.length > 0) {
     ary = JSON.parse(day.google_waypoints).map(function(wpt) {return {location: new google.maps.LatLng(wpt[0], wpt[1]), stopover: false};})
+  } else {
+    ary = [];
   }
 
   var request = {
@@ -121,12 +123,13 @@ function getAddress(w) {
   return [w.address, w.city, w.state].join(", ");
 }
 function set_heights() {
-  var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight() - 10;
+  var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight();
   var baseWidth = window.innerWidth - $("#detail_panel").outerWidth() -5;
   $("#detail_panel").css("margin-top", $("#topbar").outerHeight());
   $("#map_canvas").css("height", base+"px");
   $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
-  $("#elevation_chart").css("width", baseWidth+"px");
+  $("#elevation_chart").css("width", $("#map_canvas").width()+"px");
+  $("#elevation_chart").css("left", $("#map_canvas").position().left+"px");
 }
 function click_actions() {
   $(".adp-summary").live("click", function() {

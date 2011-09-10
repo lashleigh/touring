@@ -16,6 +16,7 @@ function toFeet(num) {
 function save_waypoints(result) {
   $("#day_encoded_path").val(result.routes[0].overview_polyline.points);
   $("#day_stop_location").val(result.routes[0].legs[0].end_address);
+  $("#day_stop_coords").val(JSON.stringify([result.routes[0].legs[0].end_location.lat(), result.routes[0].legs[0].end_location.lng()]));
   
   var path = directionsDisplay.directions.routes[0].legs[0].via_waypoints.map(function(a) { return [a.lat(), a.lng()];});
   if(path.length == 0) {
@@ -99,32 +100,19 @@ function draw_with_raphael(results, status) {
     distance +=delta;
     x.push(distance);
     y.push(toFeet(ele0));
-    //data.addRow([distance, ele0.toFeet()]);
   }
-  var width = window.innerWidth-$("#detail_panel").outerWidth()-30;
-  var background = r.rect(20,20,width,175, 10);
 
-  background.attr({
-    //fill: "90-#fff-#000",
-    fill: "#000",
-    opacity: 0.5
-  });
   var w = $("#elevation_chart").innerWidth(), 
       h = $("#elevation_chart").innerHeight(),
-      wpad = 50,
-      hpad = 30;
-  var lines = r.g.linechart(wpad, hpad, w-wpad, h-hpad-20, x, y, {nostroke: false, axis: "0 0 1 1", symbol: "o", smooth: true}).hoverColumn(function () {
-    this.tags = r.set();
-    for (var i = 0; i < results.length-2; i++) {
-      this.tags.push(r.g.tag(this.x, this.y[i], this.values[i], 160, 10).insertBefore(this).attr([{fill: "#fff"}, {fill: this.symbols[i].attr("fill")}]));
-    }
-  }, function () {
-    this.tags && this.tags.remove();
+      wpad = 30,
+      hpad = 0;
+  var background = r.rect(0,0,w,h,0);
+  background.attr({
+    fill: "#000",
+    opacity: 0.3
   });
+  var lines = r.g.linechart(wpad, hpad, w-wpad, h-hpad-12, x, y, {nostroke: false, axis: "0 0 1 1", symbol: "o", smooth: true})
   lines.symbols.attr({r: 3});
-  // lines.lines[0].animate({"stroke-width": 6}, 1000);
-  // lines.symbols[0].attr({stroke: "#fff"});
-  // lines.symbols[0][1].animate({fill: "#f00"}, 1000);
 };
 
 // Takes an array of ElevationResult objects, draws the path on the map

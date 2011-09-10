@@ -1,0 +1,51 @@
+#trip_days_wrap {
+  position: absolute;
+  left: 0;
+  width:35%;
+  height: 100%;
+  overflow: auto;
+  z-index: 2;
+  tr {
+  }
+  td {
+    padding: 3px;
+  }
+  td.index {
+    width: 20px;
+  }
+  td.distance, td.total {
+    width: 60px;
+    text-align:right;
+  }
+  td.location {
+  }
+  tr:nth-child(2n+1) {
+    background: #eee;
+  }
+  tr:hover {
+    background: #ccc;
+  }
+}
+.highlighted {
+  background: #ccc !important;
+}
+tr.selected {
+  //border: 1px solid blue !important;
+  background: pink !important;
+}
+.day_details {
+  padding: 0 5px;
+  border: 1px solid;
+  width: 270px;
+}
+#new_day {
+  #new_location {
+    margin-left:20px;
+    float:left;
+  }
+  #new_distance, #new_total {
+    width:60px;
+    text-align:right;
+    float:left;
+  }
+}

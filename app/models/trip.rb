@@ -5,27 +5,26 @@ class Trip
   key :title, String
   key :summary, String
   key :tags, Array
-  key :distance, Float
 
   key :start_location, String
   key :start_date, Date
   key :finish_location, String
   key :finish_date, Date
   key :complete, Boolean, :default => false
+  key :center, Array
   timestamps!
 
   key :user_id, ObjectId
   key :place_ids, Array
-  key :day_ids, Array, :default => []
   key :partners, Array
 
   many :places, :in => :place_ids
-  many :days, :in => :day_ids, :dependent => :destroy
+  many :days, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
   validates_presence_of :title, :user_id, :start_location
 
-  def calc_length
+  def distance
     (days.map {|d| d.distance}).sum
   end
 
@@ -37,5 +36,18 @@ class Trip
    return t 
   end
 
+  def calculate_center
+    Geocoder::Calculations::geographic_center([start_location, finish_location])
+  end
+
+  def cumulative_distance(index, options={})
+    dist = (days[0..index].map{|d| d.distance}).sum
+    options[:unit_system] ||= "METRIC"
+    if options[:unit_system] == "METRIC"
+      (dist/ 1000).round(1).to_s + " km"
+    else 
+      ((dist/ 1000) * 0.621371192).round(1).to_s+" mi";
+    end
+  end
   private
 end

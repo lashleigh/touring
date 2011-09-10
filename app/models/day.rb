@@ -1,8 +1,8 @@
 class Day
   include MongoMapper::Document
   # Embed this document in trip?
-  after_create :do_something_after_create
-  before_destroy :do_something_before_destroy
+#  after_create :do_something_after_create
+#  before_destroy :do_something_before_destroy
 
   key :tags, Hash
   key :distance, Float
@@ -11,10 +11,17 @@ class Day
   key :travel_mode, String
   #key :end_id, ObjectId
   key :stop_location, String
-  key :trip_id, ObjectId
+  key :stop_coords, Array
 
   belongs_to :trip
-  validates_presence_of :stop_location, :trip_id 
+  validates_presence_of :stop_location
+  def stop_coords=(x)
+    if String === x and !x.blank?
+      super(ActiveSupport::JSON.decode(x))
+    else
+      super(x)
+    end
+  end
 
   def self.find_all_by_tag(tag)
     Day.where("tags.#{tag}" => {'$exists' => true}).all
@@ -57,15 +64,9 @@ class Day
   def destination
     Waypoint.find(end_id)
   end
-  def to_param
-    trip.days.find_index(self).to_s
-  end
-  def prev_day(options = {})
-    if options[:day_index]
-      day_by_index(options[:day_index]-1)
-    else
-      day_by_index(trip.day_ids.index(id)-1)
-    end
+  def prev_day
+    id = trip.days.index(self)
+    day_by_index(id-1)
   end
   def day_by_index(i) 
     if i >= 0 and i < trip.days.length
@@ -74,12 +75,9 @@ class Day
       false
     end 
   end
-  def next_day(options = {})
-    if options[:day_index]
-      day_by_index(options[:day_index]+1)
-    else
-      day_by_index(trip.day_ids.index(id)+1)
-    end
+  def next_day
+    id = trip.days.index(self)
+    day_by_index(id+1)
   end
   def custom_update(params)
     Day.set({:id => id.as_json},
@@ -89,18 +87,19 @@ class Day
             :google_waypoints => params[:google_waypoints],
             :stop_location => params[:stop_location])
   end
-  def show_distance(unit_system)
-    if unit_system == "METRIC"
-      toKilometers(distance) + " km"
+  def show_distance(options={})
+    options[:unit_system] ||= "METRIC"
+    if options[:unit_system] == "METRIC"
+      self.toKilometers + " km"
     else 
-      toMiles(distance) + " mi"
+      self.toMiles + " mi"
     end
   end
-  def toMiles(num)
-    ((num / 1000) * 0.621371192).round(1).to_s;
+  def toMiles
+    ((distance/ 1000) * 0.621371192).round(1).to_s
   end
-  def toKilometers(num)
-    (num / 1000).round(1).to_s;
+  def toKilometers
+    (distance / 1000).round(1).to_s
   end
 
   def parse_tag_string(tag_string)
@@ -120,16 +119,19 @@ class Day
     return res.map{|k,v| v == 1 ? k : k + "x"+v.to_s}
   end
 
+  def geocode
+    self.stop_coords = Geocoder.coordinates(stop_location)
+  end
   private
   def do_something_after_create
-    t = Trip.find(trip_id)
-    t.day_ids.push(id)
+    t = self.trip
+    t.days.push(id)
     t.save
   end
 
   def do_something_before_destroy
-    t = Trip.find(trip_id)
-    t.day_ids.delete(id)
+    t = self.trip
+    t.days.delete(self)
     t.save
   end
 end

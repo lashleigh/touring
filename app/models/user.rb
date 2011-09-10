@@ -2,30 +2,37 @@ class User
   include MongoMapper::Document
 
   key :name, String
-  key :uid, String
-  key :provider, String
-  key :trip_ids, Array
-  key :website, String
   key :location, String
+  key :email, String
+  key :website, String
+  key :description, String
+  key :image, String
   key :unit_system, String, :default => "IMPERIAL"
-  #key :contacts, Array
-
-  many :trips, :in => :trip_ids
-  many :days, :through => :trips
-  #many :users, :in => :contacts
   timestamps!
 
+  many :authorizations
+  many :trips
+  many :days, :through => :trips
+  attr_accessible :name, :location, :website, :image
+
   def self.create_with_omniauth(auth)  
-    user = User.new
+    user = User.new(:name => auth["user_info"]["name"], 
+                    :location => auth["user_info"]["location"], 
+                    :email => auth["user_info"]["email"],
+                    #:website => auth["user_info"]["urls"].first.last,
+                    :description => auth["user_info"]["description"],
+                    :image => auth["user_info"]["image"]
+                   )
+    user.authorizations.push(Authorization.new(:provider => auth["provider"], :uid => auth["uid"]))
     user.save
-    user.set(
-      :provider => auth["provider"],
-      :uid => auth["uid"],
-      :name => auth["user_info"]["name"],
-      :location => auth["user_info"]["location"]
-    )
     return user
   end 
+
+  def self.find_by_authorization(provider, uid)
+    u = where('authorizations.provider' => provider, 'authorizations.uid' => uid).first
+    u.save if u
+    return u
+  end
 
   def user_tags
     user_tags = {}

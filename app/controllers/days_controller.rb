@@ -22,10 +22,9 @@ class DaysController < ApplicationController
   # GET /days/1.xml
   def show
     @trip = Trip.find(params[:trip_id])
-    day_index = params[:id].to_i
-    @day = @trip.days[day_index]
-    @prev_day = @day.prev_day(:day_index => day_index)
-    @next_day = @day.next_day(:day_index => day_index)
+    @day = Day.find(params[:id])
+    @prev_day = @day.prev_day
+    @next_day = @day.next_day
     @unit_system = current_user ? current_user.unit_system : "IMPERIAL" 
 
     respond_to do |format|
@@ -50,7 +49,19 @@ class DaysController < ApplicationController
   # GET /days/1/edit
   def edit
     @trip = Trip.find(params[:trip_id])
-    @day = @trip.days[params[:id].to_i]
+    @day = Day.new(params[:day])  
+  end
+
+  def create_new_day
+    @day = Day.new(params[:day])
+    @trip = Trip.find(params[:trip][:id])
+    @day.trip = @trip
+
+    if @day.save
+      render :json => {'day' => @day}
+    else
+      render :json => {'status' => 'faliure'}
+    end
   end
 
   # POST /days
@@ -58,10 +69,8 @@ class DaysController < ApplicationController
   def create
     @trip = Trip.find(params[:trip_id])
     @day = Day.new(params[:day])  
-    @day.trip_id = @trip.id
-    #@day.save
+    @day.trip = @trip
 
-    #redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
     respond_to do |format|
       if @day.save
          format.html { redirect_to(trip_day_path(@trip,@day), :notice => 'Day was successfully created.') }
@@ -77,13 +86,12 @@ class DaysController < ApplicationController
   # PUT /days/1.xml
   def update
     @trip = Trip.find(params[:trip_id])
-    @day = @trip.days[params[:id].to_i]
-    #@day.update(params)
-    #redirect_to("/trips/#{params[:trip_id]}/days/#{params[:id]}")
+    @day = Day.find(params[:id])
+    @day.assign(params[:day])
     
     respond_to do |format|
-      if @day.custom_update(params[:day])
-        format.html { redirect_to("/trips/#{@trip.id}/days/#{params[:id]}", :notice => 'Day was successfully updated.') }
+      if @day.save
+        format.html { redirect_to(trip_day_path(@trip, @day), :notice => 'Day was successfully updated.') }
         format.xml  { head :ok }
       else
         format.html { redirect_to(edit_trip_day_path(@trip, @day)) }
@@ -96,14 +104,12 @@ class DaysController < ApplicationController
   # DELETE /days/1.xml
   def destroy
     @trip = Trip.find(params[:trip_id])
-    @day = @trip.days[params[:id].to_i]
+    @day = Day.find(params[:id])
     @day.destroy
-    #@trip.day_ids.delete(@day.id)
-    #@trip.save
 
     respond_to do |format|
       # This redirect is a bad hack but trips_day_path tries to redirect to something that doesn't exist.
-      format.html { redirect_to("/trips/#{@trip.id}/days") }
+      format.html { redirect_to(trip_days_path) }
       format.xml  { head :ok }
     end
   end

@@ -1,25 +1,57 @@
-<h1> <%= @trip.title %></h1>
-<h3> <%= @trip.summary %></h3>
-
-<ul>
-  <% @days.each do |day| %>
-    <li><div class="day">
-      <img src=<%=gmap_day(day.encoded_path)%> >
-      <div class="day_details">
-        <% day.tags.each do |tag| %>
-          <%= tag %>
-        <% end %>
-        <div><%= day.show_distance(current_user.unit_system) %> </div>
-        <div><%= day.stop_location %></div>
-        <div><%= day.travel_mode %></div>
-        <div class="modify">
-          <%= link_to 'Show', trip_day_path(@trip, day) %>
-          <%= link_to 'Edit', edit_trip_day_path(@trip, day) %>
-          <%= link_to 'Destroy', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete %>
-        </div>
-      </div>
-    </div></li>
+<%= javascript_include_tag 'day_index' %>
+<script type="text/javascript">
+  var trip = <%= @trip.to_json(:include => :days, :methods => :distance).html_safe %>;
+  var unit_system = <%= @unit_system.to_json.html_safe %>;
+</script>
+<aside id="trip_days_wrap">
+  <%= link_to 'shouldn', trip_day_path(@trip, @trip.days[0]) %>
+  <p> <%= @trip.title %></p>
+  <p> <%= @trip.summary %></p>
+  <table>
+    <th scope="col" abbr="">Order</th>
+    <th scope="col" abbr="">Stop Location</th>
+    <th scope="col" abbr="">Mileage</th>
+    <th scope="col" abbr="">Cumulative</th>
+    <tr id="start_location">
+      <td class="index">0</td>
+      <td class="location"><%= @trip.start_location%></td>
+      <td class="distance">0 mi</td>
+      <td class="total">0 mi</td> 
+    </tr>
+    <% @trip.days.each_with_index do |day, i| %>
+      <tr id="day_<%=day.id%>">
+        <td class="index"><%= i+1%></td>
+        <td class="location"><%= day.stop_location %></td>
+        <td class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></td>
+        <td class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></td> 
+      </tr>
+    <% end %>
+  </table>
+  <div class="rule">Add Day</div>
+  <%= form_for([@trip, @trip.days.build]) do |f| %>
+    <div id="new_location">
+      <%= f.text_field :stop_location %>
+    </div>
+    <div style="float:right;">
+      <div id="new_distance"></div>
+      <div id="new_total"></div>
+    </div>
+    <div class="field">
+      <%= f.hidden_field :stop_coords %>
+      <%= f.hidden_field :encoded_path %>
+      <%= f.hidden_field :distance %>
+      <%= f.hidden_field :google_waypoints %>
+      <%= f.hidden_field :travel_mode %>
+      <%= hidden_field_tag 'trip[id]', @trip.id %>
+    </div>
+    <div class="clear"></div>
+    <div class="button-group actions">
+      <input class="button right" id="add_new_day" type="button" value="Search">
+      <input class="button left disable" disabled="disabled" id="save_new_day" type="button" value="Save">
+    </div>
   <% end %>
-</ul>
-<div class="rule"></div>
-<%= link_to 'New Day', new_trip_day_path(@trip) %>
+</aside>
+<div>
+  <div id="map_canvas"> </div>
+  <div id="elevation_chart"></div>
+</div>

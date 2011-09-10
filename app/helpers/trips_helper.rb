@@ -6,7 +6,7 @@ module TripsHelper
     basic+pairs+"&sensor=false"
   end
   def calc_length(trip)
-    (trip.days.map {|d| d.length}).sum
+    (trip.days.map {|d| d.distance}).sum
   end
 
 end

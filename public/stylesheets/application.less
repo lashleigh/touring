@@ -1,18 +1,42 @@
+@import 'reset';
 @import 'headfoot';
 @import 'd3';
+@import 'days/index';
 @blue: #4D90FE;
 @gray: #f5f5f5;
-html { height: 100% }
-body { margin: 0; padding: 0 }
-#wrap {
-  width: 900px;
-  height: 100%;
+@footer_height: 76px;
+html, body {height: 100%;}
+#wrap {min-height: 100%;}
+#content {
+  overflow:auto;
+  padding-bottom: @footer_height;
+  width:1000px;
   margin: 0 auto;
+} 
+
+footer {
+  position: relative;
+  margin-top: -@footer_height; /* negative value of footer height */
+  height: @footer_height;
+  clear:both;
+  background:black;
+  color:white;
+  copyright {
+    clear: both;
+  }
+} 
+
+/*Opera Fix*/
+body:before {
+  content:"";
+  height:100%;
+  float:left;
+  width:0;
+  margin-top:-32767px;
 }
 
-#content {
-  clear: both;
-  height: 100%;
+.clear {
+  clear:both;
 }
 .rule {
   clear: both;
@@ -134,21 +158,6 @@ ul.repositories {
 
 //Day CSS
 
-.day {
-  float: left;
-  overflow: hidden;
-  margin: 10px 5px;
-}
-.day_details {
-  padding: 0 5px;
-  border: 1px solid;
-  width: 270px;
-}
-
-#map_container {
-  width: 700px;
-  height: 500px;
-}
 #map_canvas {
   width: 65%;
   height: 75%;
@@ -247,7 +256,7 @@ ul.repositories {
 }
 #elevation_chart {
   position: absolute;
-  bottom: 0;
+  bottom: @footer_height;
   right: 5px;
   height: 100px; 
   display: block;
@@ -313,58 +322,16 @@ dt, dd {
 #day_submit {
   float:right;
 }
-.kd-button-red {
-background-color: #D14836;
-background-image: -moz-linear-gradient(top,#DD4B39,#D14836);
-background-image: -ms-linear-gradient(top,#DD4B39,#D14836);
-background-image: -o-linear-gradient(top,#DD4B39,#D14836);
-background-image: -webkit-gradient(linear,left top,left bottom,from(#DD4B39),to(#D14836));
-background-image: -webkit-linear-gradient(top,#DD4B39,#D14836);
-background-image: linear-gradient(top,#DD4B39,#D14836);
-border-radius: 2px;
--moz-border-radius: 2px;
--webkit-border-radius: 2px;
-border: 1px solid transparent;
-color: white;
-text-shadow: 0 1px rgba(0, 0, 0, 0.1);
-text-transform: uppercase;
-}
-.kd-button {
-display: inline-block;
-min-width: 54px;
-border: 1px solid gainsboro;
-border: 1px solid rgba(0, 0, 0, 0.1);
-text-align: center;
-color: #666;
-font-size: 85%;
-font-weight: bold;
-height: 27px;
-padding: 0 8px;
-line-height: 27px;
--webkit-border-radius: 2px;
--moz-border-radius: 2px;
-border-radius: 2px;
--webkit-transition: all 0.218s;
--moz-transition: all 0.218s;
--o-transition: all 0.218s;
-transition: all 0.218s;
-background-color: whiteSmoke;
-background-image: -webkit-gradient(linear,left top,left bottom,from(whiteSmoke),to(#F1F1F1));
-background-image: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);
-background-image: -moz-linear-gradient(top,whiteSmoke,#F1F1F1);
-background-image: -ms-linear-gradient(top,whiteSmoke,#F1F1F1);
-background-image: -o-linear-gradient(top,whiteSmoke,#F1F1F1);
-background-image: linear-gradient(top,whiteSmoke,#F1F1F1);
-}
+
 #legend {
   width: 500px;
   height: 20px;
-background-image: -webkit-gradient(
+  background-image: -webkit-gradient(
     linear,
     left center,
     right center,
     color-stop(0.0, #7F00FF),
     color-stop(1.0, #7FFF00)
-);
+  );
 }
 

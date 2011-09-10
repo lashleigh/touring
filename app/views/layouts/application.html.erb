@@ -3,24 +3,21 @@
 <head>
   <title>Touring</title>
   <%= stylesheet_link_tag :all %>
-  <link rel="stylesheet/less" type="text/css" href="/stylesheets/reset.less">
   <link rel="stylesheet/less" type="text/css" href="/stylesheets/application.less">
 
-  <%= javascript_include_tag 'jquery-1.5.1.min', 'jquery.rails', 'less-1.1.3.min' %>
+  <%= javascript_include_tag 'jquery-1.6.2.min', 'jquery.rails', 'less-1.1.3.min' %>
   <%= javascript_include_tag 'jquery-ui-1.8.14.custom.min', 'application' %>
-  <%= javascript_include_tag 'd3' %>
 
   <%= csrf_meta_tag %>
 </head>
 <body>
-  <%= render :partial =>  'home/header' %>
   <div id="wrap">
+  <%= render :partial =>  'home/header' %>
     <div id="content">
-      <p id="notice"><%= notice %></p>
       <%= yield %>
     </div>
   </div>
-  <div class="rule"></div>
+  <div class="clear"></div>
   <%= render :partial =>  'home/footer' %>
 </body>
 </html>

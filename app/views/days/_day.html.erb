@@ -1,0 +1,13 @@
+<li><div class="day">
+  <div class="day_details">
+    <div><%= day.show_distance(current_user.unit_system) %> </div>
+    <div><%= day.stop_location %></div>
+    <div><%= day.travel_mode %></div>
+    <div class="modify">
+      <%= link_to 'Show', trip_day_path(@trip, day) %>
+      <%= link_to 'Edit', edit_trip_day_path(@trip, day) %>
+      <%= link_to 'Destroy', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete %>
+    </div>
+  </div>
+</div></li>
+

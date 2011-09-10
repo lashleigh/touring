@@ -9,6 +9,7 @@ gem "mongo_mapper"
 gem "json"
 gem "typhoeus"
 gem "quimby"
+gem 'geocoder'
 
 gem "omniauth", ">=0.2.6"
 gem "rspec-rails", :group => [:test, :development]  
