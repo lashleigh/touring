@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'day_index' %>
 <script type="text/javascript">
-  var trip = <%= @trip.to_json(:include => :days, :methods => :distance).html_safe %>;
+  var trip = <%= @trip.to_json(:methods => [:distance, :ordered_days, :last_day]).html_safe %>;
   var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
 <aside id="trip_days_wrap">
@@ -11,11 +11,13 @@
     <th scope="col" abbr="">Stop Location</th>
     <th scope="col" abbr="">Mileage</th>
     <th scope="col" abbr="">Cumulative</th>
+    <th scope="col" abbr="">Modify</th>
     <tr id="start_location">
       <td class="index">0</td>
       <td class="location"><%= @trip.start_location%></td>
       <td class="distance">0 mi</td>
       <td class="total">0 mi</td> 
+      <td></td>
     </tr>
     <% @trip.ordered_days.each_with_index do |day, i| %>
       <tr class="day_row" id="day_<%=day.id%>">
@@ -23,6 +25,10 @@
         <td class="location"><%= day.stop_location %></td>
         <td class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></td>
         <td class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></td> 
+        <td>
+          <input class="button insert" id="insert_<%=day.id%>" type="button" value="Insert">
+          <%= link_to 'X', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button danger' %>
+        </td>
       </tr>
     <% end %>
   </table>
@@ -36,14 +42,14 @@
       <div id="new_total"></div>
     </div>
     <div class="field">
-      <%= f.hidden_field :prev_id %>
-      <%= f.hidden_field :next_id %>
       <%= f.hidden_field :stop_coords %>
       <%= f.hidden_field :encoded_path %>
       <%= f.hidden_field :distance %>
       <%= f.hidden_field :google_waypoints %>
       <%= f.hidden_field :travel_mode %>
       <%= hidden_field_tag 'trip[id]', @trip.id %>
+      <%= hidden_field_tag 'day[prev_id]', @trip.last_day.id %>
+      <%= hidden_field_tag 'day[next_id]', nil %>
     </div>
     <div class="clear"></div>
     <div class="button-group actions">

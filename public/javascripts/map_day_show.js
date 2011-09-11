@@ -94,11 +94,14 @@ function calcRoute(waypoints) {
   } else {
     ary = [];
   }
+  //ary.push({location: new google.maps.LatLng(day.stop_coords[0], day.stop_coords[1]), stopover: true})
 
   var request = {
     origin: day.prev_day ? day.prev_day.stop_location : trip.start_location,
     destination: $("#day_stop_location").val(), 
+    //destination: day.next_id ? day.next_day.stop_location : trip.finish_location, //$("#day_stop_location").val(), 
     waypoints: ary,
+    optimizeWaypoints: true,
     travelMode: google.maps.TravelMode[selectedMode],
     unitSystem: google.maps.UnitSystem[unit_system]
   };
@@ -111,16 +114,6 @@ function calcRoute(waypoints) {
 
   });
   $("#day_travel_mode").val(selectedMode);
-}
-function loadBlankDay() {
-  $("#stop_locations").append('<dt><img alt="B" src="/images/b.png"></dt>'+
-  '<dd><input size="40" type="text" value=""></dd>')
-}
-function getLatLng(w) {
-  return new google.maps.LatLng(w.coords[0], w.coords[1]);
-}
-function getAddress(w) {
-  return [w.address, w.city, w.state].join(", ");
 }
 function set_heights() {
   var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight();

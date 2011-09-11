@@ -56,6 +56,11 @@ class DaysController < ApplicationController
     @day.trip = @trip
 
     if @day.save
+      if @day.prev_id
+        prev = @day.prev_day
+        prev.next_id = @day.id
+        prev.save
+      end
       render :json => {'day' => @day}
     else
       render :json => {'status' => 'faliure'}
@@ -103,12 +108,29 @@ class DaysController < ApplicationController
   def destroy
     @trip = Trip.find(params[:trip_id])
     @day = Day.find(params[:id])
-    @day.destroy
+    prev_d = @day.prev_day
+    next_d = @day.next_day
+    prev_d.next_id = next_d.id
+    next_d.prev_id = prev_d.id
+    next_d.distance += @day.distance
 
     respond_to do |format|
-      # This redirect is a bad hack but trips_day_path tries to redirect to something that doesn't exist.
-      format.html { redirect_to(trip_days_path) }
-      format.xml  { head :ok }
+      if user_can_modify(@trip) and @day.destroy
+        prev_d.save
+        next_d.save
+        format.html { redirect_to(trip_days_path) }
+        format.xml  { head :ok }
+      else
+        flash[:error] = "It appears you attempted to delete a suggestion that you did not create. Perhaps you need to log in?"
+        format.html { redirect_to root_path }
+        format.xml  { head :ok }
+      end
     end
   end
+
+  private 
+  def user_can_modify(trip)
+    trip.user == @current_user || (@current_user and @current_user.admin?)
+  end
+
 end
