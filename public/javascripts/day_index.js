@@ -7,12 +7,15 @@ var directionsService = new google.maps.DirectionsService();
 var infoWindow = new google.maps.InfoWindow();
 var map;
 var bounds = new google.maps.LatLngBounds();
+var polylines_array = [];
+var markers_array = [];
 
 $(function() {
   set_heights();
   $(window).resize(set_heights);
   $("#save_new_day").live("click", save_day_and_add_to_table);
   $("#add_new_day").live("click", insert_or_append_day);
+  $("#cancel").live("click", cancel);
   $(".insert").live("click", insert_new_day) 
 
   var myOptions = {
@@ -101,10 +104,12 @@ function drawDay(dayObj, i) {
   $(day_id).live('mouseover', function() { 
       marker.setIcon("/images/yellow_marker.png");
       polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
+      $(this).find(".modify .button").removeClass("hidden")
   })
   $(day_id).live("mouseout", function() {
       marker.setIcon("/images/red_marker.png");
       polyline.setOptions({strokeOpacity: 0.4, strokeWeight: 4});
+      $(this).find(".modify .button").addClass("hidden")
   })
   $(day_id).live("click", function() {
     infoWindow.setContent(day_html)
@@ -138,6 +143,7 @@ function calcRoute() {
       directionsDisplay.setDirections(response);
       new_day_stats();
       $("#save_new_day").attr("disabled", false).removeClass("disable")
+      $("#cancel").attr("disabled", false).removeClass("disable")
     } else {
       console.log(status);
     }
@@ -165,6 +171,7 @@ function calc_route_insert_before(index) {
       directionsDisplay.setDirections(response);
       new_day_stats();
       $("#save_new_day").attr("disabled", false).removeClass("disable")
+      $("#cancel").attr("disabled", false).removeClass("disable")
     } else {
       console.log(status);
     }
@@ -177,26 +184,29 @@ function save_day_and_add_to_table() {
     console.log(data)
     var day = data['day'];
     trip = data['trip'] //.distance += day.distance
-    var new_day_form = $("#new_day");
-    //for(var i=new_day_index-1; i< $("#indexable").children().length; i++) {
-    //  $($("#indexable").children()[i]).remove();
-    //}
     $(".day_row").remove();
     $("#indexable").append(data['dayhtml']);
-    $("#indexable").append(new_day_form);
-    drawDay(day, new_day_index)
-    directionsDisplay.setMap(null)
-    clearForm();
+    drawDay(day, new_day_index);
+    cancel();
   })
+}
+function cancel() {
+  directionsDisplay.setMap(null);
+  clearForm();
+  var new_day_form = $("#new_day");
+  $("#new_day").remove();
+  $("#indexable").append(new_day_form);
 }
 function clearForm() {
   $("#new_day .field :input").val('');
+  $("#new_day #new_location :input").val('');
   $("#trip_id").val(trip.id);
 
   $("#new_distance").html('');
   $("#new_total").html('');
 
   $("#save_new_day").attr("disabled", true).addClass("disable")
+  $("#cancel").attr("disabled", true).addClass("disable")
 }
 function save_hidden_fields(which) {
   if(which == 0) {
@@ -233,7 +243,6 @@ function set_heights() {
   $("#new_location").css("width", $(".location").outerWidth()+"px");
   $("#new_total").css("width", $(".total").outerWidth()+"px");
   $("#new_distance").css("width", $(".distance").outerWidth()+"px");
-
 }
 
 function meter_2_mile(num) {

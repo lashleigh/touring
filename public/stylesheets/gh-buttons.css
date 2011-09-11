@@ -83,7 +83,12 @@ http://github.com/necolas/css3-github-buttons
     margin: 0 0.75em 0 -0.25em; 
     background: url(/images/gh-icons.png) 0 99px no-repeat;
 }
-
+.button.icon.icononly:before {
+  margin: 0 !important;
+}
+.button.icononly {
+  padding: 0.5em 0.7em;
+}
 .button.arrowup.icon:before { background-position: 0 0; }
 .button.arrowup.icon:hover:before,
 .button.arrowup.icon:focus:before,

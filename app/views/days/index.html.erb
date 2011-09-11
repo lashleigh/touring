@@ -6,14 +6,14 @@
 <aside id="trip_days_wrap">
   <p> <%= @trip.title %></p>
   <p> <%= @trip.summary %></p>
-  <div id="table_header">
+  <div id="table_header" class="clear">
     <div class="index" ></div>
     <div class="location">Stop Location</div>
     <div class="distance">Mileage</div>
     <div class="total">Total</div>
     <div class="modify">Modify</div>
   </div>
-  <div id="start_location">
+  <div id="start_location" class="clear">
     <div class="index">0</div>
     <div class="location"><%= @trip.start_location%></div>
     <div class="distance">0 mi</div>
@@ -53,8 +53,9 @@
  
       <div class="clear"></div>
       <div class="button-group actions">
-        <input class="button right" id="add_new_day" type="button" value="Search">
-        <input class="button left disable" disabled="disabled" id="save_new_day" type="button" value="Save">
+        <input class="button left" id="add_new_day" type="button" value="Search">
+        <input class="button center disable" disabled="disabled" id="save_new_day" type="button" value="Save">
+        <input class="button right disable danger" id="cancel" type="button" value="Cancel">
       </div>
     <% end %>
   </div>
