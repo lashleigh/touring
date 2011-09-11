@@ -1,62 +1,63 @@
 <%= javascript_include_tag 'day_index' %>
 <script type="text/javascript">
-  var trip = <%= @trip.to_json(:methods => [:distance, :ordered_days, :last_day]).html_safe %>;
+  var trip = <%= @trip.to_json.html_safe %>;
   var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
 <aside id="trip_days_wrap">
   <p> <%= @trip.title %></p>
   <p> <%= @trip.summary %></p>
-  <table>
-    <th scope="col" abbr="">Order</th>
-    <th scope="col" abbr="">Stop Location</th>
-    <th scope="col" abbr="">Mileage</th>
-    <th scope="col" abbr="">Cumulative</th>
-    <th scope="col" abbr="">Modify</th>
-    <tr id="start_location">
-      <td class="index">0</td>
-      <td class="location"><%= @trip.start_location%></td>
-      <td class="distance">0 mi</td>
-      <td class="total">0 mi</td> 
-      <td></td>
-    </tr>
-    <% @trip.ordered_days.each_with_index do |day, i| %>
-      <tr class="day_row" id="day_<%=day.id%>">
-        <td class="index"><%= i+1%></td>
-        <td class="location"><%= day.stop_location %></td>
-        <td class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></td>
-        <td class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></td> 
-        <td>
-          <input class="button insert" id="insert_<%=day.id%>" type="button" value="Insert">
-          <%= link_to 'X', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button danger' %>
-        </td>
-      </tr>
+  <div id="table_header">
+    <div class="index" ></div>
+    <div class="location">Stop Location</div>
+    <div class="distance">Mileage</div>
+    <div class="total">Total</div>
+    <div class="modify">Modify</div>
+  </div>
+  <div id="start_location">
+    <div class="index">0</div>
+    <div class="location"><%= @trip.start_location%></div>
+    <div class="distance">0 mi</div>
+    <div class="total">0 mi</div> 
+    <div class="modify"></div>
+  </div>
+  <div id="indexable">
+    <%= render :partial =>'day', :collection => @trip.ordered_days %>
+    <%= form_for([@trip, @trip.days.build]) do |f| %>
+      <div id="new_location">
+        <%= f.text_field :stop_location %>
+      </div>
+      <div style="float:right;">
+        <div id="new_distance"></div>
+        <div id="new_total"></div>
+      </div>
+      <div class="field">
+        <%= hidden_field_tag 'day[prev_id]', @trip.last_day.id %>
+        <%= hidden_field_tag 'day[next_id]', nil %>
+        <%= hidden_field_tag 'trip[id]', @trip.id %>
+        <%= f.hidden_field :stop_coords %>
+        <%= f.hidden_field :encoded_path %>
+        <%= f.hidden_field :distance %>
+        <%= f.hidden_field :google_waypoints %>
+        <%= f.hidden_field :travel_mode %>
+      </div>
+      <div class="next_day_fields">
+        <%= hidden_field_tag 'next_day[stop_coords]' %>
+        <%= hidden_field_tag 'next_day[encoded_path]' %>
+        <%= hidden_field_tag 'next_day[distance]' %>
+        <%= hidden_field_tag 'next_day[google_waypoints]' %>
+        <%= hidden_field_tag 'next_day[travel_mode]' %>
+        <%= hidden_field_tag 'next_day[prev_id]' %>
+        <%= hidden_field_tag 'next_day[next_id]' %>
+        <%= hidden_field_tag 'next_day[id]' %>
+      </div>
+ 
+      <div class="clear"></div>
+      <div class="button-group actions">
+        <input class="button right" id="add_new_day" type="button" value="Search">
+        <input class="button left disable" disabled="disabled" id="save_new_day" type="button" value="Save">
+      </div>
     <% end %>
-  </table>
-  <div class="rule">Add Day</div>
-  <%= form_for([@trip, @trip.days.build]) do |f| %>
-    <div id="new_location">
-      <%= f.text_field :stop_location %>
-    </div>
-    <div style="float:right;">
-      <div id="new_distance"></div>
-      <div id="new_total"></div>
-    </div>
-    <div class="field">
-      <%= f.hidden_field :stop_coords %>
-      <%= f.hidden_field :encoded_path %>
-      <%= f.hidden_field :distance %>
-      <%= f.hidden_field :google_waypoints %>
-      <%= f.hidden_field :travel_mode %>
-      <%= hidden_field_tag 'trip[id]', @trip.id %>
-      <%= hidden_field_tag 'day[prev_id]', @trip.last_day.id %>
-      <%= hidden_field_tag 'day[next_id]', nil %>
-    </div>
-    <div class="clear"></div>
-    <div class="button-group actions">
-      <input class="button right" id="add_new_day" type="button" value="Search">
-      <input class="button left disable" disabled="disabled" id="save_new_day" type="button" value="Save">
-    </div>
-  <% end %>
+  </div>
 </aside>
 <div>
   <div id="map_canvas"> </div>

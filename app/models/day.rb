@@ -1,7 +1,7 @@
 class Day
   include MongoMapper::Document
   # Embed this document in trip?
-#  after_create :do_something_after_create
+  after_create :do_something_after_create
 #  before_destroy :do_something_before_destroy
 
   key :tags, Hash
@@ -132,9 +132,20 @@ class Day
   end
   private
   def do_something_after_create
-    t = self.trip
-    t.days.push(id)
-    t.save
+    prev_d = self.prev_day
+    next_d = self.next_day
+    if prev_d and next_d
+      prev_d.next_id = self.id
+      next_d.prev_id = self.id
+      prev_d.save
+      next_d.save
+    elsif prev_d
+      prev_d.next_id = self.id
+      prev_d.save
+    elsif next_d
+      next_d.prev_id = self.id
+      next_d.save
+    end
   end
 
   def do_something_before_destroy

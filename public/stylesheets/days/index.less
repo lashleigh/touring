@@ -5,31 +5,41 @@
   height: 100%;
   overflow: auto;
   z-index: 2;
-  tr {
+  .index, .location, .distance, .total, .modify {
+    text-align: left;
+    float:left;
+    padding:3px;
   }
-  td {
-    padding: 3px;
+  .day_row {
+  width:430px;
+  clear:both;
+    overflow: hidden;
   }
-  td.index {
+  .index {
     width: 20px;
   }
-  td.distance, td.total {
+  .distance {
     width: 60px;
     text-align:right;
   }
-  td.location {
+  .total {
+    width: 65px;
+    text-align:right;
   }
-  tr:nth-child(2n+1) {
+  .location {
+    width: 160px;
+  }
+  div.day_row:nth-child(2n+1) {
     background: #eee;
   }
-  tr:hover {
+  div.day_row:hover {
     background: #ccc;
   }
 }
 .highlighted {
   background: #ccc !important;
 }
-tr.selected {
+.day_row.selected {
   //border: 1px solid blue !important;
   background: pink !important;
 }

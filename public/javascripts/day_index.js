@@ -11,9 +11,9 @@ var bounds = new google.maps.LatLngBounds();
 $(function() {
   set_heights();
   $(window).resize(set_heights);
-  $("#save_new_day").click(save_day_and_add_to_table);
-  $("#add_new_day").click(calcRoute);
-  $(".insert_after").click(insert_new_day) 
+  $("#save_new_day").live("click", save_day_and_add_to_table);
+  $("#add_new_day").live("click", insert_or_append_day);
+  $(".insert").live("click", insert_new_day) 
 
   var myOptions = {
     zoom: 7,
@@ -27,7 +27,7 @@ $(function() {
 
   google.maps.event.addListener(directionsDisplay, 'directions_changed', function() {
     new_day_stats();
-    save_hidden_fields();
+    save_hidden_fields(0);
     /*computeTotalDistance(directionsDisplay.directions);
     save_waypoints(directionsDisplay.directions);
     drawPath(directionsDisplay.directions.routes[0].overview_path);
@@ -43,11 +43,11 @@ $(function() {
   map.fitBounds(bounds)
 });
 function drawDay(dayObj, i) {
-  var dayLatLng = new google.maps.LatLng(dayObj.stop_coords[0], dayObj.stop_coords[1]);
+  var dayLatLng = day_to_google_point(dayObj); 
   var day_id = "#day_"+dayObj.id;
   var day_html = '<div class="place_form"><p><a href="/trips/'+trip.id+'/days/'+dayObj.id+'">'+dayObj.stop_location+'</a></p></div>';
   if(i > 0) {
-    var prev_point = [new google.maps.LatLng(trip.ordered_days[i-1].stop_coords[0], trip.ordered_days[i-1].stop_coords[1])];
+    var prev_point = [day_to_google_point(trip.ordered_days[i-1])];
   } else {
     var prev_point = [];
   }
@@ -98,26 +98,36 @@ function drawDay(dayObj, i) {
     infoWindow.setContent(day_html)
     infoWindow.open(map, marker);
   });
-  $(day_id).hover(
-    function() { 
+  $(day_id).live('mouseover', function() { 
       marker.setIcon("/images/yellow_marker.png");
       polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
-    }, function() {
+  })
+  $(day_id).live("mouseout", function() {
       marker.setIcon("/images/red_marker.png");
       polyline.setOptions({strokeOpacity: 0.4, strokeWeight: 4});
-    }
-  ).click(function() {
+  })
+  $(day_id).live("click", function() {
     infoWindow.setContent(day_html)
     infoWindow.open(map, marker);
     }
   );
   bounds.extend(dayLatLng);
 }
-function calcRoute(day) {
+function insert_or_append_day() {
+  console.log("anything")
+  if($("#new_day").next().hasClass("day_row")) {
+    var index = $("#indexable").children().index($("#new_day"))
+    calc_route_insert_before(index);
+  }
+  else {
+    calcRoute();
+  }
+}
+function calcRoute() {
   //var ary = JSON.parse(day.google_waypoints).map(function(wpt) {return {location: new google.maps.LatLng(wpt[0], wpt[1]), stopover: false};})
   directionsDisplay.setMap(map)
   var request = {
-    origin: new google.maps.LatLng(trip.last_day.stop_coords[0],trip.last_day.stop_coords[1] ),
+    origin: day_to_google_point(trip.last_day),
     destination: $("#day_stop_location").val(), 
     //waypoints: ary,
     travelMode: google.maps.TravelMode['DRIVING'],
@@ -139,10 +149,13 @@ function calc_route_insert_before(index) {
   var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
   var half = Math.floor(polyline.length/2);
   var prev_day = trip.ordered_days[index-1];
+  var next_day = trip.ordered_days[index];
   var ary = [{location: polyline[half], stopover: true}];
+  $("#day_prev_id").val(prev_day.id)
+  $("#day_next_id").val(next_day.id)
   var request = {
-    origin: prev_day.stop_location, //new google.maps.LatLng(trip.ordered_days[index-1].stop_coords[0],trip.ordered_days[index-1].stop_coords[1] ),
-    destination: trip.ordered_days[index].stop_location, 
+    origin: day_to_google_point(prev_day), 
+    destination: day_to_google_point(next_day), 
     waypoints: ary,
     travelMode: google.maps.TravelMode['DRIVING'],
     unitSystem: google.maps.UnitSystem['IMPERIAL']
@@ -150,53 +163,58 @@ function calc_route_insert_before(index) {
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
-      //new_day_stats();
-      //$("#save_new_day").attr("disabled", false).removeClass("disable")
+      new_day_stats();
+      $("#save_new_day").attr("disabled", false).removeClass("disable")
     } else {
       console.log(status);
     }
   });
 }
 function save_day_and_add_to_table() {
+  var new_day_index = $("#indexable").children().index($("#new_day"));
+
   $.post('/create_new_day', $("#new_day").serialize(), function(data) {
-    var day = data['day'];
-    trip.ordered_days.push(day);
-    trip.last_day = day;
-    trip.distance += day.distance
-    clearForm();
-  var dist = directionsDisplay.directions.routes[0].legs[0].distance.value
-  var total = meter_2_mile(trip.distance+dist)
-  var stop_loc = directionsDisplay.directions.routes[0].legs[0].end_address;
-  $("tbody").append('<tr id="day_'+day.id+'"><td class="index">'+(trip.ordered_days.length)+'</td>'+
-                        '<td class="location">'+stop_loc+'</td>'+
-                        '<td class="distance">'+meter_2_mile(dist)+'</td>'+
-                        '<td class="total">'+total+'</td></tr>');
-    drawDay(data['day'], trip.ordered_days.length)
-    directionsDisplay.setMap(null)
     console.log(data)
+    var day = data['day'];
+    trip = data['trip'] //.distance += day.distance
+    var new_day_form = $("#new_day");
+    //for(var i=new_day_index-1; i< $("#indexable").children().length; i++) {
+    //  $($("#indexable").children()[i]).remove();
+    //}
+    $(".day_row").remove();
+    $("#indexable").append(data['dayhtml']);
+    $("#indexable").append(new_day_form);
+    drawDay(day, new_day_index)
+    directionsDisplay.setMap(null)
+    clearForm();
   })
 }
 function clearForm() {
-  $("#day_stop_location").val('');
-  $("#day_stop_coords").val('')
-  $("#day_encoded_path").val('')
-  $("#day_distance").val('')
-  $("#day_google_waypoints").val('')
-  $("#day_travel_mode").val('')
+  $("#new_day .field :input").val('');
+  $("#trip_id").val(trip.id);
 
   $("#new_distance").html('');
   $("#new_total").html('');
 
   $("#save_new_day").attr("disabled", true).addClass("disable")
 }
-function save_hidden_fields() {
-  var base = directionsDisplay.directions.routes[0].legs[0];
-  $("#day_stop_location").val(base.end_address);
-  $("#day_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
-  $("#day_encoded_path").val(directionsDisplay.directions.routes[0].overview_polyline.points)
-  $("#day_distance").val(base.distance.value)
-  $("#day_google_waypoints").val("")
-  $("#day_travel_mode").val("DRIVING")
+function save_hidden_fields(which) {
+  if(which == 0) {
+    var day = "#day";
+  } else if(which == 1) {
+    var day = "#next_day";
+  }
+  var base = directionsDisplay.directions.routes[0].legs[which];
+  var overview_path =[];
+  for(var i=0; i<base.steps.length; i++) {
+    overview_path.push.apply(overview_path, base.steps[i].lat_lngs);
+  }
+  $(day+"_stop_location").val(base.end_address);
+  $(day+"_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
+  $(day+"_encoded_path").val(google.maps.geometry.encoding.encodePath(overview_path));
+  $(day+"_distance").val(base.distance.value)
+  $(day+"_google_waypoints").val("")
+  $(day+"_travel_mode").val("DRIVING")
 }
 function new_day_stats() {
   var dist = directionsDisplay.directions.routes[0].legs[0].distance.value
@@ -224,19 +242,17 @@ function meter_2_mile(num) {
 function meter_2_kilometer(num) {
   return (num/1000).toFixed(1)+' km'
 }
+
 function insert_new_day() {
-  var after_index = $(".insert_after").index(this)
-  for(var i=after_index+1; i<$(".insert_after").length; i++) {
-    $($(".day_row")[i]).hide();
-  }
-  calc_route_insert_before(after_index+1);
-}
-function insert_before() {
-  var clicked_index = $(".insert").index(this)
+  var clicked_index = $(".insert").index(this);
+  var new_day = $("#new_day")
+  $("#new_day").remove()
+  $("#"+$(this).attr("id").replace(/insert/,'day')).before(new_day)
+  calc_route_insert_before(clicked_index);
+
   //var polylines_array[clicked_index].setMap(null)
   //var markers_array[clicked_index].setMap(null)
-  $($(this).attr("id").replace(/insert/, 'day')).before('<tr id="temp_day"><td class="index">'+(clicked_index)+'</td>'+
-                        '<td class="location"><input id="inserted_day_location" name="day[stop_location]" size="30" type="text"></td>'+
-                        '<td class="distance">'+'</td>'+
-                        '<td class="total">'+'</td></tr>');
+}
+function day_to_google_point(day) {
+  return new google.maps.LatLng(day.stop_coords[0], day.stop_coords[1]);
 }

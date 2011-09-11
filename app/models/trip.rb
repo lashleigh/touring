@@ -24,6 +24,17 @@ class Trip
   belongs_to :user
   validates_presence_of :title, :user_id, :start_location
 
+  # this method is called on a single instance
+  def as_json(options={})
+    options[:methods] ||= []
+    options[:methods] += [:ordered_days, :distance, :last_day]
+    super(options)
+  end
+  def to_json(options={})
+    options[:methods] ||= []
+    options[:methods] += [:ordered_days, :distance, :last_day]
+    super(options)
+  end
   def ordered_days
     days = []
     current_day = self.days.where(:prev_id => nil).first

@@ -56,12 +56,8 @@ class DaysController < ApplicationController
     @day.trip = @trip
 
     if @day.save
-      if @day.prev_id
-        prev = @day.prev_day
-        prev.next_id = @day.id
-        prev.save
-      end
-      render :json => {'day' => @day}
+      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
+      render :json => {'trip' => @trip, 'day' => @day, 'dayhtml' => dayhtml}
     else
       render :json => {'status' => 'faliure'}
     end
@@ -76,11 +72,11 @@ class DaysController < ApplicationController
 
     respond_to do |format|
       if @day.save
-         format.html { redirect_to(trip_day_path(@trip,@day), :notice => 'Day was successfully created.') }
-    #    format.xml  { render :xml => @day, :status => :created, :location => @day }
+         to_replace = @trip.ordered_days[@trip.ordered_days.index(@day)..-1]
+         dayhtml = render_to_string :partial => 'day', :collection => to_replace
+         render :json => {'day' => @day, 'dayhtml' => dayhtml}
       else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @day.errors, :status => :unprocessable_entity }
+        render :json => {'status' => 'faliure'}
       end
     end
   end
@@ -110,14 +106,21 @@ class DaysController < ApplicationController
     @day = Day.find(params[:id])
     prev_d = @day.prev_day
     next_d = @day.next_day
-    prev_d.next_id = next_d.id
-    next_d.prev_id = prev_d.id
-    next_d.distance += @day.distance
+    if prev_d and next_d
+      prev_d.next_id = next_d.id
+      next_d.prev_id = prev_d.id
+      next_d.distance += @day.distance
+    elsif prev_d
+      prev_d.next_id = nil
+    elsif next_d
+      next_d.prev_id = nil
+      next_d.distance += @day.distance
+    end
 
     respond_to do |format|
       if user_can_modify(@trip) and @day.destroy
-        prev_d.save
-        next_d.save
+        prev_d.save if prev_d
+        next_d.save if next_d
         format.html { redirect_to(trip_days_path) }
         format.xml  { head :ok }
       else
