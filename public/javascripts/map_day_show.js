@@ -117,12 +117,17 @@ function calcRoute(waypoints) {
 }
 function set_heights() {
   var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight();
-  var baseWidth = window.innerWidth - $("#detail_panel").outerWidth() -5;
-  $("#detail_panel").css("margin-top", $("#topbar").outerHeight());
+  var map_width = Math.max(parseInt($("#content").css("min-width")), window.innerWidth)-$("aside#detail_panel").width()
   $("#map_canvas").css("height", base+"px");
+  $("#map_canvas").css("width", map_width+"px");
   $("#detail_panel").css("height", base-$("#topbar").outerHeight()+"px")
-  $("#elevation_chart").css("width", $("#map_canvas").width()+"px");
+  $("#detail_panel").css("margin-top", $("#topbar").outerHeight());
+  $("#elevation_chart").css("width", map_width+"px");
   $("#elevation_chart").css("left", $("#map_canvas").position().left+"px");
+  if(directionsDisplay.directions != undefined) {
+    //drawPath(directionsDisplay.directions.routes[0].overview_path);
+    // TODO redraw elevation after page resize
+  }
 }
 function click_actions() {
   $(".adp-summary").live("click", function() {

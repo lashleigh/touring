@@ -4,16 +4,23 @@
 @import 'days/index';
 @blue: #4D90FE;
 @gray: #f5f5f5;
-@footer_height: 76px;
+@footer_height: 36px;
 html, body {height: 100%;}
 #wrap {min-height: 100%;}
 #content {
   overflow:auto;
   padding-bottom: @footer_height;
-  width:1000px;
+  min-width:900px; /*This value should never be less than aside width*/
   margin: 0 auto;
 } 
-
+aside#detail_panel, aside#trip_days_wrap {
+  width: 500px;
+  position: absolute;
+  left: 0;
+  height: 100%;
+  overflow: auto;
+  z-index: 2;
+}
 footer {
   position: relative;
   margin-top: -@footer_height; /* negative value of footer height */
@@ -159,7 +166,7 @@ ul.repositories {
 //Day CSS
 
 #map_canvas {
-  width: 65%;
+  width: 60%;
   height: 75%;
   float: right;
 }
@@ -188,15 +195,6 @@ ul.repositories {
   clear: both;
   padding-left: 34px;
   margin: 0.75em 5%;
-}
-#detail_panel {
-  position: absolute;
-  left: 0;
-  width:35%;
-  height: 100%;
-  overflow: auto;
-  margin-top: 5.5em;
-  z-index: 2;
 }
 #VENUES_details {
   margin: 15px; 

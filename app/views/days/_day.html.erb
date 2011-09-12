@@ -1,14 +1,38 @@
 <% i = @trip.ordered_days.index(day) %>
 
 <div class="day_row clear" id="day_<%=day.id%>">
-  <div class="index"><%= i+1 %></div>
-  <div class="location"><%= day.stop_location %></div>
-  <div class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></div>
-  <div class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></div> 
-  <div class="modify button-group">
-    <button class="button hidden left insert icon icononly add" id="insert_<%=day.id%>" type="button"></button>
-    <button class="button hidden center icon icononly edit" id="insert_<%=day.id%>" type="button"></button>
-    <%= link_to ' ', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button hidden right icon icononly remove danger' %>
+  <div class="current_day">
+    <div class="index"><%= i+1 %></div>
+    <div class="location"><%= day.stop_location %></div>
+    <div class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></div>
+    <div class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></div> 
+    <div class="modify button-group">
+      <button class="button hidden left insert icon icononly add" id="insert_<%=day.id%>" type="button"></button>
+      <button class="button hidden center icon icononly edit" id="edit_<%=day.id%>" type="button"></button>
+      <%= link_to ' ', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button hidden right icon icononly remove danger' %>
+    </div>
   </div>
+  <%= form_for([@trip, day]) do |f| %>
+    <div id="new_location">
+      <%= f.text_field :stop_location %>
+    </div>
+    <div id="new_distance" class="distance"></div>
+    <div class="field">
+      <%= hidden_field_tag 'trip[id]', @trip.id %>
+      <%= f.hidden_field :stop_coords %>
+      <%= f.hidden_field :encoded_path %>
+      <%= f.hidden_field :route %>
+      <%= f.hidden_field :distance %>
+      <%= f.hidden_field :google_waypoints %>
+      <%= f.hidden_field :travel_mode %>
+    </div>
+    <div class="clear"></div>
+    <div class="button-group actions">
+      <input class="button center disable save" disabled="disabled" id="save_<%=day.id%>" type="button" value="Save">
+      <input class="button right danger cancel" id="cancel_<%=day.id%>" type="button" value="Cancel">
+    </div>
+  <% end %>
+
+
 </div>
 

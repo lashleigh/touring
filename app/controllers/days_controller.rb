@@ -50,10 +50,10 @@ class DaysController < ApplicationController
     @day = Day.new(params[:day])  
   end
 
-  def create_new_day
-    @day = Day.new(params[:day])
+  def update_from_index
+    @day = Day.find(params[:id])
     @trip = Trip.find(params[:trip][:id])
-    @day.trip = @trip
+    @day.assign(params[:day])
 
     if @day.save
       dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
@@ -63,21 +63,22 @@ class DaysController < ApplicationController
     end
   end
 
-  # POST /days
-  # POST /days.xml
-  def create
-    @trip = Trip.find(params[:trip_id])
-    @day = Day.new(params[:day])  
+  def create_new_day
+    @day = Day.new(params[:day])
+    @trip = Trip.find(params[:trip][:id])
     @day.trip = @trip
+    next_day = Day.find(params[:next_day][:id])
+    if next_day
+      next_day.assign(params[:next_day])
+      next_day.prev_id = @day.id
+      next_day.save
+    end
 
-    respond_to do |format|
-      if @day.save
-         to_replace = @trip.ordered_days[@trip.ordered_days.index(@day)..-1]
-         dayhtml = render_to_string :partial => 'day', :collection => to_replace
-         render :json => {'day' => @day, 'dayhtml' => dayhtml}
-      else
-        render :json => {'status' => 'faliure'}
-      end
+    if @day.save
+      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
+      render :json => {'trip' => @trip, 'day' => @day, 'next_day' => @day.next_day, 'dayhtml' => dayhtml}
+    else
+      render :json => {'status' => 'faliure'}
     end
   end
 

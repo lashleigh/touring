@@ -1,0 +1,49 @@
+<%= form_for [@trip, @day] do |f| %>
+  <% if @day.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@day.errors.count, "error") %> prohibited this day from being saved:</h2>
+
+      <ul>
+      <% @day.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <dl class="neighbor_days" id="prev_day">
+    <dt class="icon"><%= image_tag 'a.png' %></dt>
+    <dd class="prev_day"><%= (@day.prev_day.stop_location if @day.prev_id) || @trip.start_location %></dd>
+  </dl>
+  <dl id="stop_locations" class="field">
+    <dt class="icon"><%= image_tag 'b.png' %></dt>
+    <dd id="current_day"><%= f.text_field :stop_location, :size => 40 %></dd>
+  </dl>
+  <dl class="neighbor_days" id="next_day">
+    <dt class="icon"><%= image_tag 'a.png' %></dt>
+    <dd class="next_day"> <%= (@day.next_day.stop_location if @day.next_id) || @trip.finish_location %> </dd>
+  </dl>
+  <div class="clear"></div>
+  <div class="field">
+    <%= f.hidden_field :prev_id %>
+    <%= f.hidden_field :next_id %>
+    <%= f.hidden_field :distance %>
+    <%= f.hidden_field :travel_mode %>
+    <%= f.hidden_field :encoded_path %>
+    <%= f.hidden_field :google_waypoints %>
+    <%= f.hidden_field :stop_coords %>
+  </div>
+  <div class="field">
+    <%= hidden_field_tag 'next[prev_id]', @day.id %>
+    <%= hidden_field_tag 'next[next_id]', @day.next_day.next_day.id %>
+    <%= hidden_field_tag 'next[distance]' %>
+    <%= hidden_field_tag 'next[travel_mode]' %>
+    <%= hidden_field_tag 'next[encoded_path]' %>
+    <%= hidden_field_tag 'next[google_waypoints]' %>
+    <%= hidden_field_tag 'next[stop_coords]' %>
+  </div>
+ 
+  <div class="actions">
+    <%= f.submit 'Save changes', :class => 'button' %>
+    <input class="button" value="Search" type="submit" style="float:right;" onclick="calcRoute()">
+  </div>
+<% end %>

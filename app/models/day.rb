@@ -8,16 +8,24 @@ class Day
   key :distance, Float
   key :google_waypoints, Array
   key :encoded_path, String
+  key :route,        Array,  :typecast => 'Array'
   key :travel_mode, String
-  #key :end_id, ObjectId
   key :stop_location, String
   key :stop_coords, Array
   key :prev_id, ObjectId
   key :next_id, ObjectId
 
   belongs_to :trip
+  one :locatable
   validates_presence_of :stop_location
   def stop_coords=(x)
+    if String === x and !x.blank?
+      super(ActiveSupport::JSON.decode(x))
+    else
+      super(x)
+    end
+  end
+  def route=(x)
     if String === x and !x.blank?
       super(ActiveSupport::JSON.decode(x))
     else
@@ -63,30 +71,6 @@ class Day
     return all_tags  
   end
 
-  def included_waypoints
-    #find nearby waypoints
-  end
-
-  # This shouldn't have been neccessary
-  # but it was not being discovered automatically
-  def destination
-    Waypoint.find(end_id)
-  end
-  def prev_day_old
-    id = trip.days.index(self)
-    day_by_index(id-1)
-  end
-  def day_by_index(i) 
-    if i >= 0 and i < trip.days.length
-      trip.days[i]
-    else
-      false
-    end 
-  end
-  def next_day_old
-    id = trip.days.index(self)
-    day_by_index(id+1)
-  end
   def custom_update(params)
     Day.set({:id => id.as_json},
             :distance => params[:distance].to_f,
@@ -127,8 +111,11 @@ class Day
     return res.map{|k,v| v == 1 ? k : k + "x"+v.to_s}
   end
 
-  def geocode
-    self.stop_coords = Geocoder.coordinates(stop_location)
+  def address
+    locatable.address if locatable
+  end
+  def coords
+    locatable.coords if locatable
   end
   private
   def do_something_after_create

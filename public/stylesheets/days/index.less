@@ -1,18 +1,13 @@
 #trip_days_wrap {
-  position: absolute;
-  left: 0;
-  width:35%;
-  height: 100%;
-  overflow: auto;
-  z-index: 2;
+  //Basic width and position defined by aside
   .index, .location, .distance, .total, .modify {
     text-align: left;
     float:left;
     padding:3px;
   }
   .day_row {
-  width:430px;
-  clear:both;
+    width:485px;
+    clear:both;
     overflow: hidden;
   }
   .index {
@@ -27,10 +22,7 @@
     text-align:right;
   }
   .location {
-    width: 160px;
-  }
-  .modify {
-    float:right;
+    width: 225px;
   }
   div.day_row:nth-child(2n+1) {
     background: #eee;
@@ -38,30 +30,28 @@
   div.day_row:hover {
     background: #ccc;
   }
-}
-.highlighted {
-  background: #ccc !important;
-}
-.day_row.selected {
-  //border: 1px solid blue !important;
-  background: pink !important;
-}
-.day_details {
-  padding: 0 5px;
-  border: 1px solid;
-  width: 270px;
-}
-#new_day {
-  #new_location {
-    margin-left:20px;
-    float:left;
+  .highlighted {
+    background: #ccc !important;
   }
-  #new_distance, #new_total {
-    width:60px;
-    text-align:right;
-    float:left;
+  .day_row.selected {
+    //border: 1px solid blue !important;
+    background: pink !important;
   }
-}
-.hidden {
-  opacity: 0.1;
+  .day_details {
+    padding: 0 5px;
+    border: 1px solid;
+    width: 270px;
+  }
+  #new_day, .edit_day {
+    clear:both;
+  }
+  .edit_day {
+    display: none;
+  }
+  .hidden {
+    opacity: 0.1;
+  }
+  .actions {
+    margin-left: 4px;
+  }
 }

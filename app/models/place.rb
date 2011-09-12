@@ -1,4 +1,4 @@
-class Place
+class Place < Locatable
   include MongoMapper::Document
 
   key :venue_id, String
@@ -6,9 +6,7 @@ class Place
 
   # location details
   key :city, String
-  key :address, String
   key :country, String
-  key :coords, Array
   key :postal, Integer
   key :state, String
 
@@ -30,7 +28,6 @@ class Place
   #key :day_ids, Array
 
   many :users, :in => :voters
-  ensure_index [[:coords,'2d']]
 
   def self.nearest(coords)
     where(:coords => {'$near' => coords}).limit(1).first

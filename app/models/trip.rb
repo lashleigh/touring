@@ -66,7 +66,7 @@ class Trip
   end
 
   def cumulative_distance(index, options={})
-    dist = (days[0..index].map{|d| d.distance}).sum
+    dist = (ordered_days[0..index].map{|d| d.distance}).sum
     options[:unit_system] ||= "METRIC"
     if options[:unit_system] == "METRIC"
       (dist/ 1000).round(1).to_s + " km"

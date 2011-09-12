@@ -14,7 +14,9 @@ function toFeet(num) {
 }
 
 function save_waypoints(result) {
+  var path_as_array = result.routes[0].overview_path.map(function(a) { return [a.lat(), a.lng()];});
   $("#day_encoded_path").val(result.routes[0].overview_polyline.points);
+  $("#day_route").val(JSON.stringify(path_as_array));
   $("#day_stop_location").val(result.routes[0].legs[0].end_address);
   $("#day_stop_coords").val(JSON.stringify([result.routes[0].legs[0].end_location.lat(), result.routes[0].legs[0].end_location.lng()]));
   
