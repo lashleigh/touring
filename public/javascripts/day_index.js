@@ -9,6 +9,9 @@ var map;
 var bounds = new google.maps.LatLngBounds();
 var polylines_array = [];
 var markers_array = [];
+var directions_start;
+var directions_end;
+var mode;
 
 $(function() {
   set_heights();
@@ -17,7 +20,7 @@ $(function() {
   $("#new_day #add_new_day").live("click", insert_or_append_day);
   $("#new_day #cancel").live("click", cancel);
   $(".edit_day .cancel").live("click", cancel_edit);
-  //$(".edit_day .save").live("click", save_edit);
+  $(".edit_day .save").live("click", save_edited_day);
   $(".insert").live("click", insert_new_day) 
   $(".day_row .edit").live("click", edit_day)
 
@@ -34,7 +37,12 @@ $(function() {
   directionsDisplay.setPanel(document.getElementById("directionsPanel"));
 
   google.maps.event.addListener(directionsDisplay, 'directions_changed', function() {
-    new_day_stats();
+    if(mode=="insert") {
+      new_day_stats();
+    } else if(mode=="edit") {
+      edit_day_stats();
+    }
+    watch_for_inappropriate_drag();
     /*computeTotalDistance(directionsDisplay.directions);
     save_waypoints(directionsDisplay.directions);
     drawPath(directionsDisplay.directions.routes[0].overview_path);
@@ -124,8 +132,7 @@ function drawDay(dayObj, i) {
 }
 function insert_or_append_day() {
   if($("#new_day").next().hasClass("day_row")) {
-    var index = current_new_day_index();
-    calc_route_insert_before(index, false);
+    calc_route_insert_before(false);
   }
   else {
     calcRoute();
@@ -152,28 +159,13 @@ function calcRoute() {
 
   });
 }
-function calc_route_insert_before(index, first_time) {
+function calc_route_insert_before(first_time) {
   directionsDisplay.setMap(map)
-  var next_day = trip.ordered_days[index];
-  if(index > 0) {
-    var prev_day = day_to_google_point(trip.ordered_days[index-1]);
-    set_prev_next_id(trip.ordered_days[index-1], next_day);
-  } else {
-    var prev_day = trip.start_location;
-    set_prev_next_id(false, next_day);
-  }
-  if(first_time) {
-    var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
-    var half = Math.floor(polyline.length/2);
-    var ary = [{location: polyline[half], stopover: true}];
-  } else {
-    var ary = [{location: $("#new_day #day_stop_location").val(), stopover:true}];
-  }
-
+  var options = route_options_for(first_time);
   var request = {
-    origin: prev_day,  
-    destination: day_to_google_point(next_day),  
-    waypoints: ary,
+    origin: options['origin'],  
+    destination: options['destination'],
+    waypoints: options['waypoints'],
     travelMode: google.maps.TravelMode['DRIVING'],
     unitSystem: google.maps.UnitSystem['IMPERIAL']
   }
@@ -186,10 +178,70 @@ function calc_route_insert_before(index, first_time) {
     }
   });
 }
+function route_options_for(first_time) {
+  var to_return = {};
+  if(mode == "insert") {
+    var index = current_new_day_index();
+    var next_day = trip.ordered_days[index];
+    if(index > 0) {
+      var prev_day = day_to_google_point(trip.ordered_days[index-1]);
+      set_prev_next_id(trip.ordered_days[index-1], next_day);
+    } else {
+      var prev_day = trip.start_location;
+      set_prev_next_id(false, next_day);
+    }
+    if(first_time) {
+      var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
+      var half = Math.floor(polyline.length/2);
+      var ary = [{location: polyline[half], stopover: true}];
+    } else {
+      var ary = [{location: coords_to_google_point(JSON.parse($("#new_day #day_stop_coords").val())), stopover:true}];
+    }
+    to_return['origin'] = prev_day;
+    to_return['destination'] = day_to_google_point(next_day);
+    to_return['waypoints'] = ary;
+  } else if(mode == "edit") {
+    var index = $(".edit_day").index($(".edit_day:visible"))
+    if(index > 0 && index < trip.ordered_days.length-1) {
+      var prev_day = day_to_google_point(trip.ordered_days[index-1]);
+      var next_day = day_to_google_point(trip.ordered_days[index+1]);
+    } else if(index ==0) {
+      var prev_day = trip.start_location;
+    } else if(index ==trip.ordered_days.length) {
+      var next_day = trip.finish_location;
+    }
+    if(first_time) {
+      var ary = [{location: day_to_google_point(trip.ordered_days[index]), stopover:true}];
+    } else {
+      var id = $(".edit_day:visible").attr("id");
+      var ary = [{location: coords_to_google_point(JSON.parse($("#"+id+" #day_stop_coords").val())), stopover:true}];
+    }
+    set_prev_next_id(prev_day, next_day);
+    to_return['origin'] = prev_day;
+    to_return['destination'] = next_day;
+    to_return['waypoints'] = ary;
+  }
+  return to_return;
+}
+function watch_for_inappropriate_drag() {
+  var base = directionsDisplay.directions.routes[0].legs
+  var current_start = base[0].start_location.toString()
+  var current_end   = base[base.length-1].end_location.toString()
+  if(directions_start && directions_start != current_start) {
+    console.log("It is not currently possible to edit endpoints while creating a new day")
+    flash_warning("It is not currently possible to edit endpoints while creating a new day")
+    calc_route_insert_before(false);
+  }
+  if(directions_end && directions_end != current_end) {
+    console.log("It is not currently possible to edit endpoints while creating a new day")
+    flash_warning("It is not currently possible to edit endpoints while creating a new day")
+    calc_route_insert_before(false);
+  }
+}
 function save_day_and_add_to_table() {
   var new_day_index = current_new_day_index();
-  save_hidden_fields(0);
-  save_hidden_fields(1);
+  save_hidden_fields("#new_day #day");
+  save_hidden_fields("#new_day #next_day");
 
   $.post('/create_new_day', $("#new_day").serialize(), function(data) {
     var day = data['day'];
@@ -205,6 +257,30 @@ function save_day_and_add_to_table() {
     cancel();
   })
 }
+
+function save_edited_day() {
+  var edited_day_index = current_editable_day_index();
+  var edited_id = current_editable_id();
+  save_hidden_fields(edited_id+" #day");
+  save_hidden_fields(edited_id+" #next_day");
+
+  $.post('/index_edit', $(edited_id).serialize(), function(data) {
+    var day = data['day'];
+    trip = data['trip'];
+    $(".day_row").remove();
+    $("#indexable").append(data['dayhtml']);
+    markers_array.splice(edited_day_index, 1);
+    polylines_array.splice(edited_day_index, 1);
+    drawDay(day, edited_day_index);
+    if(data['next_day']) {
+      markers_array.splice(edited_day_index+1, 1)
+      polylines_array.splice(edited_day_index+1, 1)
+      drawDay(data['next_day'], edited_day_index+1)
+    }
+    cancel();
+  })
+}
+
 function cancel() {
   directionsDisplay.setMap(null);
   clearForm();
@@ -216,18 +292,46 @@ function cancel() {
   $("#new_day").remove();
   $("#indexable").append(new_day_form);
 }
+
+function cancel_edit() {
+  directionsDisplay.setMap(null);
+  set_prev_next_id(false, false);
+  //enable_saving(false);
+  change_neighboring_opacity(1.0);
+
+  //$(".edit_day").hide();
+  $("#"+$(this).attr("id").replace(/cancel/,'edit_day')).hide();
+}
 function set_prev_next_id(prev_day, next_day) {
-  if(prev_day) {
-    $("#new_day #day_prev_id").val(prev_day.id)
-  } else {
-    $("#new_day #day_prev_id").val(trip.last_day.id)
+  if(mode=="insert") {
+    if(prev_day) {
+      $("#new_day #day_prev_id").val(prev_day.id)
+      directions_start = day_to_google_point(prev_day).toString();
+    } else {
+      $("#new_day #day_prev_id").val(trip.last_day.id)
+      directions_start = day_to_google_point(trip.last_day).toString();
+    }
+    if(next_day) {
+      $("#new_day #day_next_id").val(next_day.id)
+      $("#new_day #next_day_id").val(next_day.id)
+      directions_end = day_to_google_point(next_day).toString();
+    } else {
+      $("#new_day #day_next_id").val('')
+      $("#new_day #next_day_id").val('')
+      directions_end = false;
+    }
   }
-  if(next_day) {
-    $("#new_day #day_next_id").val(next_day.id)
-    $("#new_day #next_day_id").val(next_day.id)
-  } else {
-    $("#new_day #day_next_id").val('')
-    $("#new_day #next_day_id").val('')
+  if(mode=="edit") {
+    if(prev_day) {
+      directions_start = prev_day.toString();
+    } else {
+      directions_start = coords_to_google_point(trip.ordered_days[0].route[0]).toString();
+    }
+    if(next_day) {
+      directions_end = next_day.toString();
+    } else {
+      directions_end = false;
+    } 
   }
 }
 function clearForm() {
@@ -238,11 +342,11 @@ function clearForm() {
   $("#new_day #new_distance").html('');
   $("#new_day #new_total").html('');
 }
-function save_hidden_fields(which) {
-  if(which == 0) {
-    var day = "#day";
-  } else if(which == 1) {
-    var day = "#next_day";
+function save_hidden_fields(parent_id) {
+  if(parent_id.match("#day") !== null) {
+    var which = 0;
+  } else if(parent_id.match("#next_day") !== null) {
+    var which = 1;
   }
   var base = directionsDisplay.directions.routes[0].legs[which];
   if(base != undefined) {
@@ -252,23 +356,39 @@ function save_hidden_fields(which) {
     }
     var path_as_array = overview_path.map(function(a) { return [a.lat(), a.lng()];});
  
-    $("#new_day "+day+"_stop_location").val(base.end_address);
-    $("#new_day "+day+"_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
-    $("#new_day "+day+"_encoded_path").val(google.maps.geometry.encoding.encodePath(overview_path));
-    $("#new_day "+day+"_route").val(JSON.stringify(path_as_array));
-    $("#new_day "+day+"_distance").val(base.distance.value)
-    $("#new_day "+day+"_google_waypoints").val("")
-    $("#new_day "+day+"_travel_mode").val("DRIVING")
+    $(parent_id+"_stop_location").val(base.end_address);
+    $(parent_id+"_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
+    $(parent_id+"_encoded_path").val(google.maps.geometry.encoding.encodePath(overview_path));
+    $(parent_id+"_route").val(JSON.stringify(path_as_array));
+    $(parent_id+"_distance").val(base.distance.value)
+    $(parent_id+"_google_waypoints").val("")
+    $(parent_id+"_travel_mode").val("DRIVING")
   }
 }
 function new_day_stats() {
-  var dist = directionsDisplay.directions.routes[0].legs[0].distance.value
+  //all_visibilty(markers_array, map);
+  var base = directionsDisplay.directions.routes[0].legs[0];
+  var dist = base.distance.value
   var total = meter_2_mile(trip.distance+dist)
-  var stop_loc = directionsDisplay.directions.routes[0].legs[0].end_address;
   $("#new_day #new_distance").html(meter_2_mile(dist));
   $("#new_day #new_total").html(total);
-  $("#new_day #day_stop_location").val(directionsDisplay.directions.routes[0].legs[0].end_address);
+  $("#new_day #day_stop_location").val(base.end_address);
+  $("#new_day #day_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
 }
+function edit_day_stats() {
+  var id = current_editable_id();
+  //all_visibilty(markers_array, map);
+  save_hidden_fields(id+" #day");
+  save_hidden_fields(id+" #next_day");
+  var base = directionsDisplay.directions.routes[0].legs[0];
+  var dist = base.distance.value
+  var total = meter_2_mile(trip.distance+dist)
+  $(id+" #new_distance").html(meter_2_mile(dist));
+  $(id+" #new_total").html(total);
+  $(id+" #day_stop_location").val(base.end_address);
+  $(id+" #day_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
+}
+
 
 function set_heights() {
   var base = window.innerHeight - $("header").outerHeight() - $("footer").outerHeight();
@@ -291,38 +411,70 @@ function meter_2_kilometer(num) {
 }
 
 function insert_new_day() {
+  mode = "insert";
   change_neighboring_opacity(1.0);
-  var clicked_index = $(".insert").index(this);
+
   var new_day = $("#new_day")
   $("#new_day").remove()
   $("#"+$(this).attr("id").replace(/insert/,'day')).before(new_day)
   change_neighboring_opacity(0.2);
-
-  calc_route_insert_before(clicked_index, true);
-
+  calc_route_insert_before(true);
+}
+function edit_day() {
+  mode = "edit"
+  change_neighboring_opacity(1.0);
+  $(".edit_day").hide()
+  $("#"+$(this).attr("id").replace(/edit/,'edit_day')).show()
+  change_neighboring_opacity(0.2);
+  calc_route_insert_before(true)
 }
 function day_to_google_point(day) {
-  return new google.maps.LatLng(day.stop_coords[0], day.stop_coords[1]);
+  return coords_to_google_point(day.stop_coords);
+}
+function coords_to_google_point(coords) {
+  return new google.maps.LatLng(coords[0], coords[1]);
 }
 function change_neighboring_opacity(opacity) {
-  var index = current_new_day_index();
-  var rows = $(".day_row");
-  for(var i=0; i< index-1; i++) {
-    $(rows[i]).css("opacity", opacity);
-  }
-  for(var i=index+1; i<= rows.length; i++) {
-    $(rows[i]).css("opacity", opacity);
-  }
-  if(opacity==1.0) {
-    all_visibilty(markers_array, map);
-    all_visibilty(polylines_array, map);
-  } else {
-    modify_some_markers(null, index-1, index);
-    polylines_array[index].setMap(null);
+  if(mode=="insert") {
+    var index = current_new_day_index();
+    var rows = $(".day_row");
+    for(var i=0; i< index-1; i++) {
+      $(rows[i]).css("opacity", opacity);
+    }
+    for(var i=index+1; i<= rows.length; i++) {
+      $(rows[i]).css("opacity", opacity);
+    }
+    if(opacity==1.0) {
+      all_visibilty(markers_array, map);
+      all_visibilty(polylines_array, map);
+    } else {
+      //modify_some_markers(null, index-1, index);
+      polylines_array[index].setMap(null);
+    }
+  } else if(mode=="edit") {
+    var index = current_editable_day_index();
+    var rows = $(".day_row");
+    rows.css("opacity", opacity);
+    $(rows[index]).css("opacity", 1.0)
+    if(opacity==1.0) {
+      all_visibilty(markers_array, map);
+      all_visibilty(polylines_array, map);
+    } else {
+      //modify_some_markers(null, index-1, index);
+      polylines_array[index].setMap(null);
+      markers_array[index].setMap(null);
+      if(polylines_array[index+1]) {polylines_array[index+1].setMap(null);}
+    }
   }
 }
 function current_new_day_index() {
   return $("#indexable").children().index($("#new_day"));
+}
+function current_editable_day_index() {
+  return $(".edit_day").index($(".edit_day:visible"));
+}
+function current_editable_id() {
+  return "#"+$(".edit_day:visible").attr("id");
 }
 function enable_saving(bool) {
   if(bool) {
@@ -343,11 +495,7 @@ function modify_some_markers(how, lower, upper) {
     if(i>= 0 && i < markers_array.length) { markers_array[i].setMap(how); }
   }
 }
-function edit_day() {
-  var clicked_index = $(".edit").index(this);
-  $(".edit_day").hide()
-  $("#"+$(this).attr("id").replace(/edit/,'edit_day')).show()
-}
-function cancel_edit() {
-  $("#"+$(this).attr("id").replace(/cancel/,'edit_day')).hide();
+
+function flash_warning(str) {
+  $("#warning").html(str).show().delay(8000).fadeOut(2000)
 }

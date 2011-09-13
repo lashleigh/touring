@@ -12,27 +12,7 @@
       <%= link_to ' ', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button hidden right icon icononly remove danger' %>
     </div>
   </div>
-  <%= form_for([@trip, day]) do |f| %>
-    <div id="new_location">
-      <%= f.text_field :stop_location %>
-    </div>
-    <div id="new_distance" class="distance"></div>
-    <div class="field">
-      <%= hidden_field_tag 'trip[id]', @trip.id %>
-      <%= f.hidden_field :stop_coords %>
-      <%= f.hidden_field :encoded_path %>
-      <%= f.hidden_field :route %>
-      <%= f.hidden_field :distance %>
-      <%= f.hidden_field :google_waypoints %>
-      <%= f.hidden_field :travel_mode %>
-    </div>
-    <div class="clear"></div>
-    <div class="button-group actions">
-      <input class="button center disable save" disabled="disabled" id="save_<%=day.id%>" type="button" value="Save">
-      <input class="button right danger cancel" id="cancel_<%=day.id%>" type="button" value="Cancel">
-    </div>
-  <% end %>
-
+  <%= render :partial => 'edit_day', :locals => {:day => day} %>
 
 </div>
 

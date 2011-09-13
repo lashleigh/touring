@@ -63,6 +63,25 @@ class DaysController < ApplicationController
     end
   end
 
+  def index_edit
+    @day = Day.find(params[:id])
+    @trip = Trip.find(params[:trip][:id])
+    @day.assign(params[:day])
+    if @day.next_id
+      next_day = @day.next_day
+      next_day.assign(params[:next_day])
+      next_day.save
+    end
+
+    if @day.save
+      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
+      render :json => {'trip' => @trip, 'day' => @day, 'next_day' => @day.next_day, 'dayhtml' => dayhtml}
+    else
+      render :json => {'status' => 'faliure'}
+    end
+  end
+
+
   def create_new_day
     @day = Day.new(params[:day])
     @trip = Trip.find(params[:trip][:id])
@@ -116,6 +135,8 @@ class DaysController < ApplicationController
     elsif next_d
       next_d.prev_id = nil
       next_d.distance += @day.distance
+      # next_d.route = @day.route + next_d.route
+      # next_d.waypoints.push(@day.waypoints)
     end
 
     respond_to do |format|
