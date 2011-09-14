@@ -94,6 +94,7 @@ class DaysController < ApplicationController
     end
 
     if @day.save
+      @trip.reload
       dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
       render :json => {'trip' => @trip, 'day' => @day, 'next_day' => @day.next_day, 'dayhtml' => dayhtml}
     else

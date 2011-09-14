@@ -1,4 +1,4 @@
-function Day(day, map, bounds) {
+function Day(day) {
   this.raw_day = day;
 
   this.point = coords_to_google_point(day.stop_coords);
@@ -21,15 +21,15 @@ function Day(day, map, bounds) {
   this.marker = marker;
   this.polyline = polyline;
 
-  set_marker_events(this, map);
-  set_polyline_events(this, map);
-  set_div_events(this, map);
-  set_div_button_events(this, map);
+  set_marker_events(this);
+  set_polyline_events(this);
+  set_div_events(this);
+  set_div_button_events(this);
   bounds.extend(this.point);
 }
 //Day.prototype = new google.maps.MVCObject();
 
-function set_marker_events(me, map) {
+function set_marker_events(me) {
   google.maps.event.addListener(me.marker, 'mouseover', function() {
     me.marker.setIcon("/images/yellow_marker.png");
     $(me.day_id).addClass("highlighted");
@@ -45,7 +45,7 @@ function set_marker_events(me, map) {
     me.marker.setIcon("/images/yellow_marker.png");
   })
 }
-function set_polyline_events(me, map) {
+function set_polyline_events(me) {
   google.maps.event.addListener(me.polyline, 'click', function(event) {
     flash_warning(me.info_text);
   })
@@ -61,9 +61,9 @@ function set_polyline_events(me, map) {
     flash_warning(me.info_text);
   });
 }
-function set_div_events(me, map) {
+function set_div_events(me) {
   $(me.day_id).live('mouseover', function() { 
-    map.panTo(me.point);
+    if(TouringGlobal.mode == "idle") {map.panTo(me.point);}
     me.marker.setIcon("/images/yellow_marker.png");
     me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
     $(this).find(".modify .button").removeClass("hidden")
@@ -77,7 +77,7 @@ function set_div_events(me, map) {
     flash_warning(me.info_text);
   });
 }
-function set_div_button_events(me, map) {
+function set_div_button_events(me) {
   $(me.day_id+" .edit").live("click", function() {
     TouringGlobal.mode = "edit"
     TouringGlobal.current_day = me;
@@ -101,18 +101,12 @@ function set_div_button_events(me, map) {
     save_edited_day(me);
   });
   $(me.day_id+" .edit_day .cancel").live("click", function() {
-    cancel_me(me, map);
+    cancel_me(me);
     $(me.day_id+" .edit_day").hide();
-  });
-  $(me.day_id+" #new_day .save").live("click", function() {
-    save_new_day(me);
-  });
-  $(me.day_id+" #new_day .cancel").live("click", function() {
-    cancel_me(me, map);
-    reset_new_form();
   });
 }
 function save_edited_day(me) {
+  console.log(me);
   var current_index = current_editable_day_index(); 
   save_hidden_fields(me.day_id+" #day");
   save_hidden_fields(me.day_id+" #next_day");
@@ -122,17 +116,19 @@ function save_edited_day(me) {
     $("#indexable").prepend(data['dayhtml']);
     me.marker.setMap(null);
     me.polyline.setMap(null);
-    days.splice(current_index, 1, new Day(data['day'], map, bounds))
-    
+    var trash = days.splice(current_index, 1, new Day(data['day']))
+    delete trash; 
+
     if(data['next_day']) {
       days[current_index+1].marker.setMap(null);
       days[current_index+1].polyline.setMap(null);
-      days.splice(current_index+1, 1, new Day(data['next_day'], map, bounds))
+      days.splice(current_index+1, 1, new Day(data['next_day']))
     }
-    cancel_me(me, map);
+    map.fitBounds(bounds);
+    cancel_me(days[current_index]);
   })
 }
-function cancel_me(me, map) {
+function cancel_me(me) {
   TouringGlobal.mode = "idle"
   TouringGlobal.current_day = false;
   TouringGlobal.directions_start = false;
@@ -186,7 +182,7 @@ function fade_neighbors(me) {
   $(".day_row").css("opacity", 0.4);
   $(me.day_id).css("opacity", 1.0);
   $(me.day_id).prev().css("opacity", 1.0);
-  if(TouringGlobal.mode != "insert") { $(me.day_id).next().css("opacity", 1.0); }
+  if(TouringGlobal.mode !== "insert") { $(me.day_id).next().css("opacity", 1.0); }
 }
 function unfade_neighbors() {
   $(".day_row").css("opacity", 1.0);
