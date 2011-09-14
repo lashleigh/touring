@@ -1,6 +1,6 @@
 #trip_days_wrap {
   //Basic width and position defined by aside
-  .index, .location, .distance, .total, .modify {
+  .index, .location, .distance, .modify {
     text-align: left;
     float:left;
     padding:3px;
@@ -16,10 +16,17 @@
   .distance {
     width: 60px;
     text-align:right;
+    .total {
+    background: #FFA;
+    border: 1px solid #FFAD33;
+    position: absolute;
+    display:none;
+    z-index:100;
+    right: 215px;
+    }
   }
-  .total {
-    width: 65px;
-    text-align:right;
+  .distance:hover .total{
+    display:inline;
   }
   .location {
     width: 225px;

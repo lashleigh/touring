@@ -1,4 +1,5 @@
 <%= javascript_include_tag 'day_index' %>
+<%= javascript_include_tag 'day_object' %>
 <script type="text/javascript">
   var trip = <%= @trip.to_json.html_safe %>;
   var unit_system = <%= @unit_system.to_json.html_safe %>;
@@ -10,14 +11,12 @@
     <div class="index" ></div>
     <div class="location">Stop Location</div>
     <div class="distance">Mileage</div>
-    <div class="total">Total</div>
     <div class="modify">Modify</div>
   </div>
   <div id="start_location" class="clear">
     <div class="index">0</div>
     <div class="location"><%= @trip.start_location%></div>
     <div class="distance">0 mi</div>
-    <div class="total">0 mi</div> 
     <div class="modify"></div>
   </div>
   <div id="indexable">

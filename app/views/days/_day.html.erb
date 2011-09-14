@@ -4,8 +4,10 @@
   <div class="current_day">
     <div class="index"><%= i+1 %></div>
     <div class="location"><%= day.stop_location %></div>
-    <div class="distance"><%= day.show_distance({:unit_system => "IMPERIAL"}) %></div>
-    <div class="total"><%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></div> 
+    <div class="distance">
+      <span class="total">Total  <%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></span> 
+      <%= day.show_distance({:unit_system => "IMPERIAL"}) %>
+    </div>
     <div class="modify button-group">
       <button class="button hidden left insert icon icononly add" id="insert_<%=day.id%>" type="button"></button>
       <button class="button hidden center icon icononly edit" id="edit_<%=day.id%>" type="button"></button>

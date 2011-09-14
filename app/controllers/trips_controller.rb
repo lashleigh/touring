@@ -2,7 +2,6 @@ class TripsController < ApplicationController
   # GET /trips
   # GET /trips.xml
   before_filter :require_user, :except => [:index, :show]
-  render :layout => 'days'
   def index
     @trips = Trip.all
 
@@ -44,13 +43,11 @@ class TripsController < ApplicationController
   # POST /trips.xml
   def create
     @trip = Trip.new(params[:trip])
-    @trip.user_id = current_user.id
-    current_user.trip_ids.push(@trip.id)
-    current_user.save
+    @trip.user = current_user
 
     respond_to do |format|
       if @trip.save
-        format.html { redirect_to(@trip, :notice => 'Trip was successfully created.') }
+        format.html { redirect_to(trip_days_path, :notice => 'Trip was successfully created.') }
         format.xml  { render :xml => @trip, :status => :created, :location => @trip }
       else
         format.html { render :action => "new" }

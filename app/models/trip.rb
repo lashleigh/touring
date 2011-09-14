@@ -1,20 +1,19 @@
 class Trip
   include MongoMapper::Document
-  #before_validation :handle_user
+  after_create :calculate_start_coords
 
   key :title, String
   key :summary, String
   key :tags, Array
 
   key :start_location, String
+  key :start_coords, Array
   key :start_date, Date
   key :finish_location, String
   key :finish_date, Date
   key :complete, Boolean, :default => false
-  key :center, Array
   timestamps!
 
-  key :user_id, ObjectId
   key :place_ids, Array
   key :partners, Array
 
@@ -22,7 +21,7 @@ class Trip
   many :days, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
-  validates_presence_of :title, :user_id, :start_location
+  validates_presence_of :title, :start_location
 
   # this method is called on a single instance
   def as_json(options={})
@@ -37,13 +36,15 @@ class Trip
   end
   def ordered_days
     days = []
-    current_day = self.days.where(:prev_id => nil).first
-    days.push(current_day)
-    while current_day.next_id
-      current_day = current_day.next_day
+    unless self.days.empty?
+      current_day = self.days.where(:prev_id => nil).first
       days.push(current_day)
+      while current_day.next_id
+        current_day = current_day.next_day
+        days.push(current_day)
+      end
     end
-    days
+    return days
   end
   def last_day
     self.days.where(:next_id => nil).first
@@ -61,10 +62,6 @@ class Trip
    return t 
   end
 
-  def calculate_center
-    Geocoder::Calculations::geographic_center([start_location, finish_location])
-  end
-
   def cumulative_distance(index, options={})
     dist = (ordered_days[0..index].map{|d| d.distance}).sum
     options[:unit_system] ||= "METRIC"
@@ -74,5 +71,9 @@ class Trip
       ((dist/ 1000) * 0.621371192).round(1).to_s+" mi";
     end
   end
+
   private
+  def calculate_start_coords
+    self.start_coords = Geocoder.coordinates(start_location)
+  end
 end

@@ -5,10 +5,12 @@
     <%= f.text_field :stop_location, :class=>"location" %>
   </div>
   <div id="new_distance" class="distance"></div>
-  <div class="field">
-    <%= hidden_field_tag 'day[prev_id]', day ? day.prev_id : @trip.last_day.id%>
-    <%= hidden_field_tag 'day[next_id]', day ? day.id : '' %>
+  <div id="trip_id">
     <%= hidden_field_tag 'trip[id]', @trip.id %>
+  </div>
+  <div class="field">
+    <%= hidden_field_tag 'day[prev_id]', day ? day.prev_id : (@trip.last_day.id if @trip.last_day)%>
+    <%= hidden_field_tag 'day[next_id]', day ? day.id : '' %>
     <%= f.hidden_field :stop_coords %>
     <%= f.hidden_field :encoded_path %>
     <%= f.hidden_field :route %>
@@ -28,8 +30,8 @@
   <div class="clear"></div>
   <div class="button-group actions">
     <div class="index"></div>
-    <input class="button left" id="add_new_day" type="button" value="Search">
+    <input class="button left" id="search" type="button" value="Search">
     <input class="button center disable" disabled="disabled" id="save_new_day" type="button" value="Save">
-    <input class="button right disable danger" id="cancel" type="button" value="Cancel">
+    <input class="button right danger cancel" id="cancel_new_day" type="button" value="Cancel">
   </div>
 <% end %>
