@@ -47,9 +47,7 @@ function set_marker_events(me, map) {
 }
 function set_polyline_events(me, map) {
   google.maps.event.addListener(me.polyline, 'click', function(event) {
-    infoWindow.setContent(me.info_text)
-    infoWindow.setPosition(event.latLng);
-    infoWindow.open(map);
+    flash_warning(me.info_text);
   })
   google.maps.event.addListener(me.polyline, 'mouseover', function() {
     me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
@@ -60,8 +58,7 @@ function set_polyline_events(me, map) {
     me.marker.setIcon("/images/red_marker.png");
   })
   google.maps.event.addListener(me.marker, 'click', function() {
-    infoWindow.setContent(me.info_text)
-    infoWindow.open(map, me.marker);
+    flash_warning(me.info_text);
   });
 }
 function set_div_events(me, map) {
@@ -77,13 +74,13 @@ function set_div_events(me, map) {
     $(this).find(".modify .button").addClass("hidden")
   })
   $(me.day_id).live("click", function() {
-    infoWindow.setContent(me.info_text)
-    infoWindow.open(map, me.marker);
+    flash_warning(me.info_text);
   });
 }
 function set_div_button_events(me, map) {
   $(me.day_id+" .edit").live("click", function() {
-    mode = "edit"
+    TouringGlobal.mode = "edit"
+    TouringGlobal.current_day = me;
     $(".edit_day").hide();
     $(me.day_id+" .edit_day").show();
     fade_neighbors(me);
@@ -92,7 +89,8 @@ function set_div_button_events(me, map) {
     calc_route(route_options_for("edit", true));
   });
   $(me.day_id+" .insert").live("click", function() {
-    mode = "insert"
+    TouringGlobal.mode = "insert";
+    TouringGlobal.current_day = me;
     fade_neighbors(me);
     me.polyline.setMap(null);
     me.marker.setMap(null)
@@ -122,16 +120,23 @@ function save_edited_day(me) {
     trip = data['trip'];
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
+    me.marker.setMap(null);
+    me.polyline.setMap(null);
     days.splice(current_index, 1, new Day(data['day'], map, bounds))
     
     if(data['next_day']) {
+      days[current_index+1].marker.setMap(null);
+      days[current_index+1].polyline.setMap(null);
       days.splice(current_index+1, 1, new Day(data['next_day'], map, bounds))
     }
-    //reset_new_form();
+    cancel_me(me, map);
   })
 }
 function cancel_me(me, map) {
-  mode = "idle"
+  TouringGlobal.mode = "idle"
+  TouringGlobal.current_day = false;
+  TouringGlobal.directions_start = false;
+  TouringGlobal.directions_end = false;
   unfade_neighbors(me);
   me.polyline.setMap(map);
   me.marker.setMap(map)
@@ -181,7 +186,7 @@ function fade_neighbors(me) {
   $(".day_row").css("opacity", 0.4);
   $(me.day_id).css("opacity", 1.0);
   $(me.day_id).prev().css("opacity", 1.0);
-  if(mode != "insert") { $(me.day_id).next().css("opacity", 1.0); }
+  if(TouringGlobal.mode != "insert") { $(me.day_id).next().css("opacity", 1.0); }
 }
 function unfade_neighbors() {
   $(".day_row").css("opacity", 1.0);
