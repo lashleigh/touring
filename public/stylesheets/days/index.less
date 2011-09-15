@@ -1,6 +1,6 @@
 #trip_days_wrap {
   //Basic width and position defined by aside
-  .index, .location, .distance, .modify {
+  .index, .travel_mode, .location, .distance, .modify {
     text-align: left;
     float:left;
     padding:3px;
@@ -13,6 +13,9 @@
   .index {
     width: 20px;
   }
+  .travel_mode {
+    width: 34px;
+  }
   .distance {
     width: 60px;
     text-align:right;
@@ -22,7 +25,7 @@
     position: absolute;
     display:none;
     z-index:100;
-    right: 215px;
+    right: 175px;
     }
   }
   .distance:hover .total{

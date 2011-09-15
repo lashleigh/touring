@@ -2,6 +2,7 @@ function Day(day) {
   this.raw_day = day;
 
   this.point = coords_to_google_point(day.stop_coords);
+  this.bounds = new google.maps.LatLngBounds(coords_to_google_point([day.bounds[0], day.bounds[1]]), coords_to_google_point([day.bounds[2], day.bounds[3]]))
   this.day_id = "#day_"+day.id;
   this.info_text = '<div class="place_form"><p><a href="/trips/'+trip.id+'/days/'+day.id+'">'+day.stop_location+'</a></p></div>';
   marker = new google.maps.Marker({
@@ -104,6 +105,9 @@ function set_div_button_events(me) {
     cancel_me(me);
     $(me.day_id+" .edit_day").hide();
   });
+  $(me.day_id+" #day_travel_mode").change(function() {
+    calc_route(route_options_for(TouringGlobal.mode), false)
+  })
 }
 function save_edited_day(me) {
   console.log(me);
@@ -137,6 +141,8 @@ function cancel_me(me) {
   me.polyline.setMap(map);
   me.marker.setMap(map)
   directionsDisplay.setMap(null);
+
+  $(me.day_id+" #day_travel_mode").val(me.raw_day.travel_mode);
 }
 function listener_for_editing(me) {
   save_hidden_fields(me.day_id+" #day");

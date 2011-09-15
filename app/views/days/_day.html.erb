@@ -3,6 +3,7 @@
 <div class="day_row clear" id="day_<%=day.id%>">
   <div class="current_day">
     <div class="index"><%= i+1 %></div>
+    <div class="travel_mode"><%= image_tag "#{day.travel_mode}.png" %></div>
     <div class="location"><%= day.stop_location %></div>
     <div class="distance">
       <span class="total">Total  <%=@trip.cumulative_distance(i, {:unit_system => "IMPERIAL"}) %></span> 

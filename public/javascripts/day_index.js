@@ -78,7 +78,7 @@ function calc_route(options) {
     origin: options['origin'],  
     destination: options['destination'],
     waypoints: options['waypoints'],
-    travelMode: google.maps.TravelMode['DRIVING'],
+    travelMode: google.maps.TravelMode[options['travel_mode']], //TouringGlobal.current_day ? google.maps.TravelMode[TouringGlobal.current_day.raw_day.travel_mode] : google.maps.TravelMode['DRIVING'],
     unitSystem: google.maps.UnitSystem['IMPERIAL']
   }
   directionsService.route(request, function(response, status) {
@@ -100,8 +100,8 @@ function route_options_for(mode, first_time) {
       var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
       var half = Math.floor(polyline.length/2);
       var ary = [{location: polyline[half], stopover: true}];
-      TouringGlobal.directions_start = typeof prev_day==="object" ? prev_day.toString() : false; 
-      TouringGlobal.directions_end   = next_day.toString();
+      TouringGlobal.directions_start = typeof prev_day==="object" ? days[index-1]: false; 
+      TouringGlobal.directions_end   = days[index];
     } 
     to_return['origin'] = prev_day;
     to_return['destination'] = next_day;
@@ -113,8 +113,8 @@ function route_options_for(mode, first_time) {
       var next_day = days[index+1].point;
       if(first_time) {
         var ary = [{location: TouringGlobal.current_day.point, stopover:true}];
-        TouringGlobal.directions_start = prev_day.toString();
-        TouringGlobal.directions_end   = next_day.toString();
+        TouringGlobal.directions_start = days[index-1];
+        TouringGlobal.directions_end   = days[index+1];
       }
     } else if(trip.ordered_days.length == 1) {
       var prev_day = trip.start_location; 
@@ -130,14 +130,14 @@ function route_options_for(mode, first_time) {
       if(first_time) {
         var ary = [{location: days[0].point, stopover: true}];
         TouringGlobal.directions_start = false; 
-        TouringGlobal.directions_end   = next_day.toString(); 
+        TouringGlobal.directions_end   = days[1]; 
       }
     } else if(index ==trip.ordered_days.length-1) {
       var prev_day = days[index-1].point;
       var next_day = days[index].point;
       var ary = []; 
       if(first_time) {
-        TouringGlobal.directions_start = prev_day.toString();
+        TouringGlobal.directions_start = days[index-1];
         TouringGlobal.directions_end   = false;
       }
     }
@@ -155,23 +155,30 @@ function route_options_for(mode, first_time) {
     to_return['waypoints'] = [];
     to_return['mode'] = 'append';
     if(first_time) {
-      TouringGlobal.directions_start = typeof last_point==="object" ? last_point.toString() : false; 
+      TouringGlobal.directions_start = typeof last_point==="object" ? trip.last_day : false; 
       TouringGlobal.directions_end   = false;
     }
   }
+  if(first_time) {
+    to_return['travel_mode'] = TouringGlobal.current_day ? TouringGlobal.current_day.raw_day.travel_mode : 'DRIVING'
+  } else {
+    to_return['travel_mode'] = $(TouringGlobal.current_day.day_id+" #day_travel_mode :selected").val()
+  }
+  to_return['first_time'] = first_time
   return to_return;
 }
 
 function watch_for_inappropriate_drag() {
   var base = directionsDisplay.directions.routes[0].legs
-  var current_start = base[0].start_location.toString()
-  var current_end   = base[base.length-1].end_location.toString()
-  if(TouringGlobal.directions_start && TouringGlobal.directions_start !== current_start) {
-    flash_warning("It is not currently possible to edit endpoints while creating a new day")
+  var current_start = base[0].start_location
+  var current_end   = base[base.length-1].end_location
+  var warn = "You have just made your route discontinuous - This is not recommended"
+  if(TouringGlobal.directions_start && !TouringGlobal.directions_start.bounds.contains(current_start)) {
+    flash_warning(warn)
     calc_route(route_options_for(TouringGlobal.mode, false));
   }
-  if(TouringGlobal.directions_end && TouringGlobal.directions_end !== current_end) {
-    flash_warning("It is not currently possible to edit endpoints while creating a new day")
+  if(TouringGlobal.directions_end && !TouringGlobal.directions_end.bounds.contains(current_end)) {
+    flash_warning(warn)
     calc_route(route_options_for(TouringGlobal.mode, false));
   }
 }
@@ -229,7 +236,7 @@ function save_hidden_fields(parent_id) {
     $(parent_id+"_route").val(JSON.stringify(path_as_array));
     $(parent_id+"_distance").val(base.distance.value)
     $(parent_id+"_google_waypoints").val("")
-    $(parent_id+"_travel_mode").val("DRIVING")
+    //$(parent_id+"_travel_mode").val("DRIVING")
   }
 }
 function new_day_stats() {
@@ -243,8 +250,8 @@ function new_day_stats() {
 }
 function edit_day_stats() {
   var id = current_editable_id();
-  save_hidden_fields(id+" #day");
-  save_hidden_fields(id+" #next_day");
+  //save_hidden_fields(id+" #day");
+  //save_hidden_fields(id+" #next_day");
   var base = directionsDisplay.directions.routes[0].legs[0];
   var dist = base.distance.value
   var total = meter_2_mile(trip.distance+dist)

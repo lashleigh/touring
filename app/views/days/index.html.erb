@@ -9,12 +9,14 @@
   <p> <%= @trip.summary %></p>
   <div id="table_header" class="clear">
     <div class="index" ></div>
+    <div class="travel_mode"></div>
     <div class="location">Stop Location</div>
     <div class="distance">Mileage</div>
     <div class="modify">Modify</div>
   </div>
   <div id="start_location" class="clear">
     <div class="index">0</div>
+    <div class="travel_mode"></div>
     <div class="location"><%= @trip.start_location%></div>
     <div class="distance">0 mi</div>
     <div class="modify"></div>

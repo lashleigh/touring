@@ -1,23 +1,24 @@
 class Day
   include MongoMapper::Document
-  # Embed this document in trip?
   after_create :do_something_after_create
-#  before_destroy :do_something_before_destroy
+  after_save :update_bounds
 
   key :tags, Hash
   key :distance, Float
   key :google_waypoints, Array
   key :encoded_path, String
   key :route,        Array,  :typecast => 'Array'
-  key :travel_mode, String
+  key :travel_mode, String, :in => ["DRIVING", "BICYCLING", "WALKING"], :default => "BICYCLING"
   key :stop_location, String
   key :stop_coords, Array
+  key :bounds, Array
   key :prev_id, ObjectId
   key :next_id, ObjectId
 
   belongs_to :trip
   one :locatable
   validates_presence_of :stop_location
+
   def stop_coords=(x)
     if String === x and !x.blank?
       super(ActiveSupport::JSON.decode(x))
@@ -32,12 +33,21 @@ class Day
       super(x)
     end
   end
-
+  def as_json(options={})
+    options[:methods] ||= []
+    options[:methods] += [:bounding_box]
+    super(options)
+  end
+ 
+  def bounding_box(options={})
+    options[:radius] ||= 0.25
+    Geocoder::Calculations::bounding_box(stop_coords, options[:radius])
+  end
   def prev_day
-    Day.find(prev_id) || false
+    trip.days.where(:id => prev_id).first if prev_id || false 
   end
   def next_day
-    Day.find(next_id) || false
+    trip.days.where(:id => next_id).first if next_id || false 
   end
   def self.find_all_by_tag(tag)
     Day.where("tags.#{tag}" => {'$exists' => true}).all
@@ -71,14 +81,6 @@ class Day
     return all_tags  
   end
 
-  def custom_update(params)
-    Day.set({:id => id.as_json},
-            :distance => params[:distance].to_f,
-            :travel_mode => params[:travel_mode],
-            :encoded_path => params[:encoded_path],
-            :google_waypoints => params[:google_waypoints],
-            :stop_location => params[:stop_location])
-  end
   def show_distance(options={})
     options[:unit_system] ||= "METRIC"
     if options[:unit_system] == "METRIC"
@@ -134,10 +136,7 @@ class Day
       next_d.save
     end
   end
-
-  def do_something_before_destroy
-    t = self.trip
-    t.days.delete(self)
-    t.save
+  def update_bounds
+    self.bounds = self.bounding_box
   end
 end

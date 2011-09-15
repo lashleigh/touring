@@ -49,6 +49,9 @@ class Trip
   def last_day
     self.days.where(:next_id => nil).first
   end
+  def potential_next_day_coords(options={})
+    
+  end
 
   def distance
     (days.map {|d| d.distance}).sum
