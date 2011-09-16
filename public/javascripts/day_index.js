@@ -19,7 +19,10 @@ $(function() {
   $(window).resize(set_heights);
   $("#new_day #save_new_day").live("click", save_day_and_add_to_table);
   $("#new_day #search").live("click", insert_or_append_day);
-  $("#new_day #cancel").live("click", cancel);
+  $("#new_day .cancel").live("click", cancel);
+  $("#new_day #day_travel_mode").change(function() {
+    calc_route(route_options_for("append", false), true)
+  })
 
   var myOptions = {
     zoom: 8,
@@ -64,15 +67,16 @@ function drawStartMarker() {
 function insert_or_append_day() {
   if($("#new_day").next().hasClass("day_row")) {
     TouringGlobal.mode = "insert"
-    calc_route(route_options_for("insert", false));
+    calc_route(route_options_for("insert", false), false);
   }
   else {
     TouringGlobal.mode = "append"
-    calc_route(route_options_for("append", false));
+    calc_route(route_options_for("append", false), true);
   }
 }
 
-function calc_route(options) {
+function calc_route(options, update_directions_start_end) {
+  console.log(options);
   directionsDisplay.setMap(map)
   var request = {
     origin: options['origin'],  
@@ -85,10 +89,31 @@ function calc_route(options) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
       enable_saving(true)
+      if(update_directions_start_end) {
+        nail_first_last();
+      }
     } else {
       console.log(status);
     }
   });
+}
+function nail_first_last() {
+  var mode = TouringGlobal.mode;
+  var base = directionsDisplay.directions.routes[0].legs
+  var current_start = base[0].start_location.toString()
+  var current_end   = base[base.length-1].end_location.toString()
+  if(mode == "insert") {
+    var index = current_new_day_index();
+    TouringGlobal.directions_start = current_start //days[index-1] ? current_start : false
+    TouringGlobal.directions_end   = current_end
+  } else if(mode=="edit") {
+    var index = current_editable_day_index();
+    TouringGlobal.directions_start = current_start //days[index-1] ? current_start : false;
+    TouringGlobal.directions_end   = days[index+1] ? current_end   : false;
+  } else if(mode=="append") {
+    TouringGlobal.directions_start = trip.last_day ? current_start : false;
+    TouringGlobal.directions_end   = false
+  }
 }
 function route_options_for(mode, first_time) {
   var to_return = {};
@@ -99,10 +124,10 @@ function route_options_for(mode, first_time) {
     if(first_time) {
       var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
       var half = Math.floor(polyline.length/2);
-      var ary = [{location: polyline[half], stopover: true}];
-      TouringGlobal.directions_start = typeof prev_day==="object" ? days[index-1]: false; 
-      TouringGlobal.directions_end   = days[index];
-    } 
+      var ary = [{location: polyline[half], stopover: true}]; typeof prev_day==="object" ? days[index-1]: false; 
+    } else {
+      var ary = [{location: coords_to_google_point(JSON.parse($("#new_day #day_stop_coords").val())), stopover:true}];
+    }
     to_return['origin'] = prev_day;
     to_return['destination'] = next_day;
     to_return['waypoints'] = ary;
@@ -113,32 +138,25 @@ function route_options_for(mode, first_time) {
       var next_day = days[index+1].point;
       if(first_time) {
         var ary = [{location: TouringGlobal.current_day.point, stopover:true}];
-        TouringGlobal.directions_start = days[index-1];
-        TouringGlobal.directions_end   = days[index+1];
       }
     } else if(trip.ordered_days.length == 1) {
       var prev_day = trip.start_location; 
       var next_day = days[0].point;
       var ary = []; 
-      if(first_time) {
-        TouringGlobal.directions_start = false;
-        TouringGlobal.directions_end   = false;
-      }
     } else if(index ==0) {
       var prev_day = trip.start_location; 
       var next_day = days[1].point;
       if(first_time) {
         var ary = [{location: days[0].point, stopover: true}];
-        TouringGlobal.directions_start = false; 
-        TouringGlobal.directions_end   = days[1]; 
       }
     } else if(index ==trip.ordered_days.length-1) {
       var prev_day = days[index-1].point;
-      var next_day = days[index].point;
       var ary = []; 
       if(first_time) {
-        TouringGlobal.directions_start = days[index-1];
-        TouringGlobal.directions_end   = false;
+        var next_day = days[index].point;
+      } else {
+        var id = TouringGlobal.current_day.day_id; 
+        var next_day = coords_to_google_point(JSON.parse($(id+" #day_stop_coords").val())) 
       }
     }
     if(!ary) {
@@ -153,33 +171,27 @@ function route_options_for(mode, first_time) {
     to_return['origin'] = last_point;
     to_return['destination'] = $("#new_day #day_stop_location").val();
     to_return['waypoints'] = [];
-    to_return['mode'] = 'append';
-    if(first_time) {
-      TouringGlobal.directions_start = typeof last_point==="object" ? trip.last_day : false; 
-      TouringGlobal.directions_end   = false;
-    }
   }
   if(first_time) {
     to_return['travel_mode'] = TouringGlobal.current_day ? TouringGlobal.current_day.raw_day.travel_mode : 'DRIVING'
   } else {
-    to_return['travel_mode'] = $(TouringGlobal.current_day.day_id+" #day_travel_mode :selected").val()
+    to_return['travel_mode'] = TouringGlobal.current_day ? $(TouringGlobal.current_day.day_id+" #day_travel_mode :selected").val() : 'DRIVING'
   }
-  to_return['first_time'] = first_time
   return to_return;
 }
 
 function watch_for_inappropriate_drag() {
   var base = directionsDisplay.directions.routes[0].legs
-  var current_start = base[0].start_location
-  var current_end   = base[base.length-1].end_location
+  var current_start = base[0].start_location.toString()
+  var current_end   = base[base.length-1].end_location.toString()
   var warn = "You have just made your route discontinuous - This is not recommended"
-  if(TouringGlobal.directions_start && !TouringGlobal.directions_start.bounds.contains(current_start)) {
+  if(TouringGlobal.directions_start && TouringGlobal.directions_start !== current_start) {
     flash_warning(warn)
-    calc_route(route_options_for(TouringGlobal.mode, false));
+    calc_route(route_options_for(TouringGlobal.mode, false), false);
   }
-  if(TouringGlobal.directions_end && !TouringGlobal.directions_end.bounds.contains(current_end)) {
+  if(TouringGlobal.directions_end && TouringGlobal.directions_end !== current_end) {
     flash_warning(warn)
-    calc_route(route_options_for(TouringGlobal.mode, false));
+    calc_route(route_options_for(TouringGlobal.mode, false), false);
   }
 }
 function save_day_and_add_to_table() {
@@ -205,6 +217,9 @@ function save_day_and_add_to_table() {
 }
 
 function cancel() {
+  //TouringGlobal.current_day.marker.setMap(map)
+  //TouringGlobal.current_day.polyline.setMap(map)
+  map.fitBounds(bounds)
   TouringGlobal.mode = "idle"
   TouringGlobal.current_day = false;
   TouringGlobal.directions_start = false;
@@ -236,7 +251,12 @@ function save_hidden_fields(parent_id) {
     $(parent_id+"_route").val(JSON.stringify(path_as_array));
     $(parent_id+"_distance").val(base.distance.value)
     $(parent_id+"_google_waypoints").val("")
-    //$(parent_id+"_travel_mode").val("DRIVING")
+    
+    if(TouringGlobal.mode=="append") {
+      $(parent_id+"_travel_mode").val($("#new_day #day_travel_mode :selected").val())
+    } else {
+      $(parent_id+"_travel_mode").val($(TouringGlobal.current_day.day_id+" #day_travel_mode :selected").val())
+    }
   }
 }
 function new_day_stats() {

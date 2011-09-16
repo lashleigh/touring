@@ -1,6 +1,9 @@
 <% day ||= nil %>
 <%= form_for([@trip, @trip.days.build]) do |f| %>
   <div class="index"></div>
+  <div class="travel_select">
+    <%= select "day", "travel_mode", options_for_select([["Driving", "DRIVING"], ["Bicycling", "BICYCLING"], ["Walking", "WALKING"]]) %>
+  </div>
   <div id="new_location" class="location">
     <%= f.text_field :stop_location, :class=>"location" %>
   </div>

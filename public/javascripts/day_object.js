@@ -87,7 +87,7 @@ function set_div_button_events(me) {
     fade_neighbors(me);
     me.polyline.setMap(null);
     me.marker.setMap(null);
-    calc_route(route_options_for("edit", true));
+    calc_route(route_options_for("edit", true), true);
   });
   $(me.day_id+" .insert").live("click", function() {
     TouringGlobal.mode = "insert";
@@ -96,7 +96,7 @@ function set_div_button_events(me) {
     me.polyline.setMap(null);
     me.marker.setMap(null)
     hijack_new_form_for_insert(me);
-    calc_route(route_options_for("insert", true));
+    calc_route(route_options_for("insert", true), true);
   });
   $(me.day_id+" .edit_day .save").live("click", function() {
     save_edited_day(me);
@@ -106,7 +106,9 @@ function set_div_button_events(me) {
     $(me.day_id+" .edit_day").hide();
   });
   $(me.day_id+" #day_travel_mode").change(function() {
-    calc_route(route_options_for(TouringGlobal.mode), false)
+    // By making it true changes in latlng due to bike
+    // path vs road won't cause errors
+    calc_route(route_options_for("edit", false), true)
   })
 }
 function save_edited_day(me) {
