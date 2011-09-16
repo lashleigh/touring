@@ -119,6 +119,9 @@ class Day
   def coords
     locatable.coords if locatable
   end
+  def to_coordinates
+    self.stop_coords
+  end
   private
   def do_something_after_create
     prev_d = self.prev_day
