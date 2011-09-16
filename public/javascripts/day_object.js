@@ -112,7 +112,6 @@ function set_div_button_events(me) {
   })
 }
 function save_edited_day(me) {
-  console.log(me);
   var current_index = current_editable_day_index(); 
   save_hidden_fields(me.day_id+" #day");
   save_hidden_fields(me.day_id+" #next_day");
@@ -125,15 +124,19 @@ function save_edited_day(me) {
     var trash = days.splice(current_index, 1, new Day(data['day']))
     delete trash; 
 
-    if(data['next_day']) {
-      days[current_index+1].marker.setMap(null);
-      days[current_index+1].polyline.setMap(null);
-      days.splice(current_index+1, 1, new Day(data['next_day']))
-    }
-    map.fitBounds(bounds);
+    save_next_day(data['next_day'], current_index) 
     cancel_me(days[current_index]);
   })
 }
+function save_next_day(next_day, index) {
+  if(next_day) {
+    //#TODO write a clean up function that removes a day 
+    days[index+1].marker.setMap(null);
+    days[index+1].polyline.setMap(null);
+    var trash = days.splice(index+1, 1, new Day(next_day))
+    delete trash
+  }
+} 
 function cancel_me(me) {
   TouringGlobal.mode = "idle"
   TouringGlobal.current_day = false;
@@ -143,6 +146,7 @@ function cancel_me(me) {
   me.polyline.setMap(map);
   me.marker.setMap(map)
   directionsDisplay.setMap(null);
+  map.fitBounds(bounds);
 
   $(me.day_id+" #day_travel_mode").val(me.raw_day.travel_mode);
 }
