@@ -16,6 +16,7 @@ Touring::Application.routes.draw do
   #match "/trips/:trip_id/days/:day_id" => "trips#show_day"
 
   match "/auth/:provider/callback" => "sessions#create"  
+  match "/auth/failure" => "sessions#failure"  
   match "/signout" => "sessions#destroy", :as => :signout
 
   root :to => "home#index"

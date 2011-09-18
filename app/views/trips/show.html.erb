@@ -1,11 +1,3 @@
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false"></script>
-<%= javascript_include_tag 'trip_show_map' %>
-<%= javascript_include_tag 'map_day_shared' %>
-<script type="text/javascript">
-  var trip = <%= @trip.to_json(:include => :days).html_safe %>;
-  var unit_system = <%= current_user.unit_system.to_json.html_safe %>;
-</script>
-
 <div class="columns tripcols">
   <div class="first">
     <%= @trip.title %></br>
@@ -14,28 +6,20 @@
   <div class="last">
     <ul class="stats">
       <li class="incrementable miles_per_day">
-      <strong>Undefined</strong>
+      <strong><%=distance_to_human(@trip.average_distance)%></strong>
       <span>miles / day</span>
       </li>
 
       <li class="incrementable rest_days">
-      <strong>Undefined</strong>
+      <strong>0</strong>
       <span>rest days</span>
       </li>
 
       <li class="incrementable traveling_days">
-      <strong>Undefined</strong>
+      <strong><%=@trip.days.length%></strong>
       <span>days traveling</span>
       </li>
     </ul>
   </div>
 </div>
-
-<aside id="detail_panel">
-<%= link_to "New day", new_trip_day_path(@trip) %>  
-  <%= render 'form' %>
-</aside>
-<div id="legend"></div>
-<div id="map_canvas"> </div>
-
 

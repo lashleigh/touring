@@ -9,6 +9,7 @@ class Trip
   key :start_location, String
   key :start_coords, Array
   key :start_date, Date
+  key :complete, Boolean, :default => false
   timestamps!
 
   key :partners, Array
@@ -51,20 +52,13 @@ class Trip
    return t 
   end
 
-  def cumulative_distances(days = nil, options={})
+  def cumulative_distances(days = nil)
     days ||= self.ordered_days
-    options[:unit_system] ||= "IMPERIAL"
     distances = []
     sum = 0
     days.each_with_index do |d, i|
       sum += d.distance
-      distances[i] = {}
-      distances[i]['value'] = sum
-      if options[:unit_system] == "METRIC"
-        distances[i]['text'] = (sum/ 1000).round(1).to_s + " km"
-      else 
-        distances[i]['text'] = (sum/ 1621.371192).round(1).to_s+" mi";
-      end
+      distances[i] = sum
     end
     return distances
   end

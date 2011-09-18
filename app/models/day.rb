@@ -70,21 +70,6 @@ class Day
     return all_tags  
   end
 
-  def show_distance(options={})
-    options[:unit_system] ||= "METRIC"
-    if options[:unit_system] == "METRIC"
-      self.toKilometers + " km"
-    else 
-      self.toMiles + " mi"
-    end
-  end
-  def toMiles
-    ((distance/ 1000) * 0.621371192).round(1).to_s
-  end
-  def toKilometers
-    (distance / 1000).round(1).to_s
-  end
-
   def parse_tag_string(tag_string)
     tag_array = tag_string.scan(/(\w+)|("([^"]+)")|('([^']+)')/).map { |a, _, b, _, c| (a or b or c).strip }
     r1 = Regexp.new('...x\d+$')

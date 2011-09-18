@@ -1,4 +1,4 @@
-<%= javascript_include_tag 'trip_new' %>
+<h1>New trip</h1>
 <%= form_for(@trip) do |f| %>
   <% if @trip.errors.any? %>
     <div id="error_explanation">
@@ -14,31 +14,13 @@
   <div class="field">
     <%= f.label :title %><br />
     <%= f.text_field :title %>
-  </div>
-  <div class="field">
+
     <%= f.label :summary %><br />
     <%= f.text_field :summary %>
-  </div>
-  <div class="field">
+    
     <%= f.label :start_location %><br />
     <%= f.text_field :start_location %>
   </div>
-  <div class="field">
-    <%= f.label :start_date %><br />
-    <%= f.text_field :start_date, :value => (@trip.start_date.blank? ? '' : @trip.start_date.strftime('%m/%d/%Y'))%>
-  </div>
-  <div class="field">
-    <%= f.label :finish_location %><br />
-    <%= f.text_field :finish_location %>
-  </div>
-  <div class="field">
-    <%= f.label :finish_date %><br />
-    <%= f.text_field :finish_date, :value => (@trip.finish_date.blank? ? '' : @trip.finish_date.strftime('%m/%d/%Y'))%>
-  </div>
-  <div class="field">
-    <%= f.hidden_field :distance %>
-  </div>
-
   <div class="actions">
     <%= f.submit %>
   </div>
