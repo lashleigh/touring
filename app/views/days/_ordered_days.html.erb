@@ -1,0 +1,4 @@
+<% ordered_days.each_with_index do |day, i| %>
+  <%= render :partial =>'day', :object => day, :locals => {:i => i} %>
+<% end %>
+

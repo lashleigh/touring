@@ -10,7 +10,8 @@ class DaysController < ApplicationController
   end
   def index
     @trip = Trip.find(params[:trip_id])
-    @days = @trip.days
+    @ordered_days = @trip.ordered_days
+    @distances = @trip.cumulative_distances(@ordered_days)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -50,19 +51,6 @@ class DaysController < ApplicationController
     @day = Day.new(params[:day])  
   end
 
-  def update_from_index
-    @day = Day.find(params[:id])
-    @trip = Trip.find(params[:trip][:id])
-    @day.assign(params[:day])
-
-    if @day.save
-      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
-      render :json => {'trip' => @trip, 'day' => @day, 'dayhtml' => dayhtml}
-    else
-      render :json => {'status' => 'faliure'}
-    end
-  end
-
   def index_edit
     @day = Day.find(params[:id])
     @trip = Trip.find(params[:trip][:id])
@@ -74,8 +62,11 @@ class DaysController < ApplicationController
     end
 
     if @day.save
-      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
-      render :json => {'trip' => @trip, 'day' => @day, 'next_day' => @day.next_day, 'dayhtml' => dayhtml}
+      @trip.reload
+      @ordered_days = @trip.ordered_days
+      @distances = @trip.cumulative_distances(@ordered_days)
+      dayhtml = render_to_string :partial => 'ordered_days', :object => @ordered_days
+      render :json => {'day' => @day, 'next_day' => @day.next_day, 'trip' => @trip, 'ordered_days' => @ordered_days, 'dayhtml' => dayhtml}
     else
       render :json => {'status' => 'faliure'}
     end
@@ -95,8 +86,10 @@ class DaysController < ApplicationController
 
     if @day.save
       @trip.reload
-      dayhtml = render_to_string :partial => 'day', :collection => @trip.ordered_days
-      render :json => {'trip' => @trip, 'day' => @day, 'next_day' => @day.next_day, 'dayhtml' => dayhtml}
+      @ordered_days = @trip.ordered_days
+      @distances = @trip.cumulative_distances(@ordered_days)
+      dayhtml = render_to_string :partial => 'ordered_days', :object => @ordered_days
+      render :json => {'day' => @day, 'next_day' => @day.next_day, 'trip' => @trip, 'ordered_days' => @ordered_days, 'dayhtml' => dayhtml}
     else
       render :json => {'status' => 'faliure'}
     end

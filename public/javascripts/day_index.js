@@ -23,6 +23,9 @@ $(function() {
   $("#new_day #day_travel_mode").change(function() {
     calc_route(route_options_for("append", false), true)
   })
+  $("#wizard").live("click", function() {
+    calc_route(route_options_for("wizard", false), true)
+  })
 
   var myOptions = {
     zoom: 8,
@@ -46,8 +49,9 @@ $(function() {
   });
 
   drawStartMarker();
-  for(var i =0; i< trip.ordered_days.length; i++) { 
-    days.push(new Day(trip.ordered_days[i]));
+  more_methods_for_trip();
+  for(var i =0; i< ordered_days.length; i++) { 
+    days.push(new Day(ordered_days[i]));
   }
   //Without more than one day the map will go max zoom on a single point
   if(bounds.getNorthEast().toString() !== bounds.getSouthWest().toString()) {
@@ -119,7 +123,7 @@ function route_options_for(mode, first_time) {
     var prev_day = days[index-1] ? days[index-1].point : trip.start_location;
     var next_day = days[index].point;
     if(first_time) {
-      var polyline = google.maps.geometry.encoding.decodePath(trip.ordered_days[index].encoded_path);
+      var polyline = google.maps.geometry.encoding.decodePath(ordered_days[index].encoded_path);
       var half = Math.floor(polyline.length/2);
       var ary = [{location: polyline[half], stopover: true}]; typeof prev_day==="object" ? days[index-1]: false; 
     } else {
@@ -131,13 +135,13 @@ function route_options_for(mode, first_time) {
     to_return['travel_mode'] = $("#new_day #day_travel_mode :selected").val()
   } else if(mode == "edit") {
     var index = current_editable_day_index();
-    if(index > 0 && index < trip.ordered_days.length-1) {
+    if(index > 0 && index < ordered_days.length-1) {
       var prev_day = days[index-1].point;
       var next_day = days[index+1].point;
       if(first_time) {
         var ary = [{location: TouringGlobal.current_day.point, stopover:true}];
       }
-    } else if(trip.ordered_days.length == 1) {
+    } else if(ordered_days.length == 1) {
       var prev_day = trip.start_location; 
       var next_day = days[0].point;
       var ary = []; 
@@ -147,7 +151,7 @@ function route_options_for(mode, first_time) {
       if(first_time) {
         var ary = [{location: days[0].point, stopover: true}];
       }
-    } else if(index ==trip.ordered_days.length-1) {
+    } else if(index ==ordered_days.length-1) {
       var prev_day = days[index-1].point;
       var ary = []; 
       if(first_time) {
@@ -200,6 +204,7 @@ function save_day_and_add_to_table() {
 
   $.post('/create_new_day', $("#new_day").serialize(), function(data) {
     trip = data['trip'];
+    more_methods_for_trip();
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
     days.splice(new_day_index, 0, new Day(data['day']))
@@ -207,7 +212,10 @@ function save_day_and_add_to_table() {
     cancel();
   })
 }
-
+function more_methods_for_trip() {
+  trip.last_day = ordered_days.length ? ordered_days[ordered_days.length-1] : false 
+  trip.distance = trip.last_day ? trip.last_day.distance : 0.0
+}
 function cancel() {
   if(TouringGlobal.mode=="insert") {
     TouringGlobal.current_day.marker.setMap(map)

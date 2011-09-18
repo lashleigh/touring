@@ -13,13 +13,11 @@
     <%= hidden_field_tag 'trip[id]', @trip.id %>
     <%= f.hidden_field :stop_coords %>
     <%= f.hidden_field :encoded_path %>
-    <%= f.hidden_field :route %>
     <%= f.hidden_field :distance %>
     <%= f.hidden_field :google_waypoints %>
   </div>
   <div class="next_day_fields">
     <%= hidden_field_tag 'next_day[encoded_path]' %>
-    <%= hidden_field_tag 'next_day[route]' %>
     <%= hidden_field_tag 'next_day[distance]' %>
     <%= hidden_field_tag 'next_day[google_waypoints]' %>
     <%= hidden_field_tag 'next_day[travel_mode]' %>

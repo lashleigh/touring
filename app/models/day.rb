@@ -1,17 +1,15 @@
 class Day
   include MongoMapper::Document
+  #before_save :update_trip_distance
   after_create :do_something_after_create
-  after_save :update_bounds
 
   key :tags, Hash
   key :distance, Float
   key :google_waypoints, Array
   key :encoded_path, String
-  key :route,        Array,  :typecast => 'Array'
   key :travel_mode, String, :in => ["DRIVING", "BICYCLING", "WALKING"], :default => "BICYCLING"
   key :stop_location, String
   key :stop_coords, Array
-  key :bounds, Array
   key :prev_id, ObjectId
   key :next_id, ObjectId
 
@@ -26,23 +24,14 @@ class Day
       super(x)
     end
   end
-  def route=(x)
+  def google_waypoints=(x)
     if String === x and !x.blank?
       super(ActiveSupport::JSON.decode(x))
     else
       super(x)
     end
   end
-  def as_json(options={})
-    options[:methods] ||= []
-    options[:methods] += [:bounding_box]
-    super(options)
-  end
- 
-  def bounding_box(options={})
-    options[:radius] ||= 0.25
-    Geocoder::Calculations::bounding_box(stop_coords, options[:radius])
-  end
+
   def prev_day
     trip.days.where(:id => prev_id).first if prev_id || false 
   end
@@ -138,8 +127,5 @@ class Day
       next_d.prev_id = self.id
       next_d.save
     end
-  end
-  def update_bounds
-    self.bounds = self.bounding_box
   end
 end

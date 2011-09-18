@@ -2,7 +2,6 @@ function Day(day) {
   this.raw_day = day;
 
   this.point = coords_to_google_point(day.stop_coords);
-  this.bounds = new google.maps.LatLngBounds(coords_to_google_point([day.bounds[0], day.bounds[1]]), coords_to_google_point([day.bounds[2], day.bounds[3]]))
   this.day_id = "#day_"+day.id;
   this.info_text = '<div class="place_form"><p><a href="/trips/'+trip.id+'/days/'+day.id+'">'+day.stop_location+'</a></p></div>';
   marker = new google.maps.Marker({
@@ -117,6 +116,7 @@ function save_edited_day(me) {
   save_hidden_fields(me.day_id+" #next_day");
   $.post('/index_edit', $(me.day_id+' .edit_day').serialize(), function(data) {
     trip = data['trip'];
+    more_methods_for_trip();
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
     me.marker.setMap(null);

@@ -2,6 +2,7 @@
 <%= javascript_include_tag 'day_object' %>
 <script type="text/javascript">
   var trip = <%= @trip.to_json.html_safe %>;
+  var ordered_days = <%= @ordered_days.to_json.html_safe %>;
   var unit_system = <%= @unit_system.to_json.html_safe %>;
 </script>
 <aside id="trip_days_wrap">
@@ -22,8 +23,9 @@
     <div class="modify"></div>
   </div>
   <div id="indexable">
-    <%= render :partial =>'day', :collection => @trip.ordered_days %>
+    <%= render :partial => 'ordered_days', :object => @ordered_days %>
     <%= render :partial => 'new_day'%>
+    <input class="button" id="wiard" type="button" value="Wizard">
   </div>
 </aside>
 <div>
