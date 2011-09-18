@@ -58,10 +58,12 @@ class Trip
     sum = 0
     days.each_with_index do |d, i|
       sum += d.distance
+      distances[i] = {}
+      distances[i]['value'] = sum
       if options[:unit_system] == "METRIC"
-        distances[i] = (sum/ 1000).round(1).to_s + " km"
+        distances[i]['text'] = (sum/ 1000).round(1).to_s + " km"
       else 
-        distances[i] = (sum/ 1621.371192).round(1).to_s+" mi";
+        distances[i]['text'] = (sum/ 1621.371192).round(1).to_s+" mi";
       end
     end
     return distances

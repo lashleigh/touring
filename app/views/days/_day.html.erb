@@ -4,7 +4,7 @@
     <div class="travel_mode"><%= image_tag "#{day.travel_mode}.png" %></div>
     <div class="location"><%= day.stop_location %></div>
     <div class="distance">
-      <span class="total">Total  <%= @distances[i] %></span> 
+      <span class="total">Total  <%= @distances[i]['text'] %></span> 
       <%= day.show_distance({:unit_system => "IMPERIAL"}) %>
     </div>
     <div class="modify button-group">
