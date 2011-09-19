@@ -5,5 +5,5 @@
 // the compiled file.
 //
 //= require jquery
-//= require_tree .
+///Commented out//= require_tree .
 

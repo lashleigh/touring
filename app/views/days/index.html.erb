@@ -1,5 +1,5 @@
-<%= javascript_include_tag 'day_index' %>
-<%= javascript_include_tag 'day_object' %>
+<%= javascript_include_tag 'days/index' %>
+<%= javascript_include_tag 'days/day_object' %>
 <script type="text/javascript">
   var trip = <%= @trip.to_json.html_safe %>;
   var ordered_days = <%= @ordered_days.to_json.html_safe %>;
@@ -25,6 +25,9 @@
   <div id="indexable">
     <%= render :partial => 'ordered_days', :object => @ordered_days %>
     <%= render :partial => 'new_day'%>
+  </div>
+  <div class="button-group rule pad" id="new_wizard">
+    <input class="button" id="show_new_day_form" type="button" value="New Day">
     <input class="button" id="wiard" type="button" value="Wizard">
   </div>
 </aside>

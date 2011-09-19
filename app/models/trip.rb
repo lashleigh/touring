@@ -6,14 +6,11 @@ class Trip
   key :summary, String
   key :tags, Array
 
-  key :start_location, String
-  key :start_coords, Array
   key :start_date, Date
   key :complete, Boolean, :default => false
   timestamps!
 
   key :partners, Array
-
   many :days, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
