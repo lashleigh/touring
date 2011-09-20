@@ -48,7 +48,7 @@
         <li class="public"><%= link_to trip.title, trip %><br/>
         <%= trip.summary %>
         <div class="modify">
-          <%= link_to 'Show', trip_path(trip) %>
+          <%= link_to 'Show', trip_days_path(trip) %>
           <%= link_to 'Edit', edit_trip_path(trip) %>
           <%= link_to 'Destroy', trip_path(trip), :confirm => 'Are you sure?', :method => :delete %>
         </div>

@@ -81,14 +81,7 @@ function clean_the_trash(me) {
   //$(me.day_id).die();
   delete trash; 
 }
-function reattach_divs() {
-  set_marker_events(this);
-  set_polyline_events(this);
-  set_div_events(this);
-  set_div_button_events(this);
-}
 function insert_day() {
-  console.log(this);
   TouringGlobal.mode = "insert";
   TouringGlobal.current_day = this;
   fade_neighbors(this);
@@ -136,30 +129,29 @@ function set_div_events(me) {
     me.marker.setIcon("/assets/yellow_marker.png");
     me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
     $(this).find(".modify .button").removeClass("hidden")
-  })
-  $(me.day_id).live("mouseout", function() {
+  }).live("mouseout", function() {
     me.marker.setIcon("/assets/red_marker.png");
     me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
     $(this).find(".modify .button").addClass("hidden")
-  })
-  $(me.day_id).live("click", function() {
+  }).live("click", function() {
     flash_warning(me.info_text);
   });
 }
 function set_div_button_events(me) {
-  $(me.day_id).find('.edit').live("click", function() {
+  var cache = $(me.day_id);
+  cache.find('.edit').live("click", function() {
     me.edit();
   });
-  $(me.day_id).find('.insert').live("click", function() {
+  cache.find('.insert').live("click", function() {
     me.insert();
   });
-  $(me.day_id).find('.edit_day .save').live("click", function() {
+  cache.find('.edit_day .save').live("click", function() {
     me.save();
   });
-  $(me.day_id).find(".edit_day .cancel").live("click", function() {
+  cache.find(".edit_day .cancel").live("click", function() {
     me.cancel();
   });
-  $(me.day_id).find("#day_travel_mode").change(function() {
+  cache.find("#day_travel_mode").change(function() {
     // By making it true changes in latlng due to bike
     // path vs road won't cause errors
     calc_route(route_options_for("edit", false), true)

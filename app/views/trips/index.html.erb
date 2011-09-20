@@ -3,9 +3,9 @@
   <% @trips.each do |trip| %>
       <%=  trip.title%>
     <div class="modify">
-      <%= link_to 'Show', trip %>
+      <%= link_to 'Show', trip_days_path(trip) %>
       <%= link_to 'Edit', edit_trip_path(trip) %>
-      <%= link_to 'Destroy', trip, :confirm => 'Are you sure?', :method => :delete %>
+      <%= button_to 'Destroy', trip, :confirm => 'Are you sure?', :method => :delete %>
     </div>
   <% end %>
 <br />

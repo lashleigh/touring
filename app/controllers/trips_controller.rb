@@ -47,7 +47,7 @@ class TripsController < ApplicationController
 
     respond_to do |format|
       if @trip.save
-        format.html { redirect_to(trip_days_path, :notice => 'Trip was successfully created.') }
+        format.html { redirect_to(trip_days_path(@trip), :notice => 'Trip was successfully created.') }
         format.xml  { render :xml => @trip, :status => :created, :location => @trip }
       else
         format.html { render :action => "new" }
@@ -79,7 +79,7 @@ class TripsController < ApplicationController
     @trip.destroy
 
     respond_to do |format|
-      format.html { redirect_to(users_url(current_user)) }
+      format.html { redirect_to(user_path(@current_user)) }
       format.xml  { head :ok }
     end
   end
