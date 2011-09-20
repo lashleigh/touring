@@ -19,17 +19,84 @@ function Day(day) {
     strokeWeight  : 4,
     path: google.maps.geometry.encoding.decodePath(day.encoded_path)
   })
-
   this.marker = marker;
   this.polyline = polyline;
-
   set_marker_events(this);
   set_polyline_events(this);
   set_div_events(this);
   set_div_button_events(this);
   bounds.extend(this.point);
 }
-//Day.prototype = new google.maps.MVCObject();
+Day.prototype = {
+  insert: insert_day,
+  cancel: cancel_day, 
+  save: save_day,
+  edit: edit_day  
+}
+function edit_day() {
+  TouringGlobal.mode = "edit"
+  TouringGlobal.current_day = this;
+  $(".edit_day").hide();
+  $(this.day_id+" .edit_day").show();
+  fade_neighbors(this);
+  this.polyline.setMap(null);
+  this.marker.setMap(null);
+  calc_route(route_options_for("edit", true), true);
+}
+function cancel_day() {
+  $(this.day_id+" .edit_day").hide();
+  TouringGlobal.mode = "idle"
+  TouringGlobal.current_day = false;
+  TouringGlobal.directions_start = false;
+  TouringGlobal.directions_end = false;
+  unfade_neighbors(this);
+  this.polyline.setMap(map);
+  this.marker.setMap(map)
+  directionsDisplay.setMap(null);
+  map.fitBounds(bounds);
+
+  $(this.day_id).find("#day_travel_mode").val(this.travel_mode);
+}
+function save_day() {
+  var current_index = current_editable_day_index(); 
+  save_hidden_fields(this.day_id+" #day");
+  save_hidden_fields(this.day_id+" #next_day");
+  $.post('/index_edit', $(this.day_id+" .edit_day").serialize(), function(data) {
+    trip = data['trip'];
+    ordered_days = data['ordered_days'];
+    more_methods_for_trip();
+    $(".day_row").remove();
+    $("#indexable").prepend(data['dayhtml']);
+    TouringGlobal.current_day.cancel();
+    var trash = days.splice(current_index, 1, new Day(data['day']))
+    clean_the_trash(trash[0]);
+    save_next_day(data['next_day'], current_index) 
+  })
+}
+function clean_the_trash(me) {
+  google.maps.event.clearInstanceListeners(me.marker);
+  google.maps.event.clearInstanceListeners(me.polyline);
+  me.marker.setMap(null);
+  me.polyline.setMap(null);
+  //$(me.day_id).die();
+  delete trash; 
+}
+function reattach_divs() {
+  set_marker_events(this);
+  set_polyline_events(this);
+  set_div_events(this);
+  set_div_button_events(this);
+}
+function insert_day() {
+  console.log(this);
+  TouringGlobal.mode = "insert";
+  TouringGlobal.current_day = this;
+  fade_neighbors(this);
+  this.polyline.setMap(null);
+  this.marker.setMap(null)
+  hijack_new_form_for_insert(this);
+  calc_route(route_options_for("insert", true), true);
+}
 
 function set_marker_events(me) {
   google.maps.event.addListener(me.marker, 'mouseover', function() {
@@ -80,94 +147,32 @@ function set_div_events(me) {
   });
 }
 function set_div_button_events(me) {
-  $(me.day_id+" .edit").live("click", function() {
-    TouringGlobal.mode = "edit"
-    TouringGlobal.current_day = me;
-    $(".edit_day").hide();
-    $(me.day_id+" .edit_day").show();
-    fade_neighbors(me);
-    me.polyline.setMap(null);
-    me.marker.setMap(null);
-    calc_route(route_options_for("edit", true), true);
+  $(me.day_id).find('.edit').live("click", function() {
+    me.edit();
   });
-  $(me.day_id+" .insert").live("click", function() {
-    TouringGlobal.mode = "insert";
-    TouringGlobal.current_day = me;
-    fade_neighbors(me);
-    me.polyline.setMap(null);
-    me.marker.setMap(null)
-    hijack_new_form_for_insert(me);
-    calc_route(route_options_for("insert", true), true);
+  $(me.day_id).find('.insert').live("click", function() {
+    me.insert();
   });
-  $(me.day_id+" .edit_day .save").live("click", function() {
-    save_edited_day(me);
+  $(me.day_id).find('.edit_day .save').live("click", function() {
+    me.save();
   });
-  $(me.day_id+" .edit_day .cancel").live("click", function() {
-    cancel_me(me);
-    $(me.day_id+" .edit_day").hide();
+  $(me.day_id).find(".edit_day .cancel").live("click", function() {
+    me.cancel();
   });
-  $(me.day_id+" #day_travel_mode").change(function() {
+  $(me.day_id).find("#day_travel_mode").change(function() {
     // By making it true changes in latlng due to bike
     // path vs road won't cause errors
     calc_route(route_options_for("edit", false), true)
   })
 }
-function save_edited_day(me) {
-  var current_index = current_editable_day_index(); 
-  save_hidden_fields(me.day_id+" #day");
-  save_hidden_fields(me.day_id+" #next_day");
-  $.post('/index_edit', $(me.day_id+' .edit_day').serialize(), function(data) {
-    trip = data['trip'];
-    more_methods_for_trip();
-    $(".day_row").remove();
-    $("#indexable").prepend(data['dayhtml']);
-    me.marker.setMap(null);
-    me.polyline.setMap(null);
-    var trash = days.splice(current_index, 1, new Day(data['day']))
-    delete trash; 
 
-    save_next_day(data['next_day'], current_index) 
-    cancel_me(days[current_index]);
-  })
-}
 function save_next_day(next_day, index) {
   if(next_day) {
     //#TODO write a clean up function that removes a day 
-    days[index+1].marker.setMap(null);
-    days[index+1].polyline.setMap(null);
     var trash = days.splice(index+1, 1, new Day(next_day));
-    //trash.marker.setMap(null);
-    //trash.polyline.setMap(null);
-    delete trash
+    clean_the_trash(trash[0]);
   }
 } 
-function cancel_me(me) {
-  TouringGlobal.mode = "idle"
-  TouringGlobal.current_day = false;
-  TouringGlobal.directions_start = false;
-  TouringGlobal.directions_end = false;
-  unfade_neighbors(me);
-  me.polyline.setMap(map);
-  me.marker.setMap(map)
-  directionsDisplay.setMap(null);
-  map.fitBounds(bounds);
-
-  $(me.day_id+" #day_travel_mode").val(me.travel_mode);
-}
-function listener_for_editing(me) {
-  save_hidden_fields(me.day_id+" #day");
-  save_hidden_fields(me.day_id+" #next_day");
-  var base = directionsDisplay.directions
-  if(base) {
-    base = base.routes[0].legs[0];
-    var dist = base.distance.value
-    var total = meter_2_mile(trip.distance+dist)
-    $(me.day_id+" #new_distance").html(meter_2_mile(dist));
-    $(me.day_id+" #new_total").html(total);
-    $(me.day_id+" #day_stop_location").val(base.end_address);
-    $(me.day_id+" #day_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
-  }
-}
 
 function hijack_new_form_for_insert(me) {
   var new_day_div = $("#new_day");

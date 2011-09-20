@@ -20,7 +20,7 @@ $(function() {
   $("#new_day #save_new_day").live("click", save_day_and_add_to_table);
   $("#new_day #search").live("click", insert_or_append_day);
   $("#new_day .cancel").live("click", cancel);
-  $("#new_day #day_travel_mode").change(insert_or_append_day) 
+  $("#new_day #day_travel_mode").live("change", insert_or_append_day) 
   $("#wizard").live("click", function() {
     calc_route(route_options_for("wizard", false), true)
   });
@@ -47,9 +47,9 @@ $(function() {
     watch_for_inappropriate_drag();
   });
 
-  drawStartMarker();
   more_methods_for_trip();
-  for(var i =1; i< ordered_days.length; i++) { 
+  drawStartMarker();
+  for(var i =0; i< ordered_days.length; i++) { 
     days.push(new Day(ordered_days[i]));
   }
   //Without more than one day the map will go max zoom on a single point
@@ -58,10 +58,9 @@ $(function() {
   }
 });
 function drawStartMarker() {
-  var start_point = coords_to_google_point(ordered_days[0].stop_coords)
-  bounds.extend(start_point);
+  bounds.extend(trip.start_point);
   var marker = new google.maps.Marker({
-    position: start_point,
+    position: trip.start_point,
     map: map,
     title: trip.start_location,
     icon: "/assets/red_marker.png"
@@ -111,7 +110,7 @@ function nail_first_last() {
     TouringGlobal.directions_start = current_start //days[index-1] ? current_start : false;
     TouringGlobal.directions_end   = days[index+1] ? current_end   : false;
   } else if(TouringGlobal.mode==="append") {
-    TouringGlobal.directions_start = trip.last_day ? current_start : false;
+    TouringGlobal.directions_start = current_start; //trip.last_day ? current_start : false;
     TouringGlobal.directions_end   = false
   }
 }
@@ -122,7 +121,7 @@ function route_options_for(mode, first_time) {
   var to_return = {};
   if(mode == "insert") {
     var index = current_new_day_index();
-    var prev_day = days[index-1] ? days[index-1].point : trip.start_location;
+    var prev_day = days[index-1] ? days[index-1].point : trip.start_point;
     var next_day = days[index].point;
     if(first_time) {
       var polyline = google.maps.geometry.encoding.decodePath(ordered_days[index].encoded_path);
@@ -144,11 +143,11 @@ function route_options_for(mode, first_time) {
         var ary = [{location: TouringGlobal.current_day.point, stopover:true}].concat(days[index].waypoints);
       }
     } else if(ordered_days.length == 1) {
-      var prev_day = trip.start_location; 
+      var prev_day = trip.start_point; 
       var next_day = days[0].point;
       var ary = [].concat(days[index].waypoints); 
     } else if(index ==0) {
-      var prev_day = trip.start_location; 
+      var prev_day = trip.start_point; 
       var next_day = days[1].point;
       if(first_time) {
         var ary = [{location: days[0].point, stopover: true}].concat(days[index].waypoints);
@@ -176,7 +175,7 @@ function route_options_for(mode, first_time) {
     to_return['destination'] = next_day;
     to_return['waypoints'] = ary;
   } else if(mode=="append") {
-    var last_point = trip.last_day ? day_to_google_point(trip.last_day) : trip.start_location;
+    var last_point = trip.last_day ? day_to_google_point(trip.last_day) : trip.start_point;
     to_return['origin'] = last_point;
     to_return['destination'] = $("#new_day #day_stop_location").val();
     to_return['waypoints'] = [];
@@ -206,17 +205,20 @@ function save_day_and_add_to_table() {
 
   $.post('/create_new_day', $("#new_day").serialize(), function(data) {
     trip = data['trip'];
+    ordered_days = data['ordered_days'];
     more_methods_for_trip();
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
     days.splice(new_day_index, 0, new Day(data['day']))
     save_next_day(data['next_day'], new_day_index) 
+    TouringGlobal.mode = "idle"; //This is redundant but it stops the old polyline from getting drawn
     cancel();
   })
 }
 function more_methods_for_trip() {
   trip.last_day = ordered_days.length ? ordered_days[ordered_days.length-1] : false 
   trip.distance = trip.last_day ? trip.last_day.distance : 0.0
+  trip.start_point = coords_to_google_point(trip.start_coords);
 }
 function cancel() {
   if(TouringGlobal.mode=="insert") {
@@ -257,7 +259,7 @@ function save_hidden_fields(parent_id) {
     $(parent_id+"_encoded_path").val(google.maps.geometry.encoding.encodePath(overview_path));
     $(parent_id+"_route").val(JSON.stringify(path_as_array));
     $(parent_id+"_distance").val(base.distance.value)
-    $(parent_id+"_google_waypoints").val(JSON.stringify(google_point_to_coords(base.via_waypoints)))
+    $(parent_id+"_google_waypoints").val(JSON.stringify(google_points_to_coords(base.via_waypoints)))
     
     if(TouringGlobal.mode=="append") {
       $(parent_id+"_travel_mode").val($("#new_day #day_travel_mode :selected").val())
@@ -304,7 +306,7 @@ function day_to_google_point(day) {
 function coords_to_google_point(coords) {
   return new google.maps.LatLng(coords[0], coords[1]);
 }
-function google_point_to_coords(points) {
+function google_points_to_coords(points) {
   return points.map(function(w){return [w.lat(), w.lng()]})
 }
 function current_new_day_index() {

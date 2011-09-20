@@ -1,11 +1,13 @@
 class Trip
   include MongoMapper::Document
-  after_create :calculate_start_coords
+  #after_create :calculate_start_coords
 
   key :title, String
   key :summary, String
   key :tags, Array
 
+  key :start_coords
+  key :start_location
   key :start_date, Date
   key :complete, Boolean, :default => false
   timestamps!
@@ -14,8 +16,13 @@ class Trip
   many :days, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
-  validates_presence_of :title, :start_location
-  attr_accessible :title, :summary, :start_location, :start_coords
+  def start_coords=(x)
+    if String === x and !x.blank?
+      super(ActiveSupport::JSON.decode(x))
+    else
+      super(x)
+    end
+  end
   
   def serializable_hash(options = {})
     options ||= {}
@@ -60,28 +67,34 @@ class Trip
     return distances
   end
   def average_distance
-    days.map{|d| d.distance}.sum / days.length 
+    if days.length > 0
+      days.map{|d| d.distance}.sum / days.length 
+    else 
+      return 0.0
+    end
   end
   def best_append_coords
-    distance = Geocoder::Calculations::distance_to_radians(self.average_distance/1621.371192)
-    bearing = Geocoder::Calculations::to_radians(Geocoder::Calculations::bearing_between(self.last_day.prev_day, self.last_day))
-    lat1, lng1 = Geocoder::Calculations::to_radians(self.last_day.stop_coords)
-    dLat = distance*Math.cos(bearing);
-    lat2 = lat1 + dLat;
-    dPhi = Math.log(Math.tan(lat2/2+Math::PI/4)/Math.tan(lat1/2+Math::PI/4));
-    unless dPhi==0 
-      q = dLat/dPhi
-    else
-      q = Math.cos(lat1)
-    end
+    unless days.length < 2
+      distance = Geocoder::Calculations::distance_to_radians(self.average_distance/1621.371192)
+      bearing = Geocoder::Calculations::to_radians(Geocoder::Calculations::bearing_between(self.last_day.prev_day, self.last_day))
+      lat1, lng1 = Geocoder::Calculations::to_radians(self.last_day.stop_coords)
+      dLat = distance*Math.cos(bearing);
+      lat2 = lat1 + dLat;
+      dPhi = Math.log(Math.tan(lat2/2+Math::PI/4)/Math.tan(lat1/2+Math::PI/4));
+      unless dPhi==0 
+        q = dLat/dPhi
+      else
+        q = Math.cos(lat1)
+      end
 
-    dLng = distance*Math.sin(bearing)/q;
-    # check for some daft bugger going past the pole, normalise latitude if so
-    if (lat2.abs > Math::PI/2) 
-      lat2 = lat2>0 ? Math::PI-lat2 : -(Math::PI-lat2);
+      dLng = distance*Math.sin(bearing)/q;
+      # check for some daft bugger going past the pole, normalise latitude if so
+      if (lat2.abs > Math::PI/2) 
+        lat2 = lat2>0 ? Math::PI-lat2 : -(Math::PI-lat2);
+      end
+      lng2 = (lng1+dLng+Math::PI)%(2*Math::PI) - Math::PI; 
+      return Geocoder::Calculations::to_degrees([lat2, lng2])
     end
-    lng2 = (lng1+dLng+Math::PI)%(2*Math::PI) - Math::PI; 
-    return Geocoder::Calculations::to_degrees([lat2, lng2])
   end
 
   private

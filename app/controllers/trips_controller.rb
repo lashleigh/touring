@@ -2,6 +2,7 @@ class TripsController < ApplicationController
   # GET /trips
   # GET /trips.xml
   before_filter :require_user, :except => [:index, :show]
+  layout 'days'
   def index
     @trips = Trip.all
 

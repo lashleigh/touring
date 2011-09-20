@@ -4,12 +4,12 @@ class Day
   after_create :do_something_after_create
 
   key :tags, Hash
-  key :distance, Float
+  key :distance, Float, :default => 0.0
   key :google_waypoints, Array
-  key :encoded_path, String
+  key :encoded_path, String, :default => ''
   key :travel_mode, String, :in => ["DRIVING", "BICYCLING", "WALKING"], :default => "BICYCLING"
-  key :stop_location, String
-  key :stop_coords, Array
+  key :stop_location, String, :required => true
+  key :stop_coords, Array, :required => true
   key :prev_id, ObjectId
   key :next_id, ObjectId
 

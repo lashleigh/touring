@@ -1,4 +1,4 @@
-<%= javascript_include_tag 'trips/form' %>
+<%= javascript_include_tag 'trips/new' %>
 <h1>New trip</h1>
 <%= form_for(@trip) do |f| %>
   <% if @trip.errors.any? %>
@@ -19,9 +19,10 @@
     <%= f.label :summary %>
     <%= f.text_field :summary %><br />
     
-    <%= label_tag 'day[stop_location]', 'Start Location'%>
-    <%= text_field_tag 'day[stop_location]'%>
-    <%= hidden_field_tag 'day[stop_coords]'%>
+    <%= f.label :start_location %>
+    <%= f.text_field :start_location %><br />
+    <%= f.label :start_coords %>
+    <%= f.text_field :start_coords %>
   </div>
   <div class="actions">
     <%= f.submit %>
