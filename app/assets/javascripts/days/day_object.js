@@ -6,6 +6,9 @@ function Day(day) {
   this.day_id = "#day_"+day.id;
   this.travel_mode = day.travel_mode;
   this.info_text = '<div class="place_form"><p><a href="/trips/'+trip.id+'/days/'+day.id+'">'+day.stop_location+'</a></p></div>';
+  this.id      = day.id
+  this.prev_id = day.prev_id || false
+  this.next_id = day.next_id || false
   marker = new google.maps.Marker({
     position: this.point,
     map: map,
@@ -31,7 +34,9 @@ Day.prototype = {
   insert: insert_day,
   cancel: cancel_day, 
   save: save_day,
-  edit: edit_day  
+  edit: edit_day,  
+  prev_point : function() {return days[this.prev_id] ? days[this.prev_id].point : coords_to_google_point(trip.start_coords)}, 
+  next_point : function() {return days[this.next_id] ? days[this.next_id].point : false}
 }
 function edit_day() {
   TouringGlobal.mode = "edit"
@@ -59,21 +64,21 @@ function cancel_day() {
   TouringGlobal.directions_end = false;
 }
 function save_day() {
-  var current_index = current_editable_day_index(); 
-  var me = TouringGlobal.current_day
+  var current_day = TouringGlobal.current_day
   save_hidden_fields(this.day_id+" #day");
   save_hidden_fields(this.day_id+" #next_day");
+
   $.post('/index_edit', $(this.day_id+" .edit_day").serialize(), function(data) {
     trip = data['trip'];
     ordered_days = data['ordered_days'];
     more_methods_for_trip();
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
-    kill_the_trash(TouringGlobal.current_day)
-    TouringGlobal.current_day.cancel();
-    var trash = days.splice(current_index, 1, new Day(data['day']))
-    clean_the_trash(trash[0])
-    save_next_day(data['next_day'], current_index) 
+    kill_the_trash(current_day)
+    current_day.cancel();
+    clean_the_trash(days[current_day.id])
+    days[current_day.id] = new Day(data['day']);
+    save_next_day(data['next_day']) 
   })
 }
 function kill_the_trash(me) {
@@ -83,11 +88,12 @@ function kill_the_trash(me) {
   $(me.day_id).find(".edit_day .cancel").die()
 }
 function clean_the_trash(me) {
+  console.log(me)
   google.maps.event.clearInstanceListeners(me.marker);
   google.maps.event.clearInstanceListeners(me.polyline);
   me.marker.setMap(null);
   me.polyline.setMap(null);
-  delete me; 
+  //delete me; 
 }
 function insert_day() {
   TouringGlobal.mode = "insert";
@@ -166,11 +172,11 @@ function set_div_button_events(me) {
   })
 }
 
-function save_next_day(next_day, index) {
+function save_next_day(next_day) {
   if(next_day) {
-    kill_the_trash(days[index+1])
-    var trash = days.splice(index+1, 1, new Day(next_day));
-    clean_the_trash(trash[0])
+    kill_the_trash(days[next_day.id])
+    clean_the_trash(days[next_day.id])
+    days[next_day.id] = new Day(next_day);
   }
 } 
 
@@ -181,9 +187,9 @@ function hijack_new_form_for_insert(me) {
 
   $("#new_day").show(); 
   $("#new_wizard").hide();
-  $("#new_day #day_prev_id").val(me.raw_day.prev_id)
-  $("#new_day #day_next_id").val(me.raw_day.id)
-  $("#new_day #next_day_id").val(me.raw_day.id)
+  $("#new_day #day_prev_id").val(me.prev_id)
+  $("#new_day #day_next_id").val(me.id)
+  $("#new_day #next_day_id").val(me.id)
 }
 function reset_new_form() {
   var new_day_div = $("#new_day");

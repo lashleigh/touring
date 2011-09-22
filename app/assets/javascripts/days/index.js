@@ -6,7 +6,7 @@ var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
 var directionsService = new google.maps.DirectionsService();
 var map;
 var bounds = new google.maps.LatLngBounds();
-var days = [];
+var days = {};
 var TouringGlobal = {
   mode: 'idle',
   directions_start: false,
@@ -50,7 +50,7 @@ $(function() {
   more_methods_for_trip();
   drawStartMarker();
   for(var i =0; i< ordered_days.length; i++) { 
-    days.push(new Day(ordered_days[i]));
+    days[ordered_days[i].id] = new Day(ordered_days[i]);
   }
   //Without more than one day the map will go max zoom on a single point
   if(bounds.getNorthEast().toString() !== bounds.getSouthWest().toString()) {
@@ -82,6 +82,7 @@ function calc_route(options, update_endpoints) {
     origin: options['origin'],  
     destination: options['destination'],
     waypoints: options['waypoints'],
+    optimizeWaypoints: true,
     travelMode: google.maps.TravelMode[options['travel_mode']],
     unitSystem: google.maps.UnitSystem['IMPERIAL']
   }
@@ -106,9 +107,8 @@ function nail_first_last() {
     TouringGlobal.directions_start = current_start 
     TouringGlobal.directions_end   = current_end
   } else if(TouringGlobal.mode==="edit") {
-    var index = current_editable_day_index();
-    TouringGlobal.directions_start = current_start //days[index-1] ? current_start : false;
-    TouringGlobal.directions_end   = days[index+1] ? current_end   : false;
+    TouringGlobal.directions_start = current_start;
+    TouringGlobal.directions_end   = days[TouringGlobal.current_day.next_id] ? current_end : false;
   } else if(TouringGlobal.mode==="append") {
     TouringGlobal.directions_start = current_start; //trip.last_day ? current_start : false;
     TouringGlobal.directions_end   = false
@@ -119,68 +119,47 @@ function coords_to_google_waypoints(coords) {
 }
 function route_options_for(mode, first_time) {
   var to_return = {};
+  var origin, destination, waypoints, travel_mode;
+  var current_day = TouringGlobal.current_day
   if(mode == "insert") {
-    var index = current_new_day_index();
-    var prev_day = days[index-1] ? days[index-1].point : trip.start_point;
-    var next_day = days[index].point;
+    origin      = current_day.prev_point();
+    destination = current_day.point;
+    travel_mode = current_day.travel_mode;
     if(first_time) {
-      var polyline = google.maps.geometry.encoding.decodePath(ordered_days[index].encoded_path);
+      var polyline = google.maps.geometry.encoding.decodePath(current_day.raw_day.encoded_path);
       var half = Math.floor(polyline.length/2);
-      var ary = [{location: polyline[half], stopover: true}]; typeof prev_day==="object" ? days[index-1]: false; 
+      waypoints = [{location: polyline[half], stopover: true}];
     } else {
-      var ary = [{location: coords_to_google_point(JSON.parse($("#new_day #day_stop_coords").val())), stopover:true}];
+      waypoints = [{location: coords_to_google_point(JSON.parse($("#new_day #day_stop_coords").val())), stopover:true}];
     }
-    to_return['origin'] = prev_day;
-    to_return['destination'] = next_day;
-    to_return['waypoints'] = ary.concat(days[index].waypoints);
-    to_return['travel_mode'] = $("#new_day #day_travel_mode :selected").val()
   } else if(mode == "edit") {
-    var index = current_editable_day_index();
-    if(index > 0 && index < ordered_days.length-1) {
-      var prev_day = days[index-1].point;
-      var next_day = days[index+1].point;
-      if(first_time) {
-        var ary = [{location: TouringGlobal.current_day.point, stopover:true}].concat(days[index].waypoints);
-      }
-    } else if(ordered_days.length == 1) {
-      var prev_day = trip.start_point; 
-      var next_day = days[0].point;
-      var ary = [].concat(days[index].waypoints); 
-    } else if(index ==0) {
-      var prev_day = trip.start_point; 
-      var next_day = days[1].point;
-      if(first_time) {
-        var ary = [{location: days[0].point, stopover: true}].concat(days[index].waypoints);
-      }
-    } else if(index ==ordered_days.length-1) {
-      var prev_day = days[index-1].point;
-      var ary = [].concat(days[index].waypoints); 
-      if(first_time) {
-        var next_day = days[index].point;
-      } else {
-        var id = TouringGlobal.current_day.day_id; 
-        var next_day = coords_to_google_point(JSON.parse($(id+" #day_stop_coords").val())) 
-      }
-    }
-    if(!ary) {
-      var id = TouringGlobal.current_day.day_id; 
-      var ary = [{location: coords_to_google_point(JSON.parse($(id+" #day_stop_coords").val())), stopover:true}];
-    }
+    origin      = current_day.prev_point();
+    destination = current_day.next_point();
+    waypoints   = current_day.waypoints;
+    travel_mode = current_day.travel_mode;
     if(first_time) {
-      to_return['travel_mode'] = TouringGlobal.current_day.travel_mode
+      if(destination) { 
+        waypoints = [{location: current_day.point, stopover:true}].concat(waypoints);
+      } else {
+        destination = current_day.point 
+      }
     } else {
-      to_return['travel_mode'] = $(TouringGlobal.current_day.day_id+" #day_travel_mode :selected").val()
+      if(destination) {
+        waypoints = [{location: coords_to_google_point(JSON.parse($(current_day.day_id+" #day_stop_coords").val())), stopover:true}].concat(waypoints);
+      } else {
+        destination = coords_to_google_point(JSON.parse($(current_day.day_id+" #day_stop_coords").val())) 
+      }
     }
-    to_return['origin'] = prev_day;
-    to_return['destination'] = next_day;
-    to_return['waypoints'] = ary;
   } else if(mode=="append") {
-    var last_point = trip.last_day ? day_to_google_point(trip.last_day) : trip.start_point;
-    to_return['origin'] = last_point;
-    to_return['destination'] = $("#new_day #day_stop_location").val();
-    to_return['waypoints'] = [];
-    to_return['travel_mode'] = $("#new_day #day_travel_mode :selected").val()
+    origin = trip.last_day ? day_to_google_point(trip.last_day) : trip.start_point;
+    destination = $("#new_day #day_stop_location").val();
+    waypoints = [];
+    travel_mode = $("#new_day #day_travel_mode :selected").val()
   }
+  to_return['origin'] = origin;
+  to_return['destination'] = destination;
+  to_return['waypoints'] = waypoints; 
+  to_return['travel_mode'] = travel_mode; 
   return to_return;
 }
 
@@ -199,7 +178,6 @@ function watch_for_inappropriate_drag() {
   }
 }
 function save_day_and_add_to_table() {
-  var new_day_index = current_new_day_index();
   save_hidden_fields("#new_day #day");
   save_hidden_fields("#new_day #next_day");
 
@@ -207,10 +185,13 @@ function save_day_and_add_to_table() {
     trip = data['trip'];
     ordered_days = data['ordered_days'];
     more_methods_for_trip();
+    var new_day = data['day'];
     $(".day_row").remove();
     $("#indexable").prepend(data['dayhtml']);
-    days.splice(new_day_index, 0, new Day(data['day']))
-    save_next_day(data['next_day'], new_day_index) 
+    days[new_day.id] = new Day(new_day);
+    if(new_day.prev_id) { days[new_day.prev_id].next_id = new_day.id; }
+    if(new_day.next_id) { days[new_day.next_id].prev_id = new_day.id; }
+    save_next_day(data['next_day']) 
     TouringGlobal.mode = "idle"; //This is redundant but it stops the old polyline from getting drawn
     cancel();
   })
