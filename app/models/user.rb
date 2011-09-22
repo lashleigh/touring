@@ -1,5 +1,6 @@
 class User
   include MongoMapper::Document
+  safe
 
   key :name, String
   key :location, String
@@ -13,16 +14,15 @@ class User
   many :authorizations
   many :trips
   many :days, :through => :trips
-  attr_accessible :name, :location, :website, :image
 
   def self.create_with_omniauth(auth)  
     user = User.new(:name => auth["user_info"]["name"], 
                     :location => auth["user_info"]["location"], 
                     :email => auth["user_info"]["email"],
-                    #:website => auth["user_info"]["urls"].first.last,
                     :description => auth["user_info"]["description"],
                     :image => auth["user_info"]["image"]
                    )
+                    #:website => auth["user_info"]["urls"].first.last,
     user.authorizations.push(Authorization.new(:provider => auth["provider"], :uid => auth["uid"]))
     user.save
     return user

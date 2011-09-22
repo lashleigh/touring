@@ -14,7 +14,7 @@ end
 gem 'jquery-rails'
 
 gem 'bson_ext'
-gem "mongo_mapper"
+gem "mongo_mapper", "0.9.2"
 gem "json"
 gem "typhoeus"
 gem "quimby"

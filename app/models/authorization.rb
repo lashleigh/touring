@@ -1,8 +1,7 @@
 class Authorization
-  include MongoMapper::Document
+  include MongoMapper::EmbeddedDocument
 
-  key :uid, String
-  key :provider, String
-  belongs_to :user
+  key :uid, String, :required => true
+  key :provider, String, :required => true
 
 end
