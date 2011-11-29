@@ -341,3 +341,9 @@ function drawSearchResult(i, res) {
     }
   );
 }
+function bounds_to_array() {
+  var ne = map.getBounds().getNorthEast(); 
+  var sw = map.getBounds().getSouthWest(); 
+  return [[sw.lng(), sw.lat()], [ne.lng(), ne.lat()]]
+}
+

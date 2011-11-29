@@ -11,7 +11,7 @@
       <button class="button hidden icon icononly add insert" id="insert_<%=day.id%>" type="button"></button>
       <button class="button hidden icon icononly edit" id="edit_<%=day.id%>" type="button"></button>
       <button class="button hidden icon icononly remove danger" type="button" method="delete"></button>
-      <%= button_to ' ', trip_day_path(@trip, day), :confirm => 'Are you sure?', :method => :delete, :class=> 'button hidden right icon icononly remove danger' %>
+      <%= link_to ' ', trip_day_path(@trip, day), :method => :delete, :remote => true, :id => 'remove_'+day.id %>
     </div>
   </div>
   <%= render :partial => 'edit_day', :locals => {:day => day} %>

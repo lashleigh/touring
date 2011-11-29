@@ -139,10 +139,12 @@ class DaysController < ApplicationController
         next_d.save if next_d
         format.html { redirect_to(trip_days_path) }
         format.xml  { head :ok }
+        format.json   { head :ok }
       else
         flash[:error] = "It appears you attempted to delete a suggestion that you did not create. Perhaps you need to log in?"
         format.html { redirect_to root_path }
         format.xml  { head :ok }
+        format.json   { head :ok }
       end
     end
   end

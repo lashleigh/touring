@@ -16,6 +16,7 @@ class Day
   belongs_to :trip
   one :locatable
   validates_presence_of :stop_location
+  ensure_index [[:stop_coords, '2d']]
 
   def stop_coords=(x)
     if String === x and !x.blank?
@@ -37,6 +38,13 @@ class Day
   end
   def next_day
     trip.days.where(:id => next_id).first if next_id || false 
+  end
+  def nearby(radius=25)
+    #radius /= 69.0
+    box = Geocoder::Calculations::bounding_box(self.stop_coords, radius)
+    box = [box[0..1], box[2..3]]
+    days = Day.where(:stop_coords => {'$within' => {'$box' => box}}).all
+    return days.map{|d| [d.id, Geocoder::Calculations::distance_between(d.stop_coords, self.stop_coords)]}
   end
   def self.find_all_by_tag(tag)
     Day.where("tags.#{tag}" => {'$exists' => true}).all

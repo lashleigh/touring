@@ -9,6 +9,7 @@ var bounds = new google.maps.LatLngBounds();
 var days = {};
 var TouringGlobal = {
   mode: 'idle',
+  pending_deletion : false,
   directions_start: false,
   directions_end  : false,
   current_day : false
@@ -124,27 +125,29 @@ function route_options_for(mode, first_time) {
   if(mode == "insert") {
     origin      = current_day.prev_point();
     destination = current_day.point;
-    travel_mode = current_day.travel_mode;
     if(first_time) {
+      travel_mode = current_day.travel_mode;
       var polyline = google.maps.geometry.encoding.decodePath(current_day.raw_day.encoded_path);
       var half = Math.floor(polyline.length/2);
       waypoints = [{location: polyline[half], stopover: true}];
     } else {
+      travel_mode = $("#new_day #day_travel_mode :selected").val()
       waypoints = [{location: coords_to_google_point(JSON.parse($("#new_day #day_stop_coords").val())), stopover:true}];
     }
   } else if(mode == "edit") {
     origin      = current_day.prev_point();
     destination = current_day.next_point();
     waypoints   = current_day.waypoints;
-    travel_mode = current_day.travel_mode;
     if(first_time) {
-      if(destination) { 
+      travel_mode = current_day.travel_mode;
+      if(destination && (travel_mode === days[current_day.next_id].travel_mode)) { 
         waypoints = [{location: current_day.point, stopover:true}].concat(waypoints);
       } else {
         destination = current_day.point 
       }
     } else {
-      if(destination) {
+      travel_mode = $(current_day.day_id+" #day_travel_mode :selected").val();
+      if(destination && (travel_mode === days[current_day.next_id].travel_mode)) {
         waypoints = [{location: coords_to_google_point(JSON.parse($(current_day.day_id+" #day_stop_coords").val())), stopover:true}].concat(waypoints);
       } else {
         destination = coords_to_google_point(JSON.parse($(current_day.day_id+" #day_stop_coords").val())) 
@@ -259,7 +262,7 @@ function new_day_stats() {
   $("#new_day #day_stop_coords").val(JSON.stringify([base.end_location.lat(), base.end_location.lng()]))
 }
 function edit_day_stats() {
-  var id = current_editable_id();
+  var id = TouringGlobal.current_day.day_id; //current_editable_id();
   var base = directionsDisplay.directions.routes[0].legs[0];
   var dist = base.distance.value
   var total = meter_2_mile(trip.distance+dist)
@@ -289,15 +292,6 @@ function coords_to_google_point(coords) {
 }
 function google_points_to_coords(points) {
   return points.map(function(w){return [w.lat(), w.lng()]})
-}
-function current_new_day_index() {
-  return $("#indexable").children().index($("#new_day"));
-}
-function current_editable_day_index() {
-  return $(".edit_day").index($(".edit_day:visible"));
-}
-function current_editable_id() {
-  return "#"+$(".edit_day:visible").attr("id");
 }
 function enable_saving(bool) {
   if(bool) {

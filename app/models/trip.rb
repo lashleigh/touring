@@ -6,8 +6,8 @@ class Trip
   key :summary, String
   key :tags, Array
 
-  key :start_coords
-  key :start_location
+  key :start_coords, Array
+  key :start_location, String
   key :start_date, Date
   key :complete, Boolean, :default => false
   timestamps!
@@ -16,6 +16,7 @@ class Trip
   many :days, :dependent => :destroy
   many :users, :in => :partners
   belongs_to :user
+
   def start_coords=(x)
     if String === x and !x.blank?
       super(ActiveSupport::JSON.decode(x))

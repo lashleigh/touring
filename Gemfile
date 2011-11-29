@@ -13,7 +13,8 @@ end
 
 gem 'jquery-rails'
 
-gem 'bson_ext'
+gem 'mongo', '~> 1.4'
+gem 'bson_ext', '~>1.4'
 gem "mongo_mapper", "0.9.2"
 gem "json"
 gem "typhoeus"

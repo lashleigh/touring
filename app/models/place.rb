@@ -24,9 +24,6 @@ class Place < Locatable
   key :num_votes, Integer
   key :rating, Float
 
-  #relations to other models
-  #key :day_ids, Array
-
   many :users, :in => :voters
 
   def self.nearest(coords)
