@@ -1,3 +1,4 @@
+var base_height = (-1)*$("#trip_days_wrap").height()/2;
 function Day(day) {
   this.raw_day = day;
 
@@ -9,6 +10,10 @@ function Day(day) {
   this.id      = day.id
   this.prev_id = day.prev_id
   this.next_id = day.next_id
+  
+  base_height += $(this.day_id).height();
+  this.scroll_height = base_height;
+  
   marker = new google.maps.Marker({
     position: this.point,
     map: map,
@@ -31,26 +36,21 @@ function Day(day) {
   bounds.extend(this.point);
 }
 Day.prototype = {
-  insert: insert_day,
-  cancel: cancel_day, 
-  destroy: remove_day,
-  save: save_day,
-  edit: edit_day,  
   prev_point : function() {return days[this.prev_id] ? days[this.prev_id].point : coords_to_google_point(trip.start_coords)}, 
   next_point : function() {return days[this.next_id] ? days[this.next_id].point : false},
   mode_match : function() {return days[this].travel_mode === (days[this.next_id] ? days[this.next_id].travel_mode : false )}
 }
-function edit_day() {
+Day.prototype.edit_day = function() {
   TouringGlobal.mode = "edit"
   TouringGlobal.current_day = this;
   $(".edit_day").hide();
   $(this.day_id+" .edit_day").show();
   fade_neighbors(this);
-  this.polyline.setMap(null);
-  this.marker.setMap(null);
+  //this.polyline.setMap(null);
+  //this.marker.setMap(null);
   calc_route(route_options_for("edit", true), true);
 }
-function cancel_day() {
+Day.prototype.cancel = function() {
   var me = TouringGlobal.current_day
   $(me.day_id+" .edit_day").hide();
   unfade_neighbors(me);
@@ -78,7 +78,7 @@ function cancel_day() {
     TouringGlobal.pending_deletion = false;
   }
 }
-function save_day() {
+Day.prototype.save_day = function() {
   var current_day = TouringGlobal.current_day
   save_hidden_fields(this.day_id+" #day");
   save_hidden_fields(this.day_id+" #next_day");
@@ -115,7 +115,7 @@ function clean_the_trash(me) {
   me.polyline.setMap(null);
   //delete me; 
 }
-function insert_day() {
+Day.prototype.insert_day = function() {
   TouringGlobal.mode = "insert";
   TouringGlobal.current_day = this;
   fade_neighbors(this);
@@ -124,7 +124,7 @@ function insert_day() {
   hijack_new_form_for_insert(this);
   calc_route(route_options_for("insert", true), true);
 }
-function remove_day() {
+Day.prototype.destroy_day = function() {
   TouringGlobal.pending_deletion = this;
   $(this.day_id).hide();
   this.marker.setMap(null);
@@ -132,54 +132,56 @@ function remove_day() {
   delete days[this.id]
   if(this.next_id) {
     days[this.next_id].prev_id = this.prev_id;
-    days[this.next_id].edit();
+    days[this.next_id].edit_day();
   } else if(this.prev_id) {
     days[this.prev_id].next_id = this.next_id;
-    days[this.prev_id].edit();
+    days[this.prev_id].edit_day();
   }
+}
+Day.prototype.hovered_over = function() {
+  var me = this;
+  me.marker.setIcon("/assets/yellow_marker.png");
+  me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
+  $(me.day_id).addClass("highlighted").find(".modify .button").removeClass("hidden")
+}
+Day.prototype.hover_out = function() {
+  var me = this;
+  me.marker.setIcon("/assets/red_marker.png");
+  me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
+  $(me.day_id).removeClass("highlighted").find('.modify .button').addClass('hidden');
 }
 function set_marker_events(me) {
   google.maps.event.addListener(me.marker, 'mouseover', function() {
-    me.marker.setIcon("/assets/yellow_marker.png");
-    $(me.day_id).addClass("highlighted");
-    me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
+    me.hovered_over();
+    $("#trip_days_wrap").stop().animate({scrollTop: me.scroll_height}, 400)
   });
   google.maps.event.addListener(me.marker, 'mouseout', function() {
-    me.marker.setIcon("/assets/red_marker.png");
-    $(me.day_id).removeClass("highlighted");
-    me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
+    me.hover_out();
   });
   google.maps.event.addListener(me.marker, 'click', function() {
     me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
     me.marker.setIcon("/assets/yellow_marker.png");
+    flash_warning(me.info_text);
   })
 }
 function set_polyline_events(me) {
-  google.maps.event.addListener(me.polyline, 'click', function(event) {
-    flash_warning(me.info_text);
-  })
   google.maps.event.addListener(me.polyline, 'mouseover', function() {
-    me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
-    me.marker.setIcon("/assets/yellow_marker.png");
+    me.hovered_over();
+    $("#trip_days_wrap").stop().animate({scrollTop: me.scroll_height}, 400)
   })
   google.maps.event.addListener(me.polyline, 'mouseout', function() {
-    me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
-    me.marker.setIcon("/assets/red_marker.png");
+    me.hover_out();
   })
-  google.maps.event.addListener(me.marker, 'click', function() {
+  google.maps.event.addListener(me.polyline, 'click', function() {
     flash_warning(me.info_text);
-  });
+  })
 }
 function set_div_events(me) {
   $(me.day_id).live('mouseover', function() { 
     if(TouringGlobal.mode == "idle") {map.panTo(me.point);}
-    me.marker.setIcon("/assets/yellow_marker.png");
-    me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
-    $(this).find(".modify .button").removeClass("hidden")
+    me.hovered_over();
   }).live("mouseout", function() {
-    me.marker.setIcon("/assets/red_marker.png");
-    me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
-    $(this).find(".modify .button").addClass("hidden")
+    me.hover_out();
   }).live("click", function() {
     flash_warning(me.info_text);
   });
@@ -187,16 +189,16 @@ function set_div_events(me) {
 function set_div_button_events(me) {
   var cache = $(me.day_id);
   cache.find('.edit').live("click", function() {
-    me.edit();
+    me.edit_day();
   });
   cache.find('.insert').live("click", function() {
-    me.insert();
+    me.insert_day();
   });
   cache.find('.remove').live("click", function() {
-    me.destroy();
+    me.destroy_day();
   });
   cache.find('.edit_day .save').live("click", function() {
-    me.save();
+    me.save_day();
   });
   cache.find(".edit_day .cancel").live("click", function() {
     me.cancel();

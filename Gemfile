@@ -20,6 +20,7 @@ gem "json"
 gem "typhoeus"
 gem "quimby"
 gem 'geocoder'
+gem 'will_paginate', '~> 3.0'
 
 gem "omniauth", ">=0.2.6"
 group :test do  

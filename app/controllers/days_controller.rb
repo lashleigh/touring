@@ -123,14 +123,12 @@ class DaysController < ApplicationController
     if prev_d and next_d
       prev_d.next_id = next_d.id
       next_d.prev_id = prev_d.id
-      next_d.distance += @day.distance
-    elsif prev_d
+    elsif prev_d 
       prev_d.next_id = nil
     elsif next_d
-      next_d.prev_id = nil
-      next_d.distance += @day.distance
-      # next_d.route = @day.route + next_d.route
-      # next_d.waypoints.push(@day.waypoints)
+      next_d.prev_id = nil 
+    else
+      # In this case we've deleted the last day
     end
 
     respond_to do |format|

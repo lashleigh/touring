@@ -75,7 +75,7 @@ class Trip
     end
   end
   def best_append_coords
-    unless days.length < 2
+    unless self.ordered_days.length < 2
       distance = Geocoder::Calculations::distance_to_radians(self.average_distance/1621.371192)
       bearing = Geocoder::Calculations::to_radians(Geocoder::Calculations::bearing_between(self.last_day.prev_day, self.last_day))
       lat1, lng1 = Geocoder::Calculations::to_radians(self.last_day.stop_coords)

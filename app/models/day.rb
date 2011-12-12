@@ -108,15 +108,11 @@ class Day
   def do_something_after_create
     prev_d = self.prev_day
     next_d = self.next_day
-    if prev_d and next_d
-      prev_d.next_id = self.id
-      next_d.prev_id = self.id
-      prev_d.save
-      next_d.save
-    elsif prev_d
+    if prev_d
       prev_d.next_id = self.id
       prev_d.save
-    elsif next_d
+    end
+    if next_d
       next_d.prev_id = self.id
       next_d.save
     end
