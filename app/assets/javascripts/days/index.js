@@ -7,6 +7,7 @@ var directionsService = new google.maps.DirectionsService();
 var map;
 var bounds = new google.maps.LatLngBounds();
 var days = {};
+var base_height;
 var TouringGlobal = {
   mode: 'idle',
   pending_deletion : false,
@@ -18,6 +19,7 @@ var TouringGlobal = {
 $(function() {
   set_heights();
   $(window).resize(set_heights);
+  base_height = (-1)*$("#trip_days_wrap").height()/4.0;
   $("#new_day #save_new_day").live("click", save_day_and_add_to_table);
   $("#new_day #search").live("click", insert_or_append_day);
   $("#new_day .cancel").live("click", cancel);
@@ -53,6 +55,7 @@ $(function() {
   for(var i =0; i< ordered_days.length; i++) { 
     days[ordered_days[i].id] = new Day(ordered_days[i]);
   }
+  $("#trip_days_wrap").stop().animate({scrollTop: 0}, 400)
   //Without more than one day the map will go max zoom on a single point
   if(bounds.getNorthEast().toString() !== bounds.getSouthWest().toString()) {
     map.fitBounds(bounds)
@@ -64,7 +67,7 @@ function drawStartMarker() {
     position: trip.start_point,
     map: map,
     title: trip.start_location,
-    icon: "/assets/red_marker.png"
+    icon: icon('000', 'A'),// "/assets/red_marker.png"
   }); 
 }
 function insert_or_append_day() {

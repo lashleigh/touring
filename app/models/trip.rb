@@ -27,7 +27,7 @@ class Trip
   
   def serializable_hash(options = {})
     options ||= {}
-    super({:methods => [:best_append_coords]}.merge(options))
+    super({:methods => [:distance_data]}.merge(options))
   end
   def ordered_days
     days = []
@@ -67,16 +67,21 @@ class Trip
     end
     return distances
   end
-  def average_distance
+  def distance_data
     if days.length > 0
-      days.map{|d| d.distance}.sum / days.length 
+      data = {}
+      distances = days.map {|d| d.distance }
+      data['avg'] = distances.sum / days.length 
+      data['max'] = distances.max
+      data['min'] = distances.min
+      return data
     else 
-      return 0.0
+      return false 
     end
   end
   def best_append_coords
     unless self.ordered_days.length < 2
-      distance = Geocoder::Calculations::distance_to_radians(self.average_distance/1621.371192)
+      distance = Geocoder::Calculations::distance_to_radians(self.distance_data['avg']/1621.371192)
       bearing = Geocoder::Calculations::to_radians(Geocoder::Calculations::bearing_between(self.last_day.prev_day, self.last_day))
       lat1, lng1 = Geocoder::Calculations::to_radians(self.last_day.stop_coords)
       dLat = distance*Math.cos(bearing);

@@ -1,4 +1,29 @@
-var base_height = (-1)*$("#trip_days_wrap").height()/2;
+var greenMarker = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=|23ad23",
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+var blueMarker = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=|232aad",
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+var redMarker = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=|ad232a",
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+var yellowMarker = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=|e8e833",
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+function icon(color, symbol) {
+  return new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld="+symbol+"|"+color,
+    new google.maps.Size(40, 37),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 35));
+}
 function Day(day) {
   this.raw_day = day;
 
@@ -10,7 +35,21 @@ function Day(day) {
   this.id      = day.id
   this.prev_id = day.prev_id
   this.next_id = day.next_id
-  
+  this.color;
+  this.icon;
+
+  var dist_cor = (day.distance - trip.distance_data['avg']) / trip.distance_data['avg']
+  if(dist_cor < -0.5) {
+    this.color = '#23ad23';
+    this.icon = greenMarker;
+  } else if(dist_cor > 0.5) {
+    this.color = '#ad232a';
+    this.icon = redMarker;
+  } else {
+    this.color = '#232aad';
+    this.icon = blueMarker;
+  }
+   
   base_height += $(this.day_id).height();
   this.scroll_height = base_height;
   
@@ -18,12 +57,13 @@ function Day(day) {
     position: this.point,
     map: map,
     title: day.stop_location,
-    icon: "/assets/red_marker.png"
+    icon: this.icon, //"/assets/red_marker.png",
+    shadow: pinShadow
   });  
   polyline = new google.maps.Polyline({
     map           : map,
-    strokeColor   : '#9B30FF',
-    strokeOpacity : 0.8,
+    strokeColor   : this.color, 
+    strokeOpacity : 0.95,
     strokeWeight  : 4,
     path: google.maps.geometry.encoding.decodePath(day.encoded_path)
   })
@@ -33,6 +73,7 @@ function Day(day) {
   set_polyline_events(this);
   set_div_events(this);
   set_div_button_events(this);
+  $("#trip_days_wrap").stop().animate({scrollTop: this.scroll_height}, 400)
   bounds.extend(this.point);
 }
 Day.prototype = {
@@ -140,14 +181,14 @@ Day.prototype.destroy_day = function() {
 }
 Day.prototype.hovered_over = function() {
   var me = this;
-  me.marker.setIcon("/assets/yellow_marker.png");
-  me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
+  me.marker.setIcon(yellowMarker);
+  me.polyline.setOptions({strokeOpacity: 1.0, strokeWeight: 6});
   $(me.day_id).addClass("highlighted").find(".modify .button").removeClass("hidden")
 }
 Day.prototype.hover_out = function() {
   var me = this;
-  me.marker.setIcon("/assets/red_marker.png");
-  me.polyline.setOptions({strokeOpacity: 0.8, strokeWeight: 4});
+  me.marker.setIcon(me.icon);
+  me.polyline.setOptions({strokeOpacity: 0.95, strokeWeight: 4});
   $(me.day_id).removeClass("highlighted").find('.modify .button').addClass('hidden');
 }
 function set_marker_events(me) {
@@ -159,8 +200,6 @@ function set_marker_events(me) {
     me.hover_out();
   });
   google.maps.event.addListener(me.marker, 'click', function() {
-    me.polyline.setOptions({strokeOpacity: 0.9, strokeWeight: 8});
-    me.marker.setIcon("/assets/yellow_marker.png");
     flash_warning(me.info_text);
   })
 }
@@ -178,11 +217,13 @@ function set_polyline_events(me) {
 }
 function set_div_events(me) {
   $(me.day_id).live('mouseover', function() { 
-    if(TouringGlobal.mode == "idle") {map.panTo(me.point);}
+    // This means that panning only happens when the marker is both out of view and the map is zoomed out.
+    if(TouringGlobal.mode == "idle" && !map.getBounds().contains(me.point) && map.getZoom() <= 7 ) {map.panTo(me.point);}
     me.hovered_over();
   }).live("mouseout", function() {
     me.hover_out();
   }).live("click", function() {
+    map.panTo(me.point);
     flash_warning(me.info_text);
   });
 }
@@ -202,6 +243,9 @@ function set_div_button_events(me) {
   });
   cache.find(".edit_day .cancel").live("click", function() {
     me.cancel();
+  });
+  cache.find('#day_stop_location').change(function() {
+    calc_route(route_options_for("edit", false), false);
   });
   cache.find("#day_travel_mode").change(function() {
     // By making it true changes in latlng due to bike
