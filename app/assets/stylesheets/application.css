@@ -3,13 +3,5 @@
  * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
  * the top of the compiled file, but it's generally better to create a new file per style scope.
  *= require_self
- //commented//*= require_tree . 
+ *= require_tree . 
 */
-@import 'reset.css.less';
-@import 'base.css.less';
-@import 'gh-buttons.css';
-@import 'headfoot.css.less';
-@import 'd3.css.less';
-@import 'days/index.css.less';
-@import 'user/show.css.less';
-@import 'trips/new.css.less';
