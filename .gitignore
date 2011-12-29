@@ -1,5 +1,5 @@
 .bundle
-mongo_data/*
+mongo_data/
 db/*.sqlite3
 log/*.log
 tmp/
