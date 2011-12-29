@@ -6,9 +6,9 @@ gem "rails", "3.1.0"
 # in production environments by default.
 group :assets do
   gem 'less'
+  gem 'uglifier'
   gem 'sass-rails', "  ~> 3.1.0"
   gem 'coffee-rails', "~> 3.1.0"
-  gem 'uglifier'
 end
 
 gem 'jquery-rails'
@@ -25,8 +25,6 @@ gem 'will_paginate', '~> 3.0'
 gem "omniauth", ">=0.2.6"
 group :test do  
   gem "factory_girl_rails"  
-  gem "capybara"  
-  gem "guard-rspec"  
   gem 'turn', :require => false
 end  
 
