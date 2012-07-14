@@ -16,13 +16,13 @@ class User
   many :days, :through => :trips
 
   def self.create_with_omniauth(auth)  
-    user = User.new(:name => auth["user_info"]["name"], 
-                    :location => auth["user_info"]["location"], 
-                    :email => auth["user_info"]["email"],
-                    :description => auth["user_info"]["description"],
-                    :image => auth["user_info"]["image"]
+    user = User.new(:name => auth["info"]["name"], 
+                    :location => auth["info"]["location"], 
+                    :email => auth["info"]["email"],
+                    :description => auth["info"]["description"],
+                    :image => auth["info"]["image"]
                    )
-                    #:website => auth["user_info"]["urls"].first.last,
+                    #:website => auth["info"]["urls"].first.last,
     user.authorizations.push(Authorization.new(:provider => auth["provider"], :uid => auth["uid"]))
     user.save
     return user

@@ -1,22 +1,23 @@
 source 'http://rubygems.org'
 
-gem "rails", "3.1.0"
+gem "rails", "3.2.0"
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
+  gem 'therubyracer'
   gem 'less'
   gem 'uglifier'
-  gem 'sass-rails', "  ~> 3.1.0"
-  gem 'coffee-rails', "~> 3.1.0"
 end
 
 gem 'jquery-rails'
 
-gem 'mongo', '~> 1.4'
-gem 'bson_ext', '~>1.4'
-gem "mongo_mapper", "0.9.2"
+gem 'mongo'
+gem 'bson_ext'
+gem "mongo_mapper", :git => 'git://github.com/jnunemaker/mongomapper.git'
 gem "json"
+gem 'omniauth-foursquare'
+
 gem "typhoeus"
 gem "quimby"
 gem 'geocoder'
